@@ -24,35 +24,12 @@ type DeviceResult = {
   description: string;
 };
 
-// Mock for now
 const searchDevices = async (query: string): Promise<DeviceResult[]> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  return [
-    {
-      id: "1",
-      name: "Cardiac Pacemaker",
-      manufacturer: "Medtronic Inc.",
-      deviceClass: "Class III",
-      description:
-        "Implantable device that helps control abnormal heart rhythms.",
-    },
-    {
-      id: "2",
-      name: "Blood Glucose Monitor",
-      manufacturer: "Abbott Laboratories",
-      deviceClass: "Class II",
-      description: "Portable device for measuring blood glucose concentration.",
-    },
-    {
-      id: "3",
-      name: "Surgical Suture",
-      manufacturer: "Johnson & Johnson",
-      deviceClass: "Class I",
-      description:
-        "Medical device used to hold body tissues together after injury or surgery.",
-    },
-  ];
+  const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch search results");
+  }
+  return response.json();
 };
 
 export const SearchForm = () => {
