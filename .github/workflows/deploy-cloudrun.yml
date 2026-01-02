@@ -23,8 +23,8 @@ jobs:
       - id: auth
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+          workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.GCP_DEPLOYER_SA }}
 
       - uses: google-github-actions/setup-gcloud@v2
         with:
@@ -37,4 +37,4 @@ jobs:
             --region $REGION \
             --allow-unauthenticated \
             --service-account $RUNTIME_SA \
-            --set-env-vars INDEX_BUCKET=${{ secrets.INDEX_BUCKET }},INDEX_OBJECT=${{ secrets.INDEX_OBJECT }}
+            --set-env-vars INDEX_BUCKET=${{ env.INDEX_BUCKET }},INDEX_OBJECT=${{ env.INDEX_OBJECT }}
