@@ -7,9 +7,8 @@ export default function Home() {
       <Stack spaceY={6}>
         <Heading>Centered content</Heading>
         <Text>This content is constrained to a readable max-width.</Text>
-
         <FullBleed>
-          <Box py={{ base: 14, md: 20 }} bg="gray.900" color="white">
+          <Box py={{ base: 14, md: 20 }}>
             <Box maxW="60ch" mx="auto" px={{ base: 4, md: 6, lg: 8 }}>
               <Heading size="lg">Full-bleed section</Heading>
               <Text mt={3} opacity={0.9}>

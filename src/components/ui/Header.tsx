@@ -14,7 +14,6 @@ export function Header() {
       borderColor="gray.200"
       _dark={{ borderColor: "gray.700" }}
     >
-      {/* Full-width bar, centered inner */}
       <Flex
         maxW="60ch"
         mx="auto"
@@ -25,19 +24,9 @@ export function Header() {
       >
         <HStack>
           <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
-            <Text fontWeight="semibold">MySite</Text>
+            <Text fontWeight="semibold">Medical Device Search Engine</Text>
           </Link>
-
-          <HStack fontSize="sm" color="gray.600" _dark={{ color: "gray.300" }}>
-            <Link as={NextLink} href="/about">
-              About
-            </Link>
-            <Link as={NextLink} href="/blog">
-              Blog
-            </Link>
-          </HStack>
         </HStack>
-
         <ColorModeButton />
       </Flex>
     </Box>

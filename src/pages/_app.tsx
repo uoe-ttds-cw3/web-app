@@ -8,10 +8,8 @@ import type { AppProps } from "next/app";
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider>
+      <Header />
       <PageLayout>
-        <FullBleed>
-          <Header />
-        </FullBleed>
         <Component {...pageProps} />;
       </PageLayout>
     </Provider>
