@@ -1,48 +1,75 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-type DeviceResult = {
-  id: string;
-  name: string;
-  manufacturer: string;
-  deviceClass: string;
-  description: string;
+const API_BASE = process.env.API_BASE || "http://kotegawa.org:41592";
+
+export type SearchResultItem = {
+  submission_number: string;
+  device_name: string;
+  sponsor: string;
+  relevance_score: number;
+  snippet: string | null;
+  product_code: string | null;
+  panel: string | null;
+  decision: string | null;
+  decision_date: string | null;
 };
 
-type Data = DeviceResult[];
+export type QueryDebugInfo = {
+  original_query: string;
+  processed_terms: string[];
+  phrases_detected: string[][];
+  proximity_constraints: string[];
+  required_terms: string[];
+  excluded_terms: string[];
+  is_boolean_query: boolean;
+  stemming_applied: boolean;
+  stopwords_removed: boolean;
+  bm25_candidates: number;
+  dense_candidates: number;
+  filtered_by_constraints: number;
+  retrieval_time_ms: number;
+};
+
+export type SearchResponse = {
+  results: SearchResultItem[];
+  total_results: number;
+  debug_info: QueryDebugInfo | null;
+};
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<SearchResponse | { error: string }>
 ) {
-  // Add 1 second delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  const { q, limit = "10", panel, product_code, decision } = req.query;
 
-  // Return mock data
-  const mockDevices: DeviceResult[] = [
-    {
-      id: "1",
-      name: "Cardiac Pacemaker",
-      manufacturer: "Medtronic Inc.",
-      deviceClass: "Class III",
-      description:
-        "Implantable device that helps control abnormal heart rhythms.",
-    },
-    {
-      id: "2",
-      name: "Blood Glucose Monitor",
-      manufacturer: "Abbott Laboratories",
-      deviceClass: "Class II",
-      description: "Portable device for measuring blood glucose concentration.",
-    },
-    {
-      id: "3",
-      name: "Surgical Suture",
-      manufacturer: "Johnson & Johnson",
-      deviceClass: "Class I",
-      description:
-        "Medical device used to hold body tissues together after injury or surgery.",
-    },
-  ];
+  if (!q || typeof q !== "string") {
+    return res.status(400).json({ error: "Query parameter 'q' is required" });
+  }
 
-  res.status(200).json(mockDevices);
+  const params = new URLSearchParams({
+    q,
+    limit: String(limit),
+  });
+
+  if (panel && typeof panel === "string") params.append("panel", panel);
+  if (product_code && typeof product_code === "string")
+    params.append("product_code", product_code);
+  if (decision && typeof decision === "string")
+    params.append("decision", decision);
+
+  try {
+    const response = await fetch(`${API_BASE}/api/search?${params.toString()}`);
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("Backend error:", response.status, text);
+      return res.status(response.status).json({ error: text });
+    }
+
+    const data: SearchResponse = await response.json();
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error("Search error:", error);
+    return res.status(500).json({ error: "Failed to fetch search results" });
+  }
 }
