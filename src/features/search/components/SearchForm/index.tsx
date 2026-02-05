@@ -1,4 +1,4 @@
-import { Box, Button, Input, InputGroup } from "@chakra-ui/react";
+import { Input, InputGroup } from "@chakra-ui/react";
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 
@@ -20,12 +20,6 @@ export const SearchForm = () => {
         colorPalette="green"
         placeholder="Search by manufacturer, material, recall event"
       ></Input>
-      <Box>
-        {categories.map((category) => (
-          // Custom component
-          <Box></Box>
-        ))}
-      </Box>
     </InputGroup>
   );
 };
