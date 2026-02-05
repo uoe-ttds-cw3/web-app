@@ -1,17 +1,32 @@
+import {
+  Device,
+  DeviceSummaryCard,
+} from "@/features/search/components/DeviceSummaryCard";
 import { SearchForm } from "@/features/search/components/SearchForm";
-import { Heading, Stack, Text, VStack } from "@chakra-ui/react";
+import { Stack } from "@chakra-ui/react";
+
+const FAKE: Device[] = [
+  {
+    id: "K123",
+    name: "Device A",
+    manufacturer: "Epson",
+    date: "2026-01-01",
+    panel: "Cardiovascular",
+    recalls: 3,
+  },
+];
 
 export default function Home() {
+  const results = FAKE;
+
   return (
-    <Stack spaceY={8}>
-      {/* Search Section */}
-      <VStack spaceY={4} align="stretch">
-        <Heading size="2xl">Medical Device Search</Heading>
-        <Text color="gray.600" _dark={{ color: "gray.400" }}>
-          Search for medical devices using natural language queries
-        </Text>
-        <SearchForm />
-      </VStack>
-    </Stack>
+    <div>
+      <SearchForm />
+      <Stack>
+        {results.map((device) => (
+          <DeviceSummaryCard device={device} />
+        ))}
+      </Stack>
+    </div>
   );
 }
