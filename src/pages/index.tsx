@@ -1,7 +1,9 @@
+import { useState } from "react";
 import {
   Device,
   DeviceSummaryCard,
 } from "@/features/search/components/DeviceSummaryCard";
+import { NavBar } from "@/features/search/components/NavBar";
 import { SearchForm } from "@/features/search/components/SearchForm";
 import { Stack } from "@chakra-ui/react";
 
@@ -18,10 +20,15 @@ const FAKE: Device[] = [
 
 export default function Home() {
   const results = FAKE;
+  const [selectedCategory, setSelectedCategory] = useState<string>();
 
   return (
     <div>
       <SearchForm />
+      <NavBar
+        selectedCategory={selectedCategory}
+        onCategorySelect={setSelectedCategory}
+      />
       <Stack>
         {results.map((device) => (
           <DeviceSummaryCard device={device} />
