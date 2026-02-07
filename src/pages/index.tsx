@@ -4,8 +4,9 @@ import {
   DeviceSummaryCard,
 } from "@/features/search/components/DeviceSummaryCard";
 import { NavBar } from "@/features/search/components/NavBar";
+import { LeftDrawer } from "@/features/search/components/LeftDrawer";
 import { SearchForm } from "@/features/search/components/SearchForm";
-import { Stack } from "@chakra-ui/react";
+import { Stack, Grid, GridItem, Flex } from "@chakra-ui/react";
 
 const FAKE: Device[] = [
   {
@@ -29,11 +30,14 @@ export default function Home() {
         selectedCategory={selectedCategory}
         onCategorySelect={setSelectedCategory}
       />
-      <Stack>
-        {results.map((device) => (
-          <DeviceSummaryCard device={device} />
-        ))}
-      </Stack>
+      <Flex gap="4">
+        <LeftDrawer />
+        <Stack>
+          {results.map((device) => (
+            <DeviceSummaryCard device={device} />
+          ))}
+        </Stack>
+      </Flex>
     </div>
   );
 }
