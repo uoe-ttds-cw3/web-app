@@ -7,18 +7,18 @@ type Category = {
   name: string;
 };
 
-type NavBarProps = {
+export type NavBarProps = {
   categories?: Category[];
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
 };
 
-type PanelsResponse = {
+export type PanelsResponse = {
   panels: { code: string; name: string; device_count: number }[];
   total_panels: number;
 };
 
-const fetchPanels = async (): Promise<Category[]> => {
+export const fetchPanels = async (): Promise<Category[]> => {
   const response = await fetch("/api/panels");
   if (!response.ok) {
     throw new Error("Failed to fetch panels");
@@ -49,7 +49,12 @@ export const NavBar = ({
 
   return (
     <Box padding="24px 0">
-      <Text fontSize="xl" fontWeight="semibold" marginBottom="0.5rem" color="#266429">
+      <Text
+        fontSize="xl"
+        fontWeight="semibold"
+        marginBottom="0.5rem"
+        color="#266429"
+      >
         <Icon as={PiMedalDuotone} marginRight="8px" />
         Search by Category
       </Text>
@@ -57,14 +62,12 @@ export const NavBar = ({
       {/* Error state */}
       {error && (
         <Text color="red.500" fontSize="sm">
-          Error: {error instanceof Error ? error.message : "Failed to load categories"}
+          Error:{" "}
+          {error instanceof Error ? error.message : "Failed to load categories"}
         </Text>
       )}
 
-      <Flex
-        overflowX="auto"
-        paddingBottom="8px"
-      >
+      <Flex overflowX="auto" paddingBottom="8px">
         {isFetching ? (
           <>
             <Skeleton height="40px" width="50rem" />
@@ -98,7 +101,6 @@ export const NavBar = ({
           Selected: {categories.find(c => c.id === selectedCategory)?.name}
         </Text>
       )} */}
-
     </Box>
   );
 };
