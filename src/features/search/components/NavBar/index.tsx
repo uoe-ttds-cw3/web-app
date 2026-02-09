@@ -63,7 +63,6 @@ export const NavBar = ({
 
       <Flex
         overflowX="auto"
-        paddingBottom="8px"
       >
         {isFetching ? (
           <>

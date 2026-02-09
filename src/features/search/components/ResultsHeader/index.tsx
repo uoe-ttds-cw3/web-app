@@ -12,7 +12,6 @@ export const ResultsHeader = ({numResults = 0}: ResultsHeaderProps) => {
 
     return (
         <Box
-            paddingTop="16px"
             paddingBottom="16px"  
             color="#266429"
             display="flex"
@@ -24,10 +23,11 @@ export const ResultsHeader = ({numResults = 0}: ResultsHeaderProps) => {
                 Found {numResults == 0 ? "no" : numResults} device{numResults==1 ? "" : "s"}...
             </Text>
             <Box>
-                <NativeSelect.Root width="190px" borderRadius="8px">
+                <NativeSelect.Root width="190px" borderRadius="8px" border="none">
                 <NativeSelect.Field 
                     textAlign="right" 
                     paddingRight="30px"
+                    border="none"
                     value={sort}
                     onChange={(e) => setValue(e.currentTarget.value)}
                 >

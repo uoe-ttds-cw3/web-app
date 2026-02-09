@@ -28,11 +28,11 @@ export default function Home() {
   return (
     <div>
       <SearchForm />
-      <ResultsHeader numResults={results.length} />
       <NavBar
         selectedCategory={selectedCategory}
         onCategorySelect={setSelectedCategory}
       />
+      <ResultsHeader numResults={results.length} />
       <Stack>
         {results.map((device) => (
           <DeviceSummaryCard device={device} />
