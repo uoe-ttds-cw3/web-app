@@ -51,18 +51,18 @@ export const DeviceSummaryCard = ({
       <Grid color="#266429" gridTemplate="1fr / 4fr 1fr">
         <Box>
           <Link color="#266429" href={`/devices/${id}`}><u><b>{name}</b></u></Link>
-          <Text>{manufacturer}</Text>
-          <Text>Date cleared: {date}</Text>
-          <Text>Panel: {panel}</Text>
-          <Text>Product Code: {pCode}</Text>
-          <Text>Number of recalls: {recalls}</Text>
-          <Text>Available: {availability ? "Yes" : "No"} </Text>
+          <Text>Manufacturer: <Box as="span" color="black">{manufacturer}</Box></Text>
+          <Text>Date cleared: <Box as="span" color="black">{date}</Box></Text>
+          <Text>Panel: <Box as="span" color="black">{panel}</Box></Text>
+          <Text>Product Code: <Box as="span" color="black">{pCode}</Box></Text>
+          <Text>Number of recalls: <Box as="span" color="black">{recalls}</Box></Text>
+          <Text>Available: <Box as="span" color="black">{availability ? "Yes" : "No"}</Box></Text>
         </Box>
         <Box display="flex" flexDirection="column" height="100%">
           <Text textAlign="right">
             <Link color="#266429" href="www.example.com"><u>Documentation</u>⧉</Link>
           </Text>
-          <ToggleCompared />
+          < ToggleCompared />
         </Box>
       </Grid>
     </Box>
