@@ -1,10 +1,6 @@
 import { Input, InputGroup, Box, Text, Link } from "@chakra-ui/react";
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { FaSearch } from "react-icons/fa";
-
-function applyFilter(filter: String){
-  //do something
-}
 
 export const SearchForm = () => {
   const categories = ["A", "B"]; // probs come from a fetch
@@ -13,7 +9,10 @@ export const SearchForm = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const [searchFocused, setSearchFocused] = useState(false);
-  const filters = ["Product Code", "Device Class", "Panel Code"];
+  const autofillResults = ["option 1", "option 2", "option 3"];
+
+  function applyAutofill(fill: String){
+  }
 
   // using react hook form
   // in onValid callback func
@@ -43,15 +42,27 @@ export const SearchForm = () => {
             background="#FFFFFFFF"
             borderRadius="8px"
             marginTop="8px"
-            padding="16px"
             position="absolute"
             zIndex={10}
             colorPalette="green"
             onMouseDown={(e) => e.preventDefault()}
          
           >
-            {filters.map(x => (
-              <Text>Search <Link href="#" onClick={() => applyFilter(x)}><u>{x}</u></Link> for: {searchTerm}</Text>
+            {autofillResults.map((x, index) => (
+              <Link
+                key={index}
+                onClick={() => applyAutofill(x)}
+                display="block"
+                width="100%"
+                padding="8px 12px"
+                borderRadius="8px"
+                _hover={{ 
+                  bg: "#00000011",
+                }}
+                cursor="pointer"
+              >
+                <Text>{x}</Text>
+              </Link>
             ))}
           </Box>
         )}
