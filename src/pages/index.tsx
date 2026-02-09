@@ -3,6 +3,7 @@ import {
   Device,
   DeviceSummaryCard,
 } from "@/features/search/components/DeviceSummaryCard";
+import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { NavBar } from "@/features/search/components/NavBar";
 import { SearchForm } from "@/features/search/components/SearchForm";
 import { Stack } from "@chakra-ui/react";
@@ -14,7 +15,9 @@ const FAKE: Device[] = [
     manufacturer: "Epson",
     date: "2026-01-01",
     panel: "Cardiovascular",
+    pCode: "LIW",
     recalls: 3,
+    availability: true,
   },
 ];
 
@@ -29,6 +32,7 @@ export default function Home() {
         selectedCategory={selectedCategory}
         onCategorySelect={setSelectedCategory}
       />
+      <ResultsHeader numResults={results.length} />
       <Stack>
         {results.map((device) => (
           <DeviceSummaryCard device={device} />
