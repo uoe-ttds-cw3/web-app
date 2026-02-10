@@ -1,27 +1,34 @@
 import { Input, InputGroup, Box, Text, Link } from "@chakra-ui/react";
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useState, useEffect } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import { FilterMenu } from "../FilterMenu";
 import { SearchTags } from "../SearchTags";
+import { useAutocomplete } from "@/lib/queries/useAutocomplete";
 
-export const SearchForm = () => {
-  const categories = ["A", "B"]; // probs come from a fetch
+interface SearchFormProps {
+  onSearch?: (query: string) => void;
+  initialQuery?: string;
+}
 
-  const [searchTerm, setSearchTerm] = useState("");
+export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
+  const [searchTerm, setSearchTerm] = useState(initialQuery ?? "");
   const [selectedCategory, setSelectedCategory] = useState("");
+
+  useEffect(() => {
+    if (initialQuery !== undefined) setSearchTerm(initialQuery);
+  }, [initialQuery]);
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [filterFocused, setFilterFocused] = useState(false);
   const [tags, setTags] = useState<Array<{ id: string; type: string; value: string }>>([]);
-  const autofillResults = ["option 1", "option 2", "option 3"];
+
+  const { data: autocompleteData } = useAutocomplete(searchTerm);
+  const suggestions = autocompleteData?.suggestions ?? [];
 
   const filterTypeMap = {
     category: "Category",
     productCode: "Product Code"
   };
-
-  function applyAutofill(fill: String) {
-  }
 
   function applyFilter(filterId: string) {
     const filterType = filterTypeMap[filterId as keyof typeof filterTypeMap];
@@ -95,11 +102,18 @@ export const SearchForm = () => {
           placeholder={tags.length > 0 ? "" : "Search by manufacturer, material, recall event"}
           border="none"
           _focus={{ boxShadow: "none", outline: "none" }}
+          value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setSearchFocused(true)}
           onBlur={() => {
             setSearchFocused(false);
             setFilterFocused(false);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onSearch?.(searchTerm);
+              setSearchFocused(false);
+            }
           }}
         />
 
@@ -122,7 +136,7 @@ export const SearchForm = () => {
         <Text>Search key: {searchTerm || "(none)"}</Text>
       </Box> */}
 
-      {(searchFocused) && (
+      {searchFocused && suggestions.length > 0 && (
         <Box
           width="100%"
           background="#FFFFFFFF"
@@ -130,14 +144,17 @@ export const SearchForm = () => {
           marginTop="8px"
           position="absolute"
           zIndex={10}
-          colorPalette="green"
+          boxShadow="md"
           onMouseDown={(e) => e.preventDefault()}
-
         >
-          {autofillResults.map((x, index) => (
+          {suggestions.map((suggestion, index) => (
             <Link
-              key={index}
-              onClick={() => applyAutofill(x)}
+              key={`${suggestion.text}-${index}`}
+              onClick={() => {
+                setSearchTerm(suggestion.text);
+                onSearch?.(suggestion.text);
+                setSearchFocused(false);
+              }}
               display="block"
               width="100%"
               padding="8px 12px"
@@ -148,7 +165,8 @@ export const SearchForm = () => {
               }}
               cursor="pointer"
             >
-              <Text>{x}</Text>
+              <Text fontSize="sm">{suggestion.text}</Text>
+              <Text fontSize="xs" color="#999">{suggestion.source.replace('_', ' ')}</Text>
             </Link>
           ))}
         </Box>

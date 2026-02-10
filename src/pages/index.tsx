@@ -1,43 +1,148 @@
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import {
-  Device,
   DeviceSummaryCard,
 } from "@/features/search/components/DeviceSummaryCard";
 import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { NavBar } from "@/features/search/components/NavBar";
 import { SearchForm } from "@/features/search/components/SearchForm";
-import { Stack } from "@chakra-ui/react";
-
-const FAKE: Device[] = [
-  {
-    id: "K123",
-    name: "Device A",
-    manufacturer: "Epson",
-    date: "2026-01-01",
-    panel: "Cardiovascular",
-    pCode: "LIW",
-    recalls: 3,
-    availability: true,
-  },
-];
+import { StartSearching } from "@/features/search/components/StartSearching";
+import { Stack, Text, Box, Spinner } from "@chakra-ui/react";
+import { useSearch } from "@/lib/queries/useSearch";
+import { transformSearchResult } from "@/lib/api/types";
+import { toaster } from "@/components/ui/Toaster";
 
 export default function Home() {
-  const results = FAKE;
-  const [selectedCategory, setSelectedCategory] = useState<string>();
+  const router = useRouter();
+  const query = (router.query.q as string) || '';
+  const panel = (router.query.panel as string) || undefined;
+
+  const { data, isFetching, isLoading, error } = useSearch(query, { panel, limit: 20 });
+  const results = data?.results.map(transformSearchResult) ?? [];
+
+  // Show error toast when search fails
+  useEffect(() => {
+    if (error) {
+      toaster.create({
+        title: "Search failed",
+        description: error instanceof Error ? error.message : 'Failed to fetch search results',
+        type: "error",
+        duration: Infinity, // Persist until dismissed
+      });
+    }
+  }, [error]);
+
+  const handleSearch = (newQuery: string) => {
+    router.push({
+      pathname: '/',
+      query: { ...router.query, q: newQuery }
+    }, undefined, { shallow: true });
+  };
+
+  const handleCategorySelect = (panelCode?: string) => {
+    if (panelCode) {
+      router.push({
+        pathname: '/',
+        query: { ...router.query, panel: panelCode }
+      }, undefined, { shallow: true });
+    } else {
+      const { panel: _removed, ...rest } = router.query;
+      router.push({
+        pathname: '/',
+        query: rest
+      }, undefined, { shallow: true });
+    }
+  };
+
+  // Show "Start Searching" when no query
+  if (!query && results.length === 0) {
+    return (
+      <div>
+        <SearchForm onSearch={handleSearch} initialQuery={query} />
+        <NavBar
+          selectedCategory={panel}
+          onCategorySelect={handleCategorySelect}
+        />
+        <StartSearching onSuggest={handleSearch} />
+      </div>
+    );
+  }
 
   return (
     <div>
-      <SearchForm />
+      <SearchForm onSearch={handleSearch} initialQuery={query} />
       <NavBar
-        selectedCategory={selectedCategory}
-        onCategorySelect={setSelectedCategory}
+        selectedCategory={panel}
+        onCategorySelect={handleCategorySelect}
       />
-      <ResultsHeader numResults={results.length} />
-      <Stack>
-        {results.map((device) => (
-          <DeviceSummaryCard device={device} />
-        ))}
-      </Stack>
+
+      {/* First load - centered spinner */}
+      {isLoading && (
+        <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" padding="40px">
+          <Spinner size="lg" color="#266429" />
+          <Text color="#266429" marginTop="16px" fontSize="lg">Searching...</Text>
+        </Box>
+      )}
+
+      {/* Results with loading overlay */}
+      {data && (
+        <Box position="relative">
+          {/* Loading overlay on top of stale results */}
+          {isFetching && (
+            <Box
+              position="absolute"
+              inset="0"
+              bg="whiteAlpha.700"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              zIndex="5"
+            >
+              <Box display="flex" flexDirection="column" alignItems="center">
+                <Spinner size="lg" color="#266429" />
+                <Text color="#266429" marginTop="16px" fontSize="lg">Searching...</Text>
+              </Box>
+            </Box>
+          )}
+
+          {/* Empty results state */}
+          {data.results.length === 0 ? (
+            <Box textAlign="center" padding="40px" color="#666">
+              <Text fontSize="lg" fontWeight="bold" color="#266429" mb="2">
+                No results found for &quot;{query}&quot;
+              </Text>
+              <Text mb="4">Try a different search term:</Text>
+              <Box display="flex" gap="8px" justifyContent="center" flexWrap="wrap">
+                {["insulin pump", "pacemaker", "catheter", "hip implant", "blood pressure"].map((suggestion) => (
+                  <Box
+                    key={suggestion}
+                    as="button"
+                    onClick={() => handleSearch(suggestion)}
+                    padding="6px 16px"
+                    borderRadius="20px"
+                    backgroundColor="#4CAF5020"
+                    color="#266429"
+                    fontSize="sm"
+                    cursor="pointer"
+                    _hover={{ backgroundColor: "#4CAF5040" }}
+                  >
+                    {suggestion}
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          ) : (
+            <>
+              <ResultsHeader numResults={data.total_results} />
+              <Stack>
+                {results.map((device) => (
+                  <DeviceSummaryCard key={device.id} device={device} />
+                ))}
+              </Stack>
+            </>
+          )}
+        </Box>
+      )}
     </div>
   );
 }

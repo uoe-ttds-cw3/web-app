@@ -15,7 +15,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { SearchFormData, searchSchema } from "./schema";
-import type { SearchResponse, SearchResultItem } from "@/pages/api/search";
+import type { SearchResponse, SearchResultItem } from "@/lib/api/types";
 
 const searchDevices = async (query: string): Promise<SearchResponse> => {
   const response = await fetch(
@@ -196,13 +196,13 @@ export const OldSearchForm = () => {
               Searched: {debugInfo.processed_terms.join(", ")}
               {debugInfo.phrases_detected.length > 0 &&
                 ` | Phrases: ${debugInfo.phrases_detected
-                  .map((p) => `"${p.join(" ")}"`)
+                  .map((p: any) => `"${p.join(" ")}"`)
                   .join(", ")}`}
             </Text>
           )}
 
           <Stack gap={4}>
-            {results.map((device) => (
+            {results.map((device: any) => (
               <DeviceCard key={device.submission_number} device={device} />
             ))}
           </Stack>
