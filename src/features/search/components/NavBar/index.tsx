@@ -72,7 +72,7 @@ export const NavBar = ({
           categories.map((category, index) => (
             <Button
               key={category.id}
-              onClick={() => onCategorySelect?.(category.id)}
+              onClick={() => onCategorySelect?.(selectedCategory === category.id ? "" : category.id)}
               backgroundColor={
                 selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
               }
