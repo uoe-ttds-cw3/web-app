@@ -1,5 +1,6 @@
-import { Box, Text, Heading, Grid, Badge, Separator } from "@chakra-ui/react";
+import { Box, Text, Heading, Grid, Badge, Separator, Link as ChakraLink } from "@chakra-ui/react";
 import { useState } from "react";
+import Link from "next/link";
 import type { DeviceLookupResponse, LineageResponse, SafetyProfileResponse } from "@/lib/api/types";
 
 type DeviceDetailedProps = {
@@ -119,7 +120,20 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
             {lineage.direct_predicates.length > 0 && (
               <Box marginBottom="8px">
                 <Text color="#266429" fontWeight="bold">Direct Predicates:</Text>
-                <Text color="black">{lineage.direct_predicates.join(', ')}</Text>
+                <Box>
+                  {lineage.direct_predicates.map((predicate, index) => (
+                    <Box key={predicate} display="inline">
+                      <Link href={`/devices/${predicate}`}>
+                        <ChakraLink color="#266429" textDecoration="underline" cursor="pointer">
+                          {predicate}
+                        </ChakraLink>
+                      </Link>
+                      {index < lineage.direct_predicates.length - 1 && (
+                        <Text display="inline" color="black" marginX="4px">,</Text>
+                      )}
+                    </Box>
+                  ))}
+                </Box>
               </Box>
             )}
             {lineage.pagerank !== null && (
