@@ -40,7 +40,7 @@ export const SearchTags = ({ filterType, value, onChange, onRemove }: SearchTags
         padding="2px 6px"
         height="auto"
         minWidth="50px"
-        width={value ? `${Math.max(50, value.length * 6)}px` : "50px"}
+        width={value ? `${Math.max(10, value.length * 4)}px` : "50px"}
         _focus={{
           outline: "none",
           boxShadow: "none",
