@@ -104,7 +104,10 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
           border="none"
           _focus={{ boxShadow: "none", outline: "none" }}
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            if (!searchFocused) setSearchFocused(true);
+          }}
           onFocus={() => setSearchFocused(true)}
           onBlur={() => {
             setSearchFocused(false);
