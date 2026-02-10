@@ -30,7 +30,7 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
         <Heading size="xl" color="#266429" marginBottom="8px">
           {device.device_name}
         </Heading>
-        <Badge colorScheme="gray" fontSize="md" marginBottom="8px">
+        <Badge colorScheme="gray" fontSize="md" marginBottom="8px" padding="4px 8px">
           {device.submission_number}
         </Badge>
         <Text fontSize="lg" color="black">
@@ -148,7 +148,7 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
                 <Text
                   color={
                     safety.recall_count === 0
-                      ? 'green.600'
+                      ? '#266429'
                       : safety.recall_count <= 5
                       ? 'yellow.600'
                       : 'red.600'

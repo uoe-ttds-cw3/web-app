@@ -57,6 +57,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
       {filterFocused && (
         <Box
           position="fixed"
+          inset="0"
           zIndex={9}
           onClick={() => setFilterFocused(false)}
         />

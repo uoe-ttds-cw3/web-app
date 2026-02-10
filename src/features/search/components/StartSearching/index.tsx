@@ -10,7 +10,7 @@ export const StartSearching = ({ onSuggest }: StartSearchingProps) => {
     <Center padding="1rem">
       <VStack spaceY={-1.5}>
         <Icon as={PiStethoscopeDuotone} fontSize="120px" color="#D9D9D9" />
-        <Text fontSize="lg" fontWeight="bold" color="#4CAF50DB" mb="2">
+        <Text fontSize="lg" fontWeight="bold" color="#266429" mb="2">
           Start Searching!
         </Text>
         <Text fontSize="md" color="#666" mb="3">
@@ -22,6 +22,7 @@ export const StartSearching = ({ onSuggest }: StartSearchingProps) => {
               key={suggestion}
               as="button"
               onClick={() => onSuggest?.(suggestion)}
+              marginTop="10px"
               padding="6px 16px"
               borderRadius="20px"
               backgroundColor="#4CAF5020"
