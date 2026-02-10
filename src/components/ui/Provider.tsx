@@ -5,8 +5,10 @@ import { ColorModeProvider, type ColorModeProviderProps } from "./ColorMode";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000, // 1 minute
+      staleTime: 60 * 60 * 1000, // 1 hour
       refetchOnWindowFocus: false,
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
   },
 });

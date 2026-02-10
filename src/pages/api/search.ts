@@ -1,46 +1,23 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import type { SearchResponse } from "@/lib/api/types";
 
 const API_BASE = process.env.API_BASE || "http://kotegawa.org:41592";
-
-export type SearchResultItem = {
-  submission_number: string;
-  device_name: string;
-  sponsor: string;
-  relevance_score: number;
-  snippet: string | null;
-  product_code: string | null;
-  panel: string | null;
-  decision: string | null;
-  decision_date: string | null;
-};
-
-export type QueryDebugInfo = {
-  original_query: string;
-  processed_terms: string[];
-  phrases_detected: string[][];
-  proximity_constraints: string[];
-  required_terms: string[];
-  excluded_terms: string[];
-  is_boolean_query: boolean;
-  stemming_applied: boolean;
-  stopwords_removed: boolean;
-  bm25_candidates: number;
-  dense_candidates: number;
-  filtered_by_constraints: number;
-  retrieval_time_ms: number;
-};
-
-export type SearchResponse = {
-  results: SearchResultItem[];
-  total_results: number;
-  debug_info: QueryDebugInfo | null;
-};
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<SearchResponse | { error: string }>
 ) {
-  const { q, limit = "10", panel, product_code, decision } = req.query;
+  const {
+    q,
+    limit = "10",
+    panel,
+    product_code,
+    decision,
+    device_class,
+    use_expansion,
+    use_pagerank_boost,
+    include_facets
+  } = req.query;
 
   if (!q || typeof q !== "string") {
     return res.status(400).json({ error: "Query parameter 'q' is required" });
@@ -56,6 +33,14 @@ export default async function handler(
     params.append("product_code", product_code);
   if (decision && typeof decision === "string")
     params.append("decision", decision);
+  if (device_class && typeof device_class === "string")
+    params.append("device_class", device_class);
+  if (use_expansion === "true")
+    params.append("use_expansion", "true");
+  if (use_pagerank_boost === "true")
+    params.append("use_pagerank_boost", "true");
+  if (include_facets === "true")
+    params.append("include_facets", "true");
 
   try {
     const response = await fetch(`${API_BASE}/api/search?${params.toString()}`);
@@ -67,7 +52,24 @@ export default async function handler(
     }
 
     const data: SearchResponse = await response.json();
-    return res.status(200).json(data);
+
+    // Transform null fields to defaults
+    const transformedData: SearchResponse = {
+      ...data,
+      results: data.results.map(result => ({
+        ...result,
+        snippet: result.snippet ?? '',
+        product_code: result.product_code ?? '',
+        panel: result.panel ?? '',
+        panel_code: result.panel_code ?? '',
+        decision: result.decision ?? '',
+        decision_code: result.decision_code ?? '',
+        decision_date: result.decision_date ?? '',
+        device_class: result.device_class ?? '',
+      })),
+    };
+
+    return res.status(200).json(transformedData);
   } catch (error) {
     console.error("Search error:", error);
     return res.status(500).json({ error: "Failed to fetch search results" });
