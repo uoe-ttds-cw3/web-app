@@ -85,6 +85,9 @@ export const NavBar = ({
                     ? "0 8px 8px 0"
                     : "0"
               }
+              _hover={{
+                backgroundColor: selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
+              }}
             >
               {category.name}
             </Button>
