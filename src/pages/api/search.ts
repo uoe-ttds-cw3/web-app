@@ -14,6 +14,8 @@ export default async function handler(
     product_code,
     decision,
     device_class,
+    date_from,
+    date_to,
     use_expansion,
     use_pagerank_boost,
     include_facets
@@ -31,6 +33,10 @@ export default async function handler(
   if (panel && typeof panel === "string") params.append("panel", panel);
   if (product_code && typeof product_code === "string")
     params.append("product_code", product_code);
+  if (date_from && typeof date_from === "string")
+    params.append("date_from", date_from);
+  if (date_to && typeof date_to === "string")
+    params.append("date_to", date_to);
   if (decision && typeof decision === "string")
     params.append("decision", decision);
   if (device_class && typeof device_class === "string")
