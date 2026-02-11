@@ -1,4 +1,4 @@
-import { Box, Grid, Link, Text, Flex, LinkBox, LinkOverlay } from "@chakra-ui/react";
+import { Box, Grid, Link, Text, Flex } from "@chakra-ui/react";
 import { useState } from "react";
 
 export type Device = {
@@ -44,7 +44,7 @@ export const DeviceSummaryCard = ({
   device: { id, name, manufacturer, date, panel, pCode, recalls, deviceClass, snippet },
 }: DeviceSummaryCardProps) => {
   return (
-    <LinkBox
+    <Box
       backgroundColor="#D2D2D2"
       padding="16px"
       borderRadius="8px"
@@ -53,14 +53,7 @@ export const DeviceSummaryCard = ({
     >
       <Grid color="#266429" gridTemplate="1fr / 4fr 1fr">
         <Box>
-          <LinkOverlay
-            as={Link}
-            color="#266429"
-            href={`/devices/${id}`}
-            textDecoration="none"
-          >
-            <b>{name}</b>
-          </LinkOverlay>
+          <Link color="#266429" href={`/devices/${id}`}><u><b>{name}</b></u></Link>
           <Text>Manufacturer: <Box as="span" color="black">{manufacturer}</Box></Text>
           <Text>Date cleared: <Box as="span" color="black">{date}</Box></Text>
           <Text>Panel: <Box as="span" color="black">{panel}</Box></Text>
@@ -84,6 +77,6 @@ export const DeviceSummaryCard = ({
           {/* < ToggleCompared /> */}
         </Box>
       </Grid>
-    </LinkBox>
+    </Box>
   );
 };
