@@ -66,7 +66,11 @@ export const NavBar = ({
       >
         {isFetching ? (
           <>
-            <Skeleton height="40px" width="50rem" />
+            <Skeleton height="40px" width="50rem" variant="shine"
+              css={{
+                "--start-color": "#4CAF5052",
+                "--end-color": "#4CAF5029",
+              }} />
           </>
         ) : (
           categories.map((category, index) => (
