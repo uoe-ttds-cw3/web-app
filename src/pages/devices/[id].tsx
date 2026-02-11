@@ -8,6 +8,10 @@ export default function DeviceDetailsPage() {
   const router = useRouter();
   const deviceId = router.query.id as string || '';
 
+  const handleBackToSearch = () => {
+    router.back();
+  };
+
   const { data, isLoading, error } = useDevice(deviceId);
 
   if (isLoading) {
@@ -25,7 +29,7 @@ export default function DeviceDetailsPage() {
         <Text color="red.500" mb="4">
           {error instanceof Error ? error.message : 'Device not found'}
         </Text>
-        <Link as={NextLink} href="/" color="#266429">
+        <Link color="#266429" onClick={handleBackToSearch} cursor="pointer">
           Back to search
         </Link>
       </Box>
@@ -34,7 +38,7 @@ export default function DeviceDetailsPage() {
 
   return (
     <Box padding="20px">
-      <Link as={NextLink} href="/" color="#266429" mb="4" display="inline-block">
+      <Link color="#266429" mb="4" display="inline-block" onClick={handleBackToSearch} cursor="pointer">
         &larr; Back to search
       </Link>
       <DeviceDetailed
