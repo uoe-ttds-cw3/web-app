@@ -1,5 +1,7 @@
 import { Box, Text, Link } from "@chakra-ui/react";
-import { FaTags, FaBarcode } from "react-icons/fa";
+import { FaBarcode } from "react-icons/fa";
+import { MdNumbers } from "react-icons/md";
+import { IoCalendarNumber } from "react-icons/io5";
 
 interface FilterMenuProps {
     isOpen: boolean;
@@ -10,16 +12,28 @@ interface FilterMenuProps {
 export const FilterMenu = ({ isOpen, onClose, onFilterSelect }: FilterMenuProps) => {
     const filterOptions = [
         {
-            id: "category",
-            title: "Category",
-            icon: FaTags,
-            description: "From a specific category"
+            id: "submissionNumber",
+            title: "Submission Number",
+            icon: MdNumbers,
+            description: "By Submission No."
         },
         {
             id: "productCode",
             title: "Product Code",
             icon: FaBarcode,
-            description: "Search by Product Code"
+            description: "By Product Code"
+        },
+        {
+            id: "dateBefore",
+            title: "Date Before",
+            icon: IoCalendarNumber,
+            description: "Cleared before date"
+        },
+        {
+            id: "dateAfter",
+            title: "Date After",
+            icon: IoCalendarNumber,
+            description: "Cleared after date"
         }
     ];
 

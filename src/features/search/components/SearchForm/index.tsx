@@ -6,7 +6,7 @@ import { SearchTags } from "../SearchTags";
 import { useAutocomplete } from "@/lib/queries/useAutocomplete";
 
 interface SearchFormProps {
-  onSearch?: (query: string) => void;
+  onSearch?: (query: string, tags?: Array<{ id: string; type: string; value: string }>) => void;
   initialQuery?: string;
 }
 
@@ -26,8 +26,10 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
   const suggestions = autocompleteData?.suggestions ?? [];
 
   const filterTypeMap = {
-    category: "Category",
-    productCode: "Product Code"
+    productCode: "Product Code",
+    submissionNumber: "Submission No.",
+    dateBefore: "Before",
+    dateAfter: "After",
   };
 
   function applyFilter(filterId: string) {
@@ -45,7 +47,9 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
   }
 
   function removeTag(tagId: string) {
-    setTags(tags.filter(tag => tag.id !== tagId));
+    const updatedTags = tags.filter(tag => tag.id !== tagId);
+    setTags(updatedTags);
+    onSearch?.(searchTerm, updatedTags);
   }
 
   // using react hook form
@@ -92,6 +96,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
               value={tag.value}
               onChange={(newValue) => updateTagValue(tag.id, newValue)}
               onRemove={() => removeTag(tag.id)}
+              onEnter={() => onSearch?.(searchTerm, tags)}
             />
           ))}
         </Box>
@@ -115,7 +120,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
           }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onSearch?.(searchTerm);
+              onSearch?.(searchTerm, tags);
               setSearchFocused(false);
             }
           }}
@@ -156,7 +161,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
               key={`${suggestion.text}-${index}`}
               onClick={() => {
                 setSearchTerm(suggestion.text);
-                onSearch?.(suggestion.text);
+                onSearch?.(suggestion.text, tags);
                 setSearchFocused(false);
               }}
               display="block"

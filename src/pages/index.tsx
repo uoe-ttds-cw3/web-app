@@ -16,8 +16,11 @@ export default function Home() {
   const router = useRouter();
   const query = (router.query.q as string) || '';
   const panel = (router.query.panel as string) || undefined;
+  const productCode = (router.query.product_code as string) || undefined;
+  const dateBefore = (router.query.date_to as string) || undefined;
+  const dateAfter = (router.query.date_from as string) || undefined;
 
-  const { data, isFetching, isLoading, error } = useSearch(query, { panel, limit: 20 });
+  const { data, isFetching, isLoading, error } = useSearch(query, { panel, product_code: productCode, date_from: dateAfter, date_to: dateBefore, limit: 20 });
   const results = data?.results.map(transformSearchResult) ?? [];
 
   // Show error toast when search fails
@@ -32,10 +35,35 @@ export default function Home() {
     }
   }, [error]);
 
-  const handleSearch = (newQuery: string) => {
+  const convertDateFormat = (ddmmyyyy: string): string => {
+    const [day, month, year] = ddmmyyyy.split("/");
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleSearch = (newQuery: string, tags?: Array<{ id: string; type: string; value: string }>) => {
+    const queryParams: Record<string, string> = { q: newQuery };
+
+    if (tags) {
+      tags.forEach(tag => {
+        if (tag.value) {
+          if (tag.type === "Product Code") {
+            queryParams.product_code = tag.value;
+          } else if (tag.type === "Before") {
+            queryParams.date_to = convertDateFormat(tag.value);
+          } else if (tag.type === "After") {
+            queryParams.date_from = convertDateFormat(tag.value);
+          }
+        }
+      });
+    }
+
+    if (panel) {
+      queryParams.panel = panel;
+    }
+
     router.push({
       pathname: '/',
-      query: { ...router.query, q: newQuery }
+      query: queryParams
     }, undefined, { shallow: true });
   };
 
