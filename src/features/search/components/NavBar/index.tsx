@@ -49,12 +49,12 @@ export const NavBar = ({
 
   return (
     <Box padding="24px 0">
-      <Text fontSize="xl" fontWeight="semibold" marginBottom="0.5rem" color="#266429">
+      <Text fontSize="xl" fontWeight="semibold" marginBottom="0.5rem" color="brand.primary">
         <Icon as={PiMedalDuotone} marginRight="8px" />
         Search by Category
       </Text>
 
-      {/* Error state */}
+      {/* error state */}
       {error && (
         <Text color="red.500" fontSize="sm">
           Error: {error instanceof Error ? error.message : "Failed to load categories"}
@@ -63,34 +63,40 @@ export const NavBar = ({
 
       <Flex
         overflowX="auto"
+        width="100%"
+        flexWrap="wrap"
+        gap="4px"
       >
         {isFetching ? (
           <>
-            <Skeleton height="40px" width="50rem" variant="shine"
-              css={{
-                "--start-color": "#4CAF5052",
-                "--end-color": "#4CAF5029",
-              }} />
+            {/* skeleton loading with multiple rounded rectangles */}
+            {[...Array(8)].map((_, i) => (
+              <Skeleton
+                key={i}
+                height="40px"
+                width="120px"
+                borderRadius="8px"
+                variant="shine"
+                css={{
+                  "--start-color": "var(--chakra-colors-brand-greenBg)",
+                  "--end-color": "var(--chakra-colors-brand-greenBgLight)",
+                }}
+              />
+            ))}
           </>
         ) : (
-          categories.map((category, index) => (
+          categories.map((category) => (
             <Button
               key={category.id}
               onClick={() => onCategorySelect?.(selectedCategory === category.id ? "" : category.id)}
               backgroundColor={
-                selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
+                selectedCategory === category.id ? "brand.greenBg" : "brand.greenBgLight"
               }
-              color="#266429"
+              color="brand.primary"
               padding="12px 24px"
-              borderRadius={
-                index === 0
-                  ? "8px 0 0 8px"
-                  : index === categories.length - 1
-                    ? "0 8px 8px 0"
-                    : "0"
-              }
+              borderRadius="8px"
               _hover={{
-                backgroundColor: selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
+                backgroundColor: selectedCategory === category.id ? "brand.greenBg" : "brand.greenHover",
               }}
             >
               {category.name}
@@ -98,12 +104,6 @@ export const NavBar = ({
           ))
         )}
       </Flex>
-
-      {/* {selectedCategory && (
-        <Text fontSize="sm" marginTop="12px" color="#266429">
-          Selected: {categories.find(c => c.id === selectedCategory)?.name}
-        </Text>
-      )} */}
 
     </Box>
   );

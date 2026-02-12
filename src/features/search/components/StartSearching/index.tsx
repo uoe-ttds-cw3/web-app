@@ -8,12 +8,12 @@ interface StartSearchingProps {
 export const StartSearching = ({ onSuggest }: StartSearchingProps) => {
   return (
     <Center padding="1rem">
-      <VStack spaceY={-1.5}>
-        <Icon as={PiStethoscopeDuotone} fontSize="120px" color="#D9D9D9" />
-        <Text fontSize="lg" fontWeight="bold" color="#266429" mb="2">
+      <VStack gap="4px">
+        <Icon as={PiStethoscopeDuotone} fontSize="120px" color="gray.300" />
+        <Text fontSize="lg" fontWeight="bold" color="brand.primary" mb="2">
           Start Searching!
         </Text>
-        <Text fontSize="md" color="#666" mb="3">
+        <Text fontSize="md" color="ui.textMuted" mb="3">
           Try searching for:
         </Text>
         <Box display="flex" gap="8px" justifyContent="center" flexWrap="wrap">
@@ -25,11 +25,11 @@ export const StartSearching = ({ onSuggest }: StartSearchingProps) => {
               marginTop="10px"
               padding="6px 16px"
               borderRadius="20px"
-              backgroundColor="#4CAF5020"
-              color="#266429"
+              backgroundColor="brand.greenBg"
+              color="brand.primary"
               fontSize="sm"
               cursor="pointer"
-              _hover={{ backgroundColor: "#4CAF5040" }}
+              _hover={{ backgroundColor: "brand.greenHover" }}
             >
               {suggestion}
             </Box>

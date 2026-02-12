@@ -39,15 +39,17 @@ export const SearchTags = ({ filterType, value, onChange, onRemove, onEnter }: S
     <Box
       display="flex"
       alignItems="center"
-      background="#9CCA9F"
+      background="brand.greenBg"
       borderRadius="4px"
       position="relative"
+      border="1px solid"
+      borderColor="brand.greenLight"
     >
       <Box
-        background="#6EAF72"
+        background="brand.greenLight"
         fontSize="10px"
         fontWeight="600"
-        color="black"
+        color="white"
         whiteSpace="nowrap"
         padding="5px 6px"
         display="flex"
@@ -75,7 +77,8 @@ export const SearchTags = ({ filterType, value, onChange, onRemove, onEnter }: S
             boxShadow: "none",
           }}
           _placeholder={{
-            color: "#00000066",
+            color: "ui.textMuted",
+            opacity: 0.6,
           }}
         />
       ) : (
@@ -96,7 +99,8 @@ export const SearchTags = ({ filterType, value, onChange, onRemove, onEnter }: S
             boxShadow: "none",
           }}
           _placeholder={{
-            color: "#00000066",
+            color: "ui.textMuted",
+            opacity: 0.6,
           }}
         />
       )}
@@ -114,7 +118,7 @@ export const SearchTags = ({ filterType, value, onChange, onRemove, onEnter }: S
         scale="0.6"
         marginLeft="-10px"
       >
-        <FaXmark color="black" />
+        <FaXmark color="var(--chakra-colors-ui-text)" />
       </Button>
     </Box>
   );
