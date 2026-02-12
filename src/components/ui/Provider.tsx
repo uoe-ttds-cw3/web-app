@@ -1,6 +1,6 @@
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ColorModeProvider, type ColorModeProviderProps } from "./ColorMode";
+import { system } from "@/lib/theme";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,11 +13,16 @@ const queryClient = new QueryClient({
   },
 });
 
-export function Provider(props: ColorModeProviderProps) {
+interface ProviderProps {
+  children: React.ReactNode;
+}
+
+// light mode only - custom theme with semantic tokens
+export function Provider({ children }: ProviderProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ChakraProvider value={defaultSystem}>
-        <ColorModeProvider {...props} />
+      <ChakraProvider value={system}>
+        {children}
       </ChakraProvider>
     </QueryClientProvider>
   );

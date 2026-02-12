@@ -4,9 +4,10 @@ type PageLayoutProps = BoxProps & {
   maxW?: BoxProps["maxW"];
 };
 
+// wider responsive layout for medical device search
 export function PageLayout({
   children,
-  maxW = "70ch",
+  maxW = { base: "100%", md: "1200px" },
   ...props
 }: PageLayoutProps) {
   return (
