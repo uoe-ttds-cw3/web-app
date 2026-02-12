@@ -12,20 +12,20 @@ export const ResultsHeader = ({numResults = 0}: ResultsHeaderProps) => {
 
     return (
         <Box
-            paddingBottom="16px"  
-            color="#266429"
+            paddingBottom="4"
+            color="brand.primary"
             display="flex"
             alignItems="center"
             justifyContent="space-between"
         >
             <Text display="inline-flex" alignItems="center">
-                <FaSearch color="#4CAF50" style={{ marginRight: "8px" }} />
+                <FaSearch color="var(--chakra-colors-brand-accent)" style={{ marginRight: "8px" }} />
                 Found {numResults == 0 ? "no" : numResults} device{numResults==1 ? "" : "s"}...
             </Text>
             <Box>
                 <NativeSelect.Root width="190px" borderRadius="8px" border="none">
-                <NativeSelect.Field 
-                    textAlign="right" 
+                <NativeSelect.Field
+                    textAlign="right"
                     paddingRight="30px"
                     border="none"
                     value={sort}
