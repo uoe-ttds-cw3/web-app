@@ -49,7 +49,7 @@ export const NavBar = ({
 
   return (
     <Box padding="24px 0">
-      <Text fontSize="xl" fontWeight="semibold" marginBottom="0.5rem" color="brand.primary">
+      <Text fontSize="xl" fontWeight="semibold" marginBottom="0.5rem" color="#266429">
         <Icon as={PiMedalDuotone} marginRight="8px" />
         Search by Category
       </Text>
@@ -63,40 +63,34 @@ export const NavBar = ({
 
       <Flex
         overflowX="auto"
-        width="100%"
-        flexWrap="wrap"
-        gap="4px"
       >
         {isFetching ? (
           <>
-            {/* skeleton loading with multiple rounded rectangles */}
-            {[...Array(8)].map((_, i) => (
-              <Skeleton
-                key={i}
-                height="40px"
-                width="120px"
-                borderRadius="8px"
-                variant="shine"
-                css={{
-                  "--start-color": "var(--chakra-colors-brand-greenBg)",
-                  "--end-color": "var(--chakra-colors-brand-greenBgLight)",
-                }}
-              />
-            ))}
+            <Skeleton height="40px" width="100rem" variant="shine"
+              css={{
+                "--start-color": "#4CAF5052",
+                "--end-color": "#4CAF5029",
+              }} />
           </>
         ) : (
-          categories.map((category) => (
+          categories.map((category, index) => (
             <Button
               key={category.id}
               onClick={() => onCategorySelect?.(selectedCategory === category.id ? "" : category.id)}
               backgroundColor={
-                selectedCategory === category.id ? "brand.greenBg" : "brand.greenBgLight"
+                selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
               }
               color="brand.primary"
               padding="12px 24px"
-              borderRadius="8px"
+              borderRadius={
+                index === 0
+                  ? "8px 0 0 8px"
+                  : index === categories.length - 1
+                    ? "0 8px 8px 0"
+                    : "0"
+              }
               _hover={{
-                backgroundColor: selectedCategory === category.id ? "brand.greenBg" : "brand.greenHover",
+                backgroundColor: selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
               }}
             >
               {category.name}
