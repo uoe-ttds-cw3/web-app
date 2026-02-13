@@ -1,0 +1,586 @@
+{
+    "id": "21.I.H",
+    "name": "Medical Devices",
+    "children": [
+        {
+            "id": "73",
+            "name": "Anesthesiology Devices",
+            "children": [
+                {
+                    "id": "73.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "73.C",
+                    "name": "Monitoring Devices",
+                    "children": []
+                },
+                {
+                    "id": "73.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                },
+                {
+                    "id": "73.G",
+                    "name": "Miscellaneous",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "74",
+            "name": "Cardiovascular Devices",
+            "children": [
+                {
+                    "id": "74.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "74.C",
+                    "name": "Monitoring Devices",
+                    "children": []
+                },
+                {
+                    "id": "74.D",
+                    "name": "Prosthetic Devices",
+                    "children": []
+                },
+                {
+                    "id": "74.E",
+                    "name": "Surgical Devices",
+                    "children": []
+                },
+                {
+                    "id": "74.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "75",
+            "name": "Clinical Chemistry and Clinical Toxicology Devices",
+            "children": [
+                {
+                    "id": "75.B",
+                    "name": "Clinical Chemistry Test Systems",
+                    "children": []
+                },
+                {
+                    "id": "75.C",
+                    "name": "Clinical Laboratory Systems",
+                    "children": []
+                },
+                {
+                    "id": "75.D",
+                    "name": "Clinical Toxicology Test Systems",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "76",
+            "name": "Dental Devices",
+            "children": [
+                {
+                    "id": "76.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "76.D",
+                    "name": "Prosthetic Devices",
+                    "children": []
+                },
+                {
+                    "id": "76.E",
+                    "name": "Surgical Devices",
+                    "children": []
+                },
+                {
+                    "id": "76.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                },
+                {
+                    "id": "76.G",
+                    "name": "Misc. Devices",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "77",
+            "name": "Ear, Nose, and Throat Devices",
+            "children": [
+                {
+                    "id": "77.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "77.D",
+                    "name": "Prosthetic Devices",
+                    "children": []
+                },
+                {
+                    "id": "77.E",
+                    "name": "Surgical Devices",
+                    "children": []
+                },
+                {
+                    "id": "77.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "78",
+            "name": "Gastroenterology and Urology Devices",
+            "children": [
+                {
+                    "id": "78.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "78.C",
+                    "name": "Monitoring Devices",
+                    "children": []
+                },
+                {
+                    "id": "78.D",
+                    "name": "Prosthetic Devices",
+                    "children": []
+                },
+                {
+                    "id": "78.E",
+                    "name": "Surgical Devices",
+                    "children": []
+                },
+                {
+                    "id": "78.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "79",
+            "name": "General and Plastic Surgery Devices",
+            "children": [
+                {
+                    "id": "79.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "79.D",
+                    "name": "Prosthetic Devices",
+                    "children": []
+                },
+                {
+                    "id": "79.E",
+                    "name": "Surgical Devices",
+                    "children": []
+                },
+                {
+                    "id": "79.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "80",
+            "name": "General Hospital and Personal Use Devices",
+            "children": [
+                {
+                    "id": "80.C",
+                    "name": "Monitoring Devices",
+                    "children": []
+                },
+                {
+                    "id": "80.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                },
+                {
+                    "id": "80.G",
+                    "name": "Misc. Devices",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "81",
+            "name": "Hematology Devices",
+            "children": [
+                {
+                    "id": "81.B",
+                    "name": "Biological Stains",
+                    "children": []
+                },
+                {
+                    "id": "81.C",
+                    "name": "Cell and Tissue Culture Products",
+                    "children": []
+                },
+                {
+                    "id": "81.D",
+                    "name": "Pathology Instrumentation and Accessories",
+                    "children": []
+                },
+                {
+                    "id": "81.E",
+                    "name": "Specimen Preparation Reagents",
+                    "children": []
+                },
+                {
+                    "id": "81.F",
+                    "name": "Automated and Semi-Automated Hematology Devices",
+                    "children": []
+                },
+                {
+                    "id": "81.G",
+                    "name": "Manual Hematology Devices",
+                    "children": []
+                },
+                {
+                    "id": "81.H",
+                    "name": "Hematology Kits and Packages",
+                    "children": []
+                },
+                {
+                    "id": "81.I",
+                    "name": "Hematology Reagents",
+                    "children": []
+                },
+                {
+                    "id": "81.J",
+                    "name": "Products Used In Establishments That Manufacture Blood and Blood Products",
+                    "children": []
+                },
+                {
+                    "id": "81.K",
+                    "name": "Products Used In Establishments That Manufacture Human Cells, Tissues, and Cellular and Tissue-Based Products (HCT/Ps)",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "82",
+            "name": "Immunology and Microbiology Devices",
+            "children": [
+                {
+                    "id": "82.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "82.C",
+                    "name": "Microbiology Devices",
+                    "children": []
+                },
+                {
+                    "id": "82.D",
+                    "name": "Serological Reagents",
+                    "children": []
+                },
+                {
+                    "id": "82.E",
+                    "name": "Immunology Laboratory Equipment and Reagents",
+                    "children": []
+                },
+                {
+                    "id": "82.F",
+                    "name": "Immunological Test Systems",
+                    "children": []
+                },
+                {
+                    "id": "82.G",
+                    "name": "Tumor Associated Antigen Immunological Test Systems",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "83",
+            "name": "Microbiology Devices",
+            "children": [
+                {
+                    "id": "83.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "83.C",
+                    "name": "Microbiology Devices",
+                    "children": []
+                },
+                {
+                    "id": "83.D",
+                    "name": "Serological Reagents",
+                    "children": []
+                },
+                {
+                    "id": "83.E",
+                    "name": "Immunology Laboratory Equipment and Reagents",
+                    "children": []
+                },
+                {
+                    "id": "83.F",
+                    "name": "Immunological Test Systems",
+                    "children": []
+                },
+                {
+                    "id": "83.G",
+                    "name": "Tumor Associated Antigen Immunological Test Systems",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "84",
+            "name": "Neuological Devices",
+            "children": [
+                {
+                    "id": "84.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "84.E",
+                    "name": "Surgical Devices",
+                    "children": []
+                },
+                {
+                    "id": "84.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "85",
+            "name": "Obstetrical and Gynecological Devices",
+            "children": [
+                {
+                    "id": "85.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "85.C",
+                    "name": "Monitoring Devices",
+                    "children": []
+                },
+                {
+                    "id": "85.D",
+                    "name": "Prosthetic Devices",
+                    "children": []
+                },
+                {
+                    "id": "85.E",
+                    "name": "Surgical Devices",
+                    "children": []
+                },
+                {
+                    "id": "85.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                },
+                {
+                    "id": "85.G",
+                    "name": "Assisted Reproduction Devices",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "86",
+            "name": "Opthalmic Devices",
+            "children": []
+        },
+        {
+            "id": "87",
+            "name": "Orthopedic Devices",
+            "children": [
+                {
+                    "id": "87.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "87.D",
+                    "name": "Prosthetic Devices",
+                    "children": []
+                },
+                {
+                    "id": "87.E",
+                    "name": "Surgical Devices",
+                    "children": []
+                },
+                {
+                    "id": "87.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "88",
+            "name": "Pathology Devices",
+            "children": [
+                {
+                    "id": "88.B",
+                    "name": "Biological Stains",
+                    "children": []
+                },
+                {
+                    "id": "88.C",
+                    "name": "Cell and Tissue Culture Products",
+                    "children": []
+                },
+                {
+                    "id": "88.D",
+                    "name": "Pathology Instrumentation and Accessories",
+                    "children": []
+                },
+                {
+                    "id": "88.E",
+                    "name": "Specimen Preparation Reagents",
+                    "children": []
+                },
+                {
+                    "id": "88.F",
+                    "name": "Automated and Semi-Automated Hematology Devices",
+                    "children": []
+                },
+                {
+                    "id": "88.G",
+                    "name": "Manual Hematology Devices",
+                    "children": []
+                },
+                {
+                    "id": "88.H",
+                    "name": "Hematology Kits and Packages",
+                    "children": []
+                },
+                {
+                    "id": "88.I",
+                    "name": "Hematology Reagents",
+                    "children": []
+                },
+                {
+                    "id": "88.J",
+                    "name": "Products Used In Establishments That Manufacture Blood and Blood Products",
+                    "children": []
+                },
+                {
+                    "id": "88.K",
+                    "name": "Products Used In Establishments That Manufacture Human Cells, Tissues, and Cellular and Tissue-Based Products (HCT/Ps)",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "89",
+            "name": "Physical Medicine Devices",
+            "children": [
+                {
+                    "id": "89.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "89.D",
+                    "name": "Prosthetic Devices",
+                    "children": []
+                },
+                {
+                    "id": "89.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "90",
+            "name": "Radiology Devices",
+            "children": [
+                {
+                    "id": "90.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "90.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                },
+                {
+                    "id": "90.G",
+                    "name": "Misc. Devices",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "91",
+            "name": "Toxicology Devices",
+            "children": [
+                {
+                    "id": "75.B",
+                    "name": "Clinical Chemistry Test Systems",
+                    "children": []
+                },
+                {
+                    "id": "75.C",
+                    "name": "Clinical Laboratory Systems",
+                    "children": []
+                },
+                {
+                    "id": "75.D",
+                    "name": "Clinical Toxicology Test Systems",
+                    "children": []
+                }
+            ]
+        }
+    ],
+    "sample_children": [
+        {
+            "id": "XX.B",
+            "name": "Diagnostic Devices",
+            "children": []
+        },
+        {
+            "id": "XX.C",
+            "name": "Monitoring Devices",
+            "children": []
+        },
+        {
+            "id": "XX.D",
+            "name": "Prosthetic Devices",
+            "children": []
+        },
+        {
+            "id": "XX.E",
+            "name": "Surgical Devices",
+            "children": []
+        },
+        {
+            "id": "XX.F",
+            "name": "Therapeutic Devices",
+            "children": []
+        },
+        {
+            "id": "XX.G",
+            "name": "Misc. Devices",
+            "children": []
+        }
+    ]
+}

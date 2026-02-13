@@ -13,12 +13,12 @@ export type NavBarProps = {
   selectedCategory?: string;
 };
 
-export type PanelsResponse = {
+type PanelsResponse = {
   panels: { code: string; name: string; device_count: number }[];
   total_panels: number;
 };
 
-export const fetchPanels = async (): Promise<Category[]> => {
+const fetchPanels = async (): Promise<Category[]> => {
   const response = await fetch("/api/panels");
   if (!response.ok) {
     throw new Error("Failed to fetch panels");

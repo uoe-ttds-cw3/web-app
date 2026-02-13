@@ -8,13 +8,26 @@ import {
   Box,
   Icon,
 } from "@chakra-ui/react";
-import {
-  PanelsResponse,
-  fetchPanels,
-} from "@/features/search/components/NavBar";
 import { PiArrowLeft, PiArrowRight } from "react-icons/pi";
 import { LuFile, LuFolder } from "react-icons/lu";
 import { useQuery } from "@tanstack/react-query";
+
+type PanelsResponse = {
+  panels: { code: string; name: string; device_count: number }[];
+  total_panels: number;
+};
+
+const fetchPanels = async (): Promise<Category[]> => {
+  const response = await fetch("/api/panels");
+  if (!response.ok) {
+    throw new Error("Failed to fetch panels");
+  }
+  const data: PanelsResponse = await response.json();
+  return data.panels.map((panel) => ({
+    id: panel.code,
+    name: panel.name,
+  }));
+};
 
 type Category = {
   id: string;
@@ -112,7 +125,6 @@ export const LeftDrawer = ({
                 ) : (
                   <TreeView.Item>
                     <TreeNodeCheckbox />
-                    <LuFile />
                     <TreeView.ItemText>
                       {node.name || node.label}
                     </TreeView.ItemText>
