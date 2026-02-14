@@ -110,7 +110,7 @@ export const LeftDrawer = ({
                     </TreeView.BranchControl>
                   </TreeView.Branch>
                 ) : (
-                  <TreeView.Item>
+                  <TreeView.Item pl="5">
                     <TreeNodeCheckbox />
                     <LuFile />
                     <TreeView.ItemText>{node.name}</TreeView.ItemText>
