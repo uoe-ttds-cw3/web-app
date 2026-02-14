@@ -146,7 +146,7 @@ export default function Home() {
   return (
     <div>
       
-      <Box pr="40px">
+      <Box pr="40px" margin="0 auto" maxW="900px">
       <NavBar selectedCategory={panel} onCategorySelect={handleCategorySelect}/>
       </Box>
       {!query && results.length === 0 && <StartSearching onSuggest={handleSearch} />}
@@ -159,15 +159,8 @@ export default function Home() {
       )}
 
       {data && (
-        <FullBleed p={4}>
-          <Box display="flex" minH="100vh" p="4">
-            {/* Left sidebar */}
-            <Box w="20px" flexShrink={0} p="4">
-              {/* <LeftSidebar /> */}
-            </Box>
-
-            {/* Main content */}
-            <Box flex="1">
+        <Box margin="0 auto" maxW="1000px" px="4">
+          <Box minH="100vh" p="4">
               {/* Header + Filter button */}
               <Box display="flex" alignItems="center" justifyContent="space-between" marginBottom="4">
                 <ResultsHeader numResults={data.total_results} />
@@ -317,15 +310,11 @@ export default function Home() {
                   <Text color="ui.textMuted" fontSize="sm" ml="4">Page {page} of {totalPages}</Text>
                 </Box>
               )}
-            </Box>
-
-            {/* Right sidebar */}
-            <Box w="40px" flexShrink={0} p="4">
-              <SideDrawer selectedDeviceIds={selectedDevices.map(d => d.id)} />
-            </Box>
           </Box>
-        </FullBleed>
+        </Box>
       )}
+      
+      <SideDrawer selectedDeviceIds={selectedDevices.map(d => d.id)} />
     </div>
   );
 }
