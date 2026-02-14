@@ -33,7 +33,7 @@ type LeftDrawerProps = {
 const TreeNodeCheckbox = (props: TreeView.NodeCheckboxProps) => {
   const nodeState = useTreeViewNodeContext();
   return (
-    <TreeView.NodeCheckbox {...props}>
+    <TreeView.NodeCheckbox aria-label="check node" {...props}>
       <Checkmark
         bg={{
           base: "bg",
@@ -70,10 +70,9 @@ export const LeftDrawer = ({
       rootNode: treeData,
       nodeToValue: (node) => node?.id || node?.name,
       nodeToChildren: (node) => {
-        if (node?.children && node.children.length > 0) {
-          return node.children;
-        }
-        return undefined;
+        return node?.children && node.children.length > 0
+          ? node.children
+          : undefined;
       },
     });
   }, [treeData]);
@@ -82,12 +81,7 @@ export const LeftDrawer = ({
 
   return (
     <Collapsible.Root defaultOpen unmountOnExit>
-      <Collapsible.Trigger
-        paddingY="3"
-        display="flex"
-        gap="2"
-        alignItems="left"
-      >
+      <Collapsible.Trigger paddingY="3" display="flex" gap="2">
         <Collapsible.Indicator
           transition="transform 0.2s"
           _open={{ transform: "rotate(90deg)" }}
@@ -97,10 +91,15 @@ export const LeftDrawer = ({
         Medical Device Tree
       </Collapsible.Trigger>
       <Collapsible.Content>
-        <TreeView.Root collection={collection} selectionMode="multiple">
+        <TreeView.Root
+          collection={collection}
+          selectionMode="multiple"
+          defaultCheckedValue={[]}
+        >
           <TreeView.Label>Categories</TreeView.Label>
           <TreeView.Tree>
             <TreeView.Node
+              indentGuide={<TreeView.BranchIndentGuide />}
               render={({ node, nodeState }) =>
                 nodeState.isBranch ? (
                   <TreeView.Branch>
@@ -108,11 +107,7 @@ export const LeftDrawer = ({
                       <TreeNodeCheckbox />
                       <LuFolder />
                       <TreeView.BranchText>{node.name}</TreeView.BranchText>
-                      <TreeView.BranchIndicator />
                     </TreeView.BranchControl>
-                    <TreeView.BranchContent>
-                      {/* children */}
-                    </TreeView.BranchContent>
                   </TreeView.Branch>
                 ) : (
                   <TreeView.Item>

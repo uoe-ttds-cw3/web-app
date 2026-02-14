@@ -4,6 +4,7 @@ import { DeviceSummaryCard } from "@/features/search/components/DeviceSummaryCar
 import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { NavBar } from "@/features/search/components/NavBar";
 import { StartSearching } from "@/features/search/components/StartSearching";
+import { LeftDrawer } from "@/features/search/components/LeftDrawer";
 import {
   Stack,
   Text,
@@ -172,6 +173,7 @@ export default function Home() {
   // navbar below header
   return (
     <div>
+      <LeftDrawer onCategorySelect={handleCategorySelect} />
       <NavBar
         selectedCategory={panel}
         onCategorySelect={handleCategorySelect}
