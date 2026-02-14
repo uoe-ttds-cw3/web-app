@@ -42,13 +42,16 @@ export const FilterMenu = ({ isOpen, onClose, onFilterSelect }: FilterMenuProps)
     return (
         <Box
             width="192px"
-            background="#FFFFFFFF"
+            background="ui.background"
             borderRadius="6px"
             marginTop="6px"
             padding='4px'
             position="absolute"
             right="0"
             zIndex={10}
+            border="1px solid"
+            borderColor="ui.borderLight"
+            boxShadow="md"
             onClick={onClose}
         >
             {filterOptions.map((option) => {
@@ -65,18 +68,18 @@ export const FilterMenu = ({ isOpen, onClose, onFilterSelect }: FilterMenuProps)
                         padding="6px"
                         borderRadius="6px"
                         _hover={{
-                            bg: "#00000011",
+                            bg: "ui.surface",
                             textDecoration: "none",
                         }}
                         cursor="pointer"
                     >
                         <Box display="flex" alignItems="center" gap="6px">
-                            <IconComponent color="#4CAF50" style={{ marginRight: "6px", minWidth: "13px" }} />
+                            <IconComponent color="var(--chakra-colors-brand-accent)" style={{ marginRight: "6px", minWidth: "13px" }} />
                             <Box flex="1">
                                 <Text fontWeight="500" display="block" fontSize="sm">
                                     {option.title}
                                 </Text>
-                                <Text fontSize="xs" color="#666">
+                                <Text fontSize="xs" color="ui.textMuted">
                                     {option.description}
                                 </Text>
                             </Box>

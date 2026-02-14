@@ -79,6 +79,7 @@ export interface SearchFilters {
   decision?: string;
   device_class?: string;
   limit?: number;
+  offset?: number;
   use_expansion?: boolean;
   use_pagerank_boost?: boolean;
   include_facets?: boolean;

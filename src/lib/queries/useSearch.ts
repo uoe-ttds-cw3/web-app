@@ -9,6 +9,7 @@ export const searchQueryOptions = (query: string, filters?: SearchFilters) =>
     queryFn: async ({ signal }) => {
       const params = new URLSearchParams({ q: query });
       if (filters?.limit) params.set('limit', String(filters.limit));
+      if (filters?.offset) params.set('offset', String(filters.offset));
       if (filters?.panel) params.set('panel', filters.panel);
       if (filters?.product_code) params.set('product_code', filters.product_code);
       if (filters?.date_from) params.set('date_from', filters.date_from);

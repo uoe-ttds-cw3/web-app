@@ -75,7 +75,8 @@ export const SearchTags = ({ filterType, value, onChange, onRemove, onEnter }: S
             boxShadow: "none",
           }}
           _placeholder={{
-            color: "#00000066",
+            color: "ui.textMuted",
+            opacity: 0.6,
           }}
         />
       ) : (
@@ -96,7 +97,8 @@ export const SearchTags = ({ filterType, value, onChange, onRemove, onEnter }: S
             boxShadow: "none",
           }}
           _placeholder={{
-            color: "#00000066",
+            color: "ui.textMuted",
+            opacity: 0.6,
           }}
         />
       )}
@@ -114,7 +116,7 @@ export const SearchTags = ({ filterType, value, onChange, onRemove, onEnter }: S
         scale="0.6"
         marginLeft="-10px"
       >
-        <FaXmark color="black" />
+        <FaXmark color="var(--chakra-colors-ui-text)" />
       </Button>
     </Box>
   );

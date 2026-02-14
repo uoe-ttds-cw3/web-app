@@ -54,7 +54,7 @@ export const NavBar = ({
         Search by Category
       </Text>
 
-      {/* Error state */}
+      {/* error state */}
       {error && (
         <Text color="red.500" fontSize="sm">
           Error: {error instanceof Error ? error.message : "Failed to load categories"}
@@ -66,7 +66,7 @@ export const NavBar = ({
       >
         {isFetching ? (
           <>
-            <Skeleton height="40px" width="50rem" variant="shine"
+            <Skeleton height="40px" width="100rem" variant="shine"
               css={{
                 "--start-color": "#4CAF5052",
                 "--end-color": "#4CAF5029",
@@ -80,7 +80,7 @@ export const NavBar = ({
               backgroundColor={
                 selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
               }
-              color="#266429"
+              color="brand.primary"
               padding="12px 24px"
               borderRadius={
                 index === 0
@@ -98,12 +98,6 @@ export const NavBar = ({
           ))
         )}
       </Flex>
-
-      {/* {selectedCategory && (
-        <Text fontSize="sm" marginTop="12px" color="#266429">
-          Selected: {categories.find(c => c.id === selectedCategory)?.name}
-        </Text>
-      )} */}
 
     </Box>
   );

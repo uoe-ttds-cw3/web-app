@@ -22,7 +22,7 @@ export default async function handler(
   const submissionNumber = id.toUpperCase();
 
   try {
-    // Always fetch device details
+    // step 1: fetch device details (needed for product_code)
     const deviceRes = await fetch(`${API_BASE}/api/device/${submissionNumber}?include_text=true`);
     if (!deviceRes.ok) {
       if (deviceRes.status === 404) {
@@ -32,29 +32,20 @@ export default async function handler(
     }
     const device: DeviceLookupResponse = await deviceRes.json();
 
-    // Fetch lineage in parallel (may 404 if not in citation graph -- that's OK)
-    let lineage: LineageResponse | null = null;
-    try {
-      const lineageRes = await fetch(`${API_BASE}/api/device/${submissionNumber}/lineage`);
-      if (lineageRes.ok) {
-        lineage = await lineageRes.json();
-      }
-    } catch {
-      // Lineage unavailable, not critical
-    }
+    // step 2: fetch lineage and safety in parallel
+    const [lineage, safety] = await Promise.all([
+      // lineage fetch (may 404 if not in citation graph)
+      fetch(`${API_BASE}/api/device/${submissionNumber}/lineage`)
+        .then(res => res.ok ? res.json() as Promise<LineageResponse> : null)
+        .catch(() => null),
 
-    // Fetch safety data if product_code available (may 503 if OpenFDA is down -- that's OK)
-    let safety: SafetyProfileResponse | null = null;
-    if (device.product_code) {
-      try {
-        const safetyRes = await fetch(`${API_BASE}/api/device/${device.product_code}/safety`);
-        if (safetyRes.ok) {
-          safety = await safetyRes.json();
-        }
-      } catch {
-        // Safety data unavailable, not critical
-      }
-    }
+      // safety fetch (may 503 if openfda down, needs product_code from device)
+      device.product_code
+        ? fetch(`${API_BASE}/api/device/${device.product_code}/safety`)
+            .then(res => res.ok ? res.json() as Promise<SafetyProfileResponse> : null)
+            .catch(() => null)
+        : Promise.resolve(null),
+    ]);
 
     // Provide defaults for null fields in device response
     const transformedDevice: DeviceLookupResponse = {

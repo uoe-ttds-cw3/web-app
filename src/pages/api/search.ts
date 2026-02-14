@@ -10,6 +10,7 @@ export default async function handler(
   const {
     q,
     limit = "10",
+    offset,
     panel,
     product_code,
     decision,
@@ -30,6 +31,7 @@ export default async function handler(
     limit: String(limit),
   });
 
+  if (offset && typeof offset === "string") params.append("offset", offset);
   if (panel && typeof panel === "string") params.append("panel", panel);
   if (product_code && typeof product_code === "string")
     params.append("product_code", product_code);
@@ -59,7 +61,7 @@ export default async function handler(
 
     const data: SearchResponse = await response.json();
 
-    // Transform null fields to defaults
+    // transform null fields to defaults
     const transformedData: SearchResponse = {
       ...data,
       results: data.results.map(result => ({

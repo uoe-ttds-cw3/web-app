@@ -10,6 +10,15 @@ interface SearchFormProps {
   initialQuery?: string;
 }
 
+// simple gibberish detection without external library
+const isLikelyGibberish = (text: string): boolean => {
+  if (text.length < 3) return false;
+  const consonantCluster = /[^aeiou\s]{5,}/i;
+  const repeatedChars = /(.)\1{3,}/;
+  const keyboardMash = /[qwertasdfgzxcvb]{6,}/i;
+  return consonantCluster.test(text) || repeatedChars.test(text) || keyboardMash.test(text);
+};
+
 export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
   const [searchTerm, setSearchTerm] = useState(initialQuery ?? "");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -21,9 +30,23 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
   const [searchFocused, setSearchFocused] = useState(false);
   const [filterFocused, setFilterFocused] = useState(false);
   const [tags, setTags] = useState<Array<{ id: string; type: string; value: string }>>([]);
+  const [showGibberishWarning, setShowGibberishWarning] = useState(false);
 
   const { data: autocompleteData } = useAutocomplete(searchTerm);
   const suggestions = autocompleteData?.suggestions ?? [];
+
+  // group suggestions by source type
+  const deviceSuggestions = suggestions.filter(s => s.source === 'device_name' || s.source === 'product_code');
+  const manufacturerSuggestions = suggestions.filter(s => s.source === 'sponsor');
+
+  // check for gibberish and update warning state
+  useEffect(() => {
+    if (searchTerm.length >= 3) {
+      setShowGibberishWarning(isLikelyGibberish(searchTerm));
+    } else {
+      setShowGibberishWarning(false);
+    }
+  }, [searchTerm]);
 
   const filterTypeMap = {
     productCode: "Product Code",
@@ -70,12 +93,14 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         display="flex"
         alignItems="center"
         gap="8px"
-        backgroundColor="#FFFFFFFF"
+        backgroundColor="ui.background"
         borderRadius="8px"
         paddingLeft="16px"
         paddingRight="16px"
+        border="1px solid"
+        borderColor="ui.borderLight"
       >
-        <FaSearch color="#4CAF50" />
+        <FaSearch color="var(--chakra-colors-brand-accent)" />
 
         <Box
           display="flex"
@@ -132,52 +157,101 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
           display="flex"
           alignItems="center"
         >
-          <FaFilter color="#4CAF50" />
+          <FaFilter color="var(--chakra-colors-brand-accent)" />
         </Box>
       </Box>
 
-      {/* <Box marginTop="6px" fontSize="xs" color="#666">
-        <Text>
-          Tags: {tags.length > 0
-            ? tags.map((tag) => `${tag.type}: ${tag.value || "(empty)"}`).join(", ")
-            : "(none)"}
-        </Text>
-        <Text>Search key: {searchTerm || "(none)"}</Text>
-      </Box> */}
-
-      {searchFocused && suggestions.length > 0 && (
+      {/* grouped autocomplete dropdown */}
+      {searchFocused && (deviceSuggestions.length > 0 || manufacturerSuggestions.length > 0) && (
         <Box
           width="100%"
-          background="#FFFFFFFF"
+          background="ui.background"
           borderRadius="8px"
           marginTop="8px"
           position="absolute"
           zIndex={10}
-          boxShadow="md"
+          boxShadow="lg"
+          border="1px solid"
+          borderColor="ui.borderLight"
           onMouseDown={(e) => e.preventDefault()}
         >
-          {suggestions.map((suggestion, index) => (
-            <Link
-              key={`${suggestion.text}-${index}`}
-              onClick={() => {
-                setSearchTerm(suggestion.text);
-                onSearch?.(suggestion.text, tags);
-                setSearchFocused(false);
-              }}
-              display="block"
-              width="100%"
-              padding="8px 12px"
-              borderRadius="8px"
-              _hover={{
-                bg: "#00000011",
-                textDecoration: "none",
-              }}
-              cursor="pointer"
-            >
-              <Text fontSize="sm">{suggestion.text}</Text>
-              <Text fontSize="xs" color="#999">{suggestion.source.replace('_', ' ')}</Text>
-            </Link>
-          ))}
+          {/* devices section */}
+          {deviceSuggestions.length > 0 && (
+            <Box>
+              <Text
+                fontSize="xs"
+                fontWeight="semibold"
+                color="ui.textMuted"
+                padding="8px 12px 4px"
+                textTransform="uppercase"
+                letterSpacing="wide"
+              >
+                Devices
+              </Text>
+              {deviceSuggestions.map((suggestion, index) => (
+                <Link
+                  key={`${suggestion.text}-${index}`}
+                  onClick={() => {
+                    setSearchTerm(suggestion.text);
+                    onSearch?.(suggestion.text, tags);
+                    setSearchFocused(false);
+                  }}
+                  display="block"
+                  width="100%"
+                  padding="8px 12px"
+                  borderRadius="4px"
+                  _hover={{
+                    bg: "ui.surface",
+                    textDecoration: "none",
+                  }}
+                  cursor="pointer"
+                >
+                  <Text fontSize="sm">{suggestion.text}</Text>
+                  <Text fontSize="xs" color="ui.textSubtle">
+                    {suggestion.source === 'product_code' ? 'product code' : 'device name'}
+                  </Text>
+                </Link>
+              ))}
+            </Box>
+          )}
+
+          {/* manufacturers section */}
+          {manufacturerSuggestions.length > 0 && (
+            <Box borderTop={deviceSuggestions.length > 0 ? "1px solid" : undefined} borderColor="ui.borderLight">
+              <Text
+                fontSize="xs"
+                fontWeight="semibold"
+                color="ui.textMuted"
+                padding="8px 12px 4px"
+                textTransform="uppercase"
+                letterSpacing="wide"
+              >
+                Manufacturers
+              </Text>
+              {manufacturerSuggestions.map((suggestion, index) => (
+                <Link
+                  key={`${suggestion.text}-${index}`}
+                  onClick={() => {
+                    setSearchTerm(suggestion.text);
+                    onSearch?.(suggestion.text, tags);
+                    setSearchFocused(false);
+                  }}
+                  display="block"
+                  width="100%"
+                  padding="8px 12px"
+                  borderRadius="4px"
+                  _hover={{
+                    bg: "ui.surface",
+                    textDecoration: "none",
+                  }}
+                  cursor="pointer"
+                >
+                  <Text fontSize="sm">{suggestion.text}</Text>
+                  <Text fontSize="xs" color="ui.textSubtle">manufacturer</Text>
+                </Link>
+              ))}
+            </Box>
+          )}
         </Box>
       )}
 
@@ -186,6 +260,18 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         onClose={() => setFilterFocused(false)}
         onFilterSelect={applyFilter}
       />
+
+      {/* gibberish warning below search bar */}
+      {showGibberishWarning && (
+        <Text
+          fontSize="sm"
+          color="status.warning"
+          marginTop="2"
+          paddingX="2"
+        >
+          this doesn&apos;t look like a valid search term
+        </Text>
+      )}
     </Box>
   );
 };
