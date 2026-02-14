@@ -1,18 +1,18 @@
-import { Box, HStack, Text } from "@chakra-ui/react";
+import { Box, HStack, Text, Checkbox } from "@chakra-ui/react";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
 import Link from "next/link";
 
 export type Device = {
-  id: string;           // submission_number
-  name: string;         // device_name
-  manufacturer: string; // sponsor
-  date: string;         // decision_date
-  panel: string;        // panel name
-  pCode: string;        // product_code
-  recalls: number;      // default 0 (populated later by safety data)
-  availability: boolean; // default true
-  snippet: string;      // search result snippet
+  id: string;
+  name: string;
+  manufacturer: string;
+  date: string;
+  panel: string;
+  pCode: string;
+  recalls: number;
+  availability: boolean;
+  snippet: string;
   relevanceScore: number;
   deviceClass: string | null;
   pagerankScore: number | null;
@@ -21,26 +21,32 @@ export type Device = {
 type DeviceSummaryCardProps = {
   device: Device;
   searchQuery?: string;
+  selectedDevices: Device[];
+  onToggle: (device: Device) => void;
 };
 
-// helper to get recall count color based on wcag-compliant semantic tokens
 const getRecallColor = (count: number): string => {
   if (count === 0) return "status.safe";
-  if (count >= 1 && count <= 5) return "status.warning";
-  return "status.danger"; // 6+
+  if (count <= 5) return "status.warning";
+  return "status.danger";
 };
 
 export const DeviceSummaryCard = ({
-  device: { id, name, manufacturer, date, panel, pCode, recalls, deviceClass, snippet },
+  device,
+  selectedDevices,
+  onToggle,
   searchQuery = "",
 }: DeviceSummaryCardProps) => {
   const [expanded, setExpanded] = useState(false);
 
-  // truncate snippet to ~200 chars
-  const shouldTruncate = snippet && snippet.length > 200;
-  const displaySnippet = shouldTruncate && !expanded
-    ? snippet.slice(0, 200)
-    : snippet;
+  const isSelected = selectedDevices.some(d => d.id === device.id);
+
+  const shouldTruncate = device.snippet && device.snippet.length > 200;
+
+  const displaySnippet =
+    shouldTruncate && !expanded
+      ? device.snippet.slice(0, 200)
+      : device.snippet;
 
   return (
     <Box
@@ -51,8 +57,7 @@ export const DeviceSummaryCard = ({
       borderColor="ui.borderLight"
       marginBottom="4"
     >
-      {/* title as clickable link */}
-      <Link href={`/devices/${id}`} passHref legacyBehavior>
+      <Link href={`/devices/${device.id}`} legacyBehavior>
         <Box
           as="a"
           fontWeight="bold"
@@ -65,81 +70,69 @@ export const DeviceSummaryCard = ({
           {searchQuery ? (
             <Highlighter
               searchWords={searchQuery.split(/\s+/)}
-              autoEscape={true}
-              textToHighlight={name}
+              autoEscape
+              textToHighlight={device.name}
               highlightStyle={{ fontWeight: "bold", backgroundColor: "#FFEB3B80" }}
             />
           ) : (
-            name
+            device.name
           )}
         </Box>
       </Link>
 
-      {/* compact metadata in horizontal layout */}
-      <HStack
-        fontSize="sm"
-        color="ui.textMuted"
-        gap="3"
-        flexWrap="wrap"
-        marginBottom="2"
-      >
-        {manufacturer && (
+      <HStack fontSize="sm" color="ui.textMuted" gap="3" flexWrap="wrap" mb="2">
+        {device.manufacturer && (
           <Text>
-            Manufacturer: <Box as="span" color="ui.text">{manufacturer}</Box>
+            Manufacturer: <Box as="span" color="ui.text">{device.manufacturer}</Box>
           </Text>
         )}
-        {date && (
-          <Text>|</Text>
-        )}
-        {date && (
+
+        {device.date && <Text>|</Text>}
+        {device.date && (
           <Text>
-            Date: <Box as="span" color="ui.text">{date}</Box>
+            Date: <Box as="span" color="ui.text">{device.date}</Box>
           </Text>
         )}
-        {panel && (
-          <Text>|</Text>
-        )}
-        {panel && (
+
+        {device.panel && <Text>|</Text>}
+        {device.panel && (
           <Text>
-            Panel: <Box as="span" color="ui.text">{panel}</Box>
+            Panel: <Box as="span" color="ui.text">{device.panel}</Box>
           </Text>
         )}
-        {deviceClass && (
-          <Text>|</Text>
-        )}
-        {deviceClass && (
+
+        {device.deviceClass && <Text>|</Text>}
+        {device.deviceClass && (
           <Text>
-            Class: <Box as="span" color="ui.text">{deviceClass}</Box>
+            Class: <Box as="span" color="ui.text">{device.deviceClass}</Box>
           </Text>
         )}
-        {pCode && (
-          <Text>|</Text>
-        )}
-        {pCode && (
+
+        {device.pCode && <Text>|</Text>}
+        {device.pCode && (
           <Text>
-            Product Code: <Box as="span" color="ui.text">{pCode}</Box>
+            Product Code: <Box as="span" color="ui.text">{device.pCode}</Box>
           </Text>
         )}
       </HStack>
 
-      {/* recall count with color coding */}
-      <Text fontSize="sm" color={getRecallColor(recalls)} marginBottom="2">
-        Number of recalls: {recalls}
+      <Text fontSize="sm" color={getRecallColor(device.recalls)} mb="2">
+        Number of recalls: {device.recalls}
       </Text>
 
-      {/* snippet with search highlighting and read more */}
-      {snippet && (
+      {device.snippet && (
         <Box fontSize="sm" color="ui.textMuted">
           {searchQuery ? (
             <Highlighter
               searchWords={searchQuery.split(/\s+/)}
-              autoEscape={true}
+              autoEscape
               textToHighlight={displaySnippet}
               highlightStyle={{ fontWeight: "bold", backgroundColor: "#FFEB3B80" }}
             />
           ) : (
             <Text>{displaySnippet}</Text>
           )}
+
           {shouldTruncate && !expanded && (
             <>
               ...{" "}
@@ -156,6 +149,17 @@ export const DeviceSummaryCard = ({
           )}
         </Box>
       )}
+
+      <Box mt="4">
+        <Checkbox.Root
+          checked={isSelected}
+          onCheckedChange={() => onToggle(device)}
+        >
+          <Checkbox.HiddenInput />
+          <Checkbox.Control />
+          <Checkbox.Label>Add to comparison</Checkbox.Label>
+        </Checkbox.Root>
+      </Box>
     </Box>
   );
 };
