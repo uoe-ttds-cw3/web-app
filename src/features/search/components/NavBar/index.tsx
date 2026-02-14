@@ -7,7 +7,7 @@ type Category = {
   name: string;
 };
 
-export type NavBarProps = {
+type NavBarProps = {
   categories?: Category[];
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
@@ -59,7 +59,7 @@ export const NavBar = ({
         Search by Category
       </Text>
 
-      {/* Error state */}
+      {/* error state */}
       {error && (
         <Text color="red.500" fontSize="sm">
           Error:{" "}
@@ -67,20 +67,32 @@ export const NavBar = ({
         </Text>
       )}
 
-      <Flex overflowX="auto" paddingBottom="8px">
+      <Flex overflowX="auto">
         {isFetching ? (
           <>
-            <Skeleton height="40px" width="50rem" />
+            <Skeleton
+              height="40px"
+              width="100rem"
+              variant="shine"
+              css={{
+                "--start-color": "#4CAF5052",
+                "--end-color": "#4CAF5029",
+              }}
+            />
           </>
         ) : (
           categories.map((category, index) => (
             <Button
               key={category.id}
-              onClick={() => onCategorySelect?.(category.id)}
+              onClick={() =>
+                onCategorySelect?.(
+                  selectedCategory === category.id ? "" : category.id,
+                )
+              }
               backgroundColor={
                 selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
               }
-              color="#266429"
+              color="brand.primary"
               padding="12px 24px"
               borderRadius={
                 index === 0
@@ -89,18 +101,16 @@ export const NavBar = ({
                     ? "0 8px 8px 0"
                     : "0"
               }
+              _hover={{
+                backgroundColor:
+                  selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
+              }}
             >
               {category.name}
             </Button>
           ))
         )}
       </Flex>
-
-      {/* {selectedCategory && (
-        <Text fontSize="sm" marginTop="12px" color="#266429">
-          Selected: {categories.find(c => c.id === selectedCategory)?.name}
-        </Text>
-      )} */}
     </Box>
   );
 };
