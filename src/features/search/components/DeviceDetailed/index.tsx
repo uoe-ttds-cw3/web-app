@@ -60,7 +60,7 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
               fontSize="sm"
               textDecoration="underline"
             >
-              view fda document
+              View FDA Document
             </ChakraLink>
           )}
         </Box>
