@@ -17,6 +17,9 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
     return num.toLocaleString();
   };
 
+  // Truncate year to last two digits and remove leading zero for URL construction straight to PDF (waiting on API response update to include date_received)
+  // const yearpart = device.date_received? device.date_received.slice(2, 4).replace(/^0/, ''): '';
+
   // Truncate summary text to 500 chars
   const truncatedSummary = device.summary_text && device.summary_text.length > 500
     ? device.summary_text.substring(0, 500) + '...'
@@ -31,11 +34,16 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
         <Heading size="xl" color="#266429" marginBottom="8px">
           {device.device_name}
         </Heading>
-        <Badge colorScheme="gray" fontSize="md" marginBottom="8px" padding="4px 8px">
-          {device.submission_number}
-        </Badge>
-        <Text fontSize="lg" color="black">
-          Sponsor: <Box as="span" fontWeight="bold">{device.sponsor}</Box>
+          {device.submission_number && (
+            // Temporary fix implemented - link goes to PmN page rather than directly to pdf, but format for pdf stored below 
+            //<ChakraLink href={`https://www.accessdata.fda.gov/cdrh_docs/pdf${yearpart}/${device.submission_number}.pdf`} color="#266429" textDecoration="underline" cursor="pointer" target="blank">
+            <ChakraLink href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${device.submission_number}`} color="#266429" textDecoration="underline" cursor="pointer" target="blank"> 
+              <Badge colorScheme="gray" fontSize="md" marginBottom="8px" padding="4px 8px">
+             {device.submission_number}
+              </Badge>
+            </ChakraLink>)}
+          <Text fontSize="lg" color="black">
+          Manufacturer: <Box as="span" fontWeight="bold">{device.sponsor}</Box>
         </Text>
       </Box>
 

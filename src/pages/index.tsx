@@ -1,8 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import {
-  DeviceSummaryCard,
-} from "@/features/search/components/DeviceSummaryCard";
+import {DeviceSummaryCard, Device} from "@/features/search/components/DeviceSummaryCard";
 import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { NavBar } from "@/features/search/components/NavBar";
 import { SearchForm } from "@/features/search/components/SearchForm";
@@ -11,6 +9,9 @@ import { Stack, Text, Box, Spinner } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
 import { toaster } from "@/components/ui/Toaster";
+import { SideDrawer } from "@/features/search/components/SideDrawer";
+import { useState } from "react";
+import { FullBleed } from "@/components/ui/FullBleed";
 
 export default function Home() {
   const router = useRouter();
@@ -22,6 +23,16 @@ export default function Home() {
 
   const { data, isFetching, isLoading, error } = useSearch(query, { panel, product_code: productCode, date_from: dateAfter, date_to: dateBefore, limit: 20 });
   const results = data?.results.map(transformSearchResult) ?? [];
+  
+  // Manage use state for selected devices for comparison - lifted up to home page to persist across navigation to device detailed page and back, and to pass to side drawer component
+  const [selectedDevices, setSelectedDevices] = useState<Device[]>([]);
+
+  const handleToggle = (device: Device) => {
+    setSelectedDevices(prev => {
+      const exists = prev.some(d => d.id === device.id);
+      return exists ? prev.filter(d => d.id !== device.id) : [...prev, device];
+    });
+  };
 
   // Show error toast when search fails
   useEffect(() => {
@@ -114,7 +125,7 @@ export default function Home() {
 
       {/* Results with loading overlay */}
       {data && (
-        <Box position="relative">
+        <Box position="relative" p={6} maxW="100%" w="100%">
           {/* Loading overlay on top of stale results */}
           {isFetching && (
             <Box
@@ -158,19 +169,38 @@ export default function Home() {
                   </Box>
                 ))}
               </Box>
+              
             </Box>
           ) : (
             <>
+            <FullBleed p={4}>
+            <Box display="flex" minH="100vh" p="4">
+             {/* Left sidebar */}
+               <Box w="200px" flexShrink={0} p={4}>
+                {/*<LeftSidebar />*/}
+               </Box>
+
+            {/* Main content */}   
+            <Box flex="1">
               <ResultsHeader numResults={data.total_results} />
               <Stack>
                 {results.map((device) => (
-                  <DeviceSummaryCard key={device.id} device={device} />
+                  <DeviceSummaryCard key={device.id} device={device} selectedDevices={selectedDevices} onToggle={handleToggle} />
                 ))}
-              </Stack>
-            </>
-          )}
-        </Box>
-      )}
-    </div>
+              </Stack>             
+            </Box>
+
+            {/* Right sidebar */}
+            <Box w="200px" flexShrink={0} p="4">
+              <SideDrawer selectedDeviceIds={selectedDevices.map(d => d.id)} />
+            </Box>
+          </Box> 
+
+          </FullBleed>
+          </>
+           )}
+           </Box>
+         )}
+       </div>
   );
 }
