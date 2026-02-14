@@ -74,6 +74,21 @@ export interface SearchResponse {
   debug_info: QueryDebugInfo | null;
 }
 
+// backend search options controlled by the advanced search panel
+export interface BackendOptions {
+  use_expansion: boolean;
+  use_pagerank_boost: boolean;
+  use_stemming: boolean;
+  use_hybrid: boolean;
+}
+
+export const defaultBackendOptions: BackendOptions = {
+  use_expansion: false,
+  use_pagerank_boost: false,
+  use_stemming: true,
+  use_hybrid: true,
+};
+
 export interface SearchFilters {
   panel?: string;
   product_code?: string;

@@ -18,6 +18,10 @@ export const searchQueryOptions = (query: string, filters?: SearchFilters) =>
       if (filters?.device_class) params.set('device_class', filters.device_class);
       if (filters?.use_expansion) params.set('use_expansion', 'true');
       if (filters?.use_pagerank_boost) params.set('use_pagerank_boost', 'true');
+      if (filters?.use_stemming === false) params.set('use_stemming', 'false');
+      if (filters?.use_hybrid === false) params.set('use_hybrid', 'false');
+      if (filters?.remove_stopwords === false) params.set('remove_stopwords', 'false');
+      if (filters?.pagerank_weight !== undefined) params.set('pagerank_weight', String(filters.pagerank_weight));
       if (filters?.include_facets) params.set('include_facets', 'true');
 
       return apiFetch<SearchResponse>(`/api/search?${params}`, { signal });

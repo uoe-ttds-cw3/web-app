@@ -19,6 +19,10 @@ export default async function handler(
     date_to,
     use_expansion,
     use_pagerank_boost,
+    use_stemming,
+    use_hybrid,
+    remove_stopwords,
+    pagerank_weight,
     include_facets
   } = req.query;
 
@@ -47,6 +51,14 @@ export default async function handler(
     params.append("use_expansion", "true");
   if (use_pagerank_boost === "true")
     params.append("use_pagerank_boost", "true");
+  if (use_stemming === "false")
+    params.append("use_stemming", "false");
+  if (use_hybrid === "false")
+    params.append("use_hybrid", "false");
+  if (remove_stopwords === "false")
+    params.append("remove_stopwords", "false");
+  if (pagerank_weight && typeof pagerank_weight === "string")
+    params.append("pagerank_weight", pagerank_weight);
   if (include_facets === "true")
     params.append("include_facets", "true");
 

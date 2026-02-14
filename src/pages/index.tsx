@@ -10,6 +10,7 @@ import { StartSearching } from "@/features/search/components/StartSearching";
 import { Stack, Text, Box, Spinner, Button, Collapsible } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
+import type { BackendOptions } from "@/lib/api/types";
 import { toaster } from "@/components/ui/Toaster";
 import { SideDrawer } from "@/features/search/components/SideDrawer";
 import { FullBleed } from "@/components/ui/FullBleed";
@@ -24,6 +25,13 @@ export default function Home() {
   const dateAfter = (router.query.date_from as string) || undefined;
   const decision = (router.query.decision as string) || undefined;
   const deviceClass = (router.query.device_class as string) || undefined;
+
+  // backend search options from url
+  const useExpansion = router.query.use_expansion === 'true';
+  const usePagerankBoost = router.query.use_pagerank_boost === 'true';
+  const useStemming = router.query.use_stemming !== 'false'; // default true
+  const useHybrid = router.query.use_hybrid !== 'false'; // default true
+
 
   const page = Number(router.query.page) || 1;
   const limit = 20;
@@ -49,7 +57,11 @@ export default function Home() {
     device_class: deviceClass,
     limit,
     offset,
-    include_facets: true
+    include_facets: true,
+    use_expansion: useExpansion || undefined,
+    use_pagerank_boost: usePagerankBoost || undefined,
+    use_stemming: useStemming ? undefined : false,
+    use_hybrid: useHybrid ? undefined : false,
   });
   const results = data?.results.map(transformSearchResult) ?? [];
   const totalPages = data ? Math.ceil(data.total_results / limit) : 0;
@@ -70,9 +82,40 @@ export default function Home() {
     return `${year}-${month}-${day}`;
   };
 
-  const handleSearch = (newQuery: string) => {
+  const handleSearch = (newQuery: string, tags?: Array<{ id: string; type: string; value: string }>, backendOptions?: BackendOptions) => {
     const queryParams: Record<string, string> = { q: newQuery };
-    router.push({ pathname: '/', query: queryParams }, undefined, { shallow: true });
+
+    if (tags) {
+      tags.forEach(tag => {
+        if (tag.value) {
+          if (tag.type === "Product Code") {
+            queryParams.product_code = tag.value;
+          } else if (tag.type === "Before") {
+            queryParams.date_to = convertDateFormat(tag.value);
+          } else if (tag.type === "After") {
+            queryParams.date_from = convertDateFormat(tag.value);
+          }
+        }
+      });
+    }
+
+    // serialize backend options - only non-default values
+    if (backendOptions) {
+      if (backendOptions.use_expansion) queryParams.use_expansion = 'true';
+      if (backendOptions.use_pagerank_boost) queryParams.use_pagerank_boost = 'true';
+      if (!backendOptions.use_stemming) queryParams.use_stemming = 'false';
+      if (!backendOptions.use_hybrid) queryParams.use_hybrid = 'false';
+    }
+
+    if (panel) {
+      queryParams.panel = panel;
+    }
+
+    // reset to page 1 on new search
+    router.push({
+      pathname: '/',
+      query: queryParams
+    }, undefined, { shallow: true });
   };
 
   const handleCategorySelect = (panelCode?: string) => {

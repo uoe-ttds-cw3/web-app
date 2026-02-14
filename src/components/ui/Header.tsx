@@ -2,6 +2,7 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { Box, Flex, HStack, Link, Text } from "@chakra-ui/react";
 import { SearchForm } from "@/features/search/components/SearchForm";
+import type { BackendOptions } from "@/lib/api/types";
 
 export function Header() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export function Header() {
     return `${year}-${month}-${day}`;
   };
 
-  const handleSearch = (newQuery: string, tags?: Array<{ id: string; type: string; value: string }>) => {
+  const handleSearch = (newQuery: string, tags?: Array<{ id: string; type: string; value: string }>, backendOptions?: BackendOptions) => {
     const queryParams: Record<string, string> = { q: newQuery };
 
     if (tags) {
@@ -31,6 +32,14 @@ export function Header() {
           }
         }
       });
+    }
+
+    // serialize backend options - only send non-default values
+    if (backendOptions) {
+      if (backendOptions.use_expansion) queryParams.use_expansion = 'true';
+      if (backendOptions.use_pagerank_boost) queryParams.use_pagerank_boost = 'true';
+      if (!backendOptions.use_stemming) queryParams.use_stemming = 'false';
+      if (!backendOptions.use_hybrid) queryParams.use_hybrid = 'false';
     }
 
     // preserve panel filter if exists

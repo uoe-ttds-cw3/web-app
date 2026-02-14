@@ -1,314 +1,479 @@
-import { Box, Input, Heading, Text } from "@chakra-ui/react";
-import { IoCloseSharp } from "react-icons/io5";
-import { FaSearch } from "react-icons/fa";
-import { useEffect, useState } from "react";
+import { Box, Input, Text, NativeSelect } from "@chakra-ui/react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { FaPlus, FaTimes, FaSearch } from "react-icons/fa";
+import type { BackendOptions } from "@/lib/api/types";
+import { defaultBackendOptions } from "@/lib/api/types";
 
-interface AdvancedSearchModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSearch?: (query: string) => void;
+type Operator = "contains" | "AND" | "OR" | "NOT" | "phrase" | "proximity";
+type Joiner = "AND" | "OR";
+
+interface QueryRow {
+  id: string;
+  operator: Operator;
+  value1: string;
+  value2: string;
+  distance: string;
 }
 
-export const AdvancedSearchModal = ({ isOpen, onClose, onSearch }: AdvancedSearchModalProps) => {
-    // Boolean AND
-    const [andTerm1, setAndTerm1] = useState("");
-    const [andTerm2, setAndTerm2] = useState("");
+interface AdvancedSearchPanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSearch: (query: string, backendOptions: BackendOptions) => void;
+}
 
-    // Boolean NOT
-    const [notTerm1, setNotTerm1] = useState("");
-    const [notTerm2, setNotTerm2] = useState("");
+const createRow = (): QueryRow => ({
+  id: String(Date.now()) + String(Math.random()).slice(2, 6),
+  operator: "contains",
+  value1: "",
+  value2: "",
+  distance: "5",
+});
 
-    // Phrase Search
-    const [phraseTerm, setPhraseTerm] = useState("");
+// build query fragment from a single row
+function buildRowFragment(row: QueryRow): string {
+  const v1 = row.value1.trim();
+  const v2 = row.value2.trim();
 
-    // Proximity Search
-    const [proximityTerm1, setProximityTerm1] = useState("");
-    const [proximityDistance, setProximityDistance] = useState("5");
-    const [proximityTerm2, setProximityTerm2] = useState("");
+  switch (row.operator) {
+    case "contains":
+      return v1;
+    case "AND":
+      return v1 && v2 ? `${v1} AND ${v2}` : v1 || v2;
+    case "OR":
+      return v1 && v2 ? `${v1} OR ${v2}` : v1 || v2;
+    case "NOT":
+      return v1 && v2 ? `${v1} NOT ${v2}` : v1;
+    case "phrase":
+      return v1 ? `"${v1}"` : "";
+    case "proximity":
+      return v1 && v2
+        ? `${v1} NEAR/${row.distance || "5"} ${v2}`
+        : v1 || v2;
+    default:
+      return "";
+  }
+}
 
-    useEffect(() => {
-        const handleEscKey = (event: KeyboardEvent) => {
-            if (event.key === "Escape" && isOpen) {
-                onClose();
-            }
-        };
+const needsTwoInputs = (op: Operator) =>
+  ["AND", "OR", "NOT", "proximity"].includes(op);
 
-        if (isOpen) {
-            document.addEventListener("keydown", handleEscKey);
-        }
+// toggle pill for backend options
+const OptionPill = ({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) => (
+  <Box
+    as="button"
+    onClick={onClick}
+    px="8px"
+    py="3px"
+    borderRadius="12px"
+    fontSize="xs"
+    cursor="pointer"
+    bg={active ? "brand.greenBg" : "transparent"}
+    color={active ? "brand.primary" : "ui.textMuted"}
+    border="1px solid"
+    borderColor={active ? "brand.primary" : "ui.borderLight"}
+    transition="all 0.15s"
+    _hover={{ opacity: 0.8 }}
+    whiteSpace="nowrap"
+  >
+    {label}
+  </Box>
+);
 
-        return () => {
-            document.removeEventListener("keydown", handleEscKey);
-        };
-    }, [isOpen, onClose]);
+export const AdvancedSearchPanel = ({
+  isOpen,
+  onClose,
+  onSearch,
+}: AdvancedSearchPanelProps) => {
+  const [rows, setRows] = useState<QueryRow[]>([createRow()]);
+  const [joiners, setJoiners] = useState<Joiner[]>([]);
+  const [options, setOptions] = useState<BackendOptions>({
+    ...defaultBackendOptions,
+  });
 
-    const handleAndSearch = () => {
-        if (andTerm1 && andTerm2) {
-            const query = `${andTerm1} AND ${andTerm2}`;
-            onSearch?.(query);
-            onClose();
-            setAndTerm1("");
-            setAndTerm2("");
-        }
+  // close on escape
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) onClose();
     };
+    if (isOpen) document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [isOpen, onClose]);
 
-    const handleNotSearch = () => {
-        if (notTerm1 && notTerm2) {
-            const query = `${notTerm1} NOT ${notTerm2}`;
-            onSearch?.(query);
-            onClose();
-            setNotTerm1("");
-            setNotTerm2("");
-        }
-    };
+  // live query preview
+  const queryPreview = useMemo(() => {
+    const fragments = rows.map(buildRowFragment).filter(Boolean);
+    if (fragments.length === 0) return "";
+    if (fragments.length === 1) return fragments[0];
+    return fragments.reduce((acc, frag, i) => {
+      if (i === 0) return frag;
+      const joiner = joiners[i - 1] || "AND";
+      return `${acc} ${joiner} ${frag}`;
+    });
+  }, [rows, joiners]);
 
-    const handlePhraseSearch = () => {
-        if (phraseTerm) {
-            const query = `"${phraseTerm}"`;
-            onSearch?.(query);
-            onClose();
-            setPhraseTerm("");
-        }
-    };
+  const updateRow = useCallback(
+    (id: string, updates: Partial<QueryRow>) => {
+      setRows((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, ...updates } : r))
+      );
+    },
+    []
+  );
 
-    const handleProximitySearch = () => {
-        if (proximityTerm1 && proximityTerm2) {
-            const query = `${proximityTerm1} NEAR/${proximityDistance} ${proximityTerm2}`;
-            onSearch?.(query);
-            onClose();
-            setProximityTerm1("");
-            setProximityDistance("5");
-            setProximityTerm2("");
-        }
-    };
+  const addRow = () => {
+    setRows((prev) => [...prev, createRow()]);
+    setJoiners((prev) => [...prev, "AND"]);
+  };
 
-    if (!isOpen) return null;
+  const removeRow = (id: string) => {
+    if (rows.length <= 1) return;
+    const index = rows.findIndex((r) => r.id === id);
+    setRows((prev) => prev.filter((r) => r.id !== id));
+    setJoiners((prev) => {
+      const next = [...prev];
+      // remove the joiner above this row, or below if it's the first
+      if (index > 0) next.splice(index - 1, 1);
+      else if (next.length > 0) next.splice(0, 1);
+      return next;
+    });
+  };
 
-    return (
-        <>
-            <Box
-                position="fixed"
-                top={0}
-                left={0}
-                right={0}
-                bottom={0}
-                bg="rgba(0, 0, 0, 0.5)"
-                zIndex={999}
-                onClick={onClose}
-            />
-            <Box
-                position="fixed"
-                top="40%"
-                left="50%"
-                transform="translate(-50%, -40%)"
-                bg="white"
-                borderRadius="12px"
-                zIndex={1000}
-                width="90%"
-                maxWidth="600px"
-                onClick={(e) => e.stopPropagation()}
-                maxHeight="80vh"
-                overflowY="auto"
-                padding="25px"
-            >
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={6}>
-                    <Heading size="lg" color="#266429">Advanced Search</Heading>
-                    <Box
-                        as="button"
-                        onClick={onClose}
-                        cursor="pointer"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        p={0}
-                        _hover={{ opacity: 0.7 }}
-                    >
-                        <IoCloseSharp size={24} color="black" />
-                    </Box>
+  const toggleJoiner = (index: number) => {
+    setJoiners((prev) => {
+      const next = [...prev];
+      next[index] = next[index] === "AND" ? "OR" : "AND";
+      return next;
+    });
+  };
+
+  const toggleOption = (key: keyof BackendOptions) => {
+    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleSearch = () => {
+    if (!queryPreview) return;
+    onSearch(queryPreview, options);
+    onClose();
+  };
+
+  // enter key in any input triggers search
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && queryPreview) {
+      e.preventDefault();
+      handleSearch();
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <Box
+      position="absolute"
+      top="100%"
+      left="0"
+      right="0"
+      marginTop="8px"
+      background="ui.background"
+      borderRadius="8px"
+      zIndex={20}
+      boxShadow="lg"
+      border="1px solid"
+      borderColor="ui.borderLight"
+      padding="16px"
+      onKeyDown={handleKeyDown}
+    >
+      {/* header */}
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb="12px"
+      >
+        <Text fontWeight="600" fontSize="sm" color="brand.primary">
+          Query Builder
+        </Text>
+        <Box
+          as="button"
+          onClick={onClose}
+          cursor="pointer"
+          _hover={{ opacity: 0.7 }}
+          display="flex"
+          alignItems="center"
+        >
+          <FaTimes size={14} color="#666" />
+        </Box>
+      </Box>
+
+      {/* query rows */}
+      {rows.map((row, index) => (
+        <Box key={row.id}>
+          {/* joiner toggle between rows */}
+          {index > 0 && (
+            <Box display="flex" justifyContent="center" my="6px">
+              <Box
+                display="inline-flex"
+                borderRadius="4px"
+                overflow="hidden"
+                border="1px solid"
+                borderColor="ui.borderLight"
+              >
+                <Box
+                  as="button"
+                  px="10px"
+                  py="2px"
+                  fontSize="xs"
+                  fontWeight="600"
+                  cursor="pointer"
+                  bg={
+                    joiners[index - 1] === "AND"
+                      ? "brand.greenBg"
+                      : "transparent"
+                  }
+                  color={
+                    joiners[index - 1] === "AND"
+                      ? "brand.primary"
+                      : "ui.textMuted"
+                  }
+                  onClick={() => toggleJoiner(index - 1)}
+                >
+                  AND
                 </Box>
-
-                <Box display="flex" flexDirection="column" gap={6}>
-                    {/* Boolean AND Search */}
-                    <Box>
-                        <Text fontSize="sm" fontWeight="600" mb={3}>
-                            Boolean AND Search
-                        </Text>
-                        <Box display="flex" alignItems="center" gap={3} mb={1}>
-                            <Input
-                                placeholder="Term 1"
-                                size="md"
-                                value={andTerm1}
-                                onChange={(e) => setAndTerm1(e.target.value)}
-                                padding="10px"
-                            />
-                            <Text fontWeight="600" whiteSpace="nowrap">AND</Text>
-                            <Input
-                                placeholder="Term 2"
-                                size="md"
-                                value={andTerm2}
-                                onChange={(e) => setAndTerm2(e.target.value)}
-                                padding="10px"
-                            />
-                            <Box
-                                as="button"
-                                onClick={handleAndSearch}
-                                cursor="pointer"
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                _hover={{ opacity: 0.7 }}
-                            >
-                                <FaSearch size={18} color="black" />
-                            </Box>
-                        </Box>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Text fontSize="xs" color="gray.600">
-                                All terms must appear in the results.
-                            </Text>
-                            <Text fontSize="xs" color="gray.500" fontFamily="monospace">
-                                [TERM1 AND TERM2]
-                            </Text>
-                        </Box>
-                    </Box>
-
-                    {/* Boolean NOT Search */}
-                    <Box>
-                        <Text fontSize="sm" fontWeight="600" mb={3}>
-                            Boolean NOT Search
-                        </Text>
-                        <Box display="flex" alignItems="center" gap={3} mb={1}>
-                            <Input
-                                placeholder="Term 1"
-                                size="md"
-                                value={notTerm1}
-                                onChange={(e) => setNotTerm1(e.target.value)}
-                                padding="10px"
-                            />
-                            <Text fontWeight="600" whiteSpace="nowrap">NOT</Text>
-                            <Input
-                                placeholder="Term 2"
-                                size="md"
-                                value={notTerm2}
-                                onChange={(e) => setNotTerm2(e.target.value)}
-                                padding="10px"
-                            />
-                            <Box
-                                as="button"
-                                onClick={handleNotSearch}
-                                cursor="pointer"
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                _hover={{ opacity: 0.7 }}
-                            >
-                                <FaSearch size={18} color="black" />
-                            </Box>
-                        </Box>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Text fontSize="xs" color="gray.600">
-                                Find results with first term but exclude the second.
-                            </Text>
-                            <Text fontSize="xs" color="gray.500" fontFamily="monospace">
-                                [TERM1 NOT TERM2]
-                            </Text>
-                        </Box>
-                    </Box>
-
-                    {/* Phrase Search */}
-                    <Box>
-                        <Text fontSize="sm" fontWeight="600" mb={3}>
-                            Phrase Search
-                        </Text>
-                        <Box display="flex" alignItems="center" gap={2} mb={1}>
-                            <Text fontWeight="600">&ldquo;</Text>
-                            <Input
-                                placeholder="Enter phrase"
-                                size="md"
-                                border="none"
-                                borderBottom="1px solid"
-                                borderColor="gray.300"
-                                borderRadius="0"
-                                value={phraseTerm}
-                                onChange={(e) => setPhraseTerm(e.target.value)}
-                            />
-                            <Text fontWeight="600">&rdquo;</Text>
-                            <Box
-                                as="button"
-                                onClick={handlePhraseSearch}
-                                cursor="pointer"
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                _hover={{ opacity: 0.7 }}
-                            >
-                                <FaSearch size={18} color="black" />
-                            </Box>
-                        </Box>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Text fontSize="xs" color="gray.600">
-                                Search for the exact phrase entered.
-                            </Text>
-                            <Text fontSize="xs" color="gray.500" fontFamily="monospace">
-                                [&ldquo;TERM&rdquo;]
-                            </Text>
-                        </Box>
-                    </Box>
-
-                    {/* Proximity Search */}
-                    <Box>
-                        <Text fontSize="sm" fontWeight="600" mb={3}>
-                            Proximity Search
-                        </Text>
-                        <Box display="flex" alignItems="center" gap={2} mb={1}>
-                            <Input
-                                placeholder="Term 1"
-                                size="md"
-                                value={proximityTerm1}
-                                onChange={(e) => setProximityTerm1(e.target.value)}
-                                flex={1}
-                                padding="10px"
-                            />
-                            <Text fontWeight="600" whiteSpace="nowrap">NEAR/</Text>
-                            <Input
-                                placeholder="5"
-                                size="md"
-                                type="number"
-                                value={proximityDistance}
-                                onChange={(e) => setProximityDistance(e.target.value)}
-                                width="60px"
-                                padding="10px"
-                            />
-                            <Input
-                                placeholder="Term 2"
-                                size="md"
-                                value={proximityTerm2}
-                                onChange={(e) => setProximityTerm2(e.target.value)}
-                                flex={1}
-                                padding="10px"
-                            />
-                            <Box
-                                as="button"
-                                onClick={handleProximitySearch}
-                                cursor="pointer"
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                _hover={{ opacity: 0.7 }}
-                            >
-                                <FaSearch size={18} color="black" />
-                            </Box>
-                        </Box>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Text fontSize="xs" color="gray.600">
-                                Find terms within a specified distance of each other.
-                            </Text>
-                            <Text fontSize="xs" color="gray.500" fontFamily="monospace">
-                                [TERM1 NEAR/distance TERM2]
-                            </Text>
-                        </Box>
-                    </Box>
+                <Box
+                  as="button"
+                  px="10px"
+                  py="2px"
+                  fontSize="xs"
+                  fontWeight="600"
+                  cursor="pointer"
+                  bg={
+                    joiners[index - 1] === "OR"
+                      ? "brand.greenBg"
+                      : "transparent"
+                  }
+                  color={
+                    joiners[index - 1] === "OR"
+                      ? "brand.primary"
+                      : "ui.textMuted"
+                  }
+                  onClick={() => toggleJoiner(index - 1)}
+                >
+                  OR
                 </Box>
+              </Box>
             </Box>
-        </>
-    );
+          )}
+
+          {/* row inputs */}
+          <Box display="flex" alignItems="center" gap="6px" mb="4px">
+            {/* operator dropdown */}
+            <NativeSelect.Root size="sm" width="120px" flexShrink={0}>
+              <NativeSelect.Field
+                value={row.operator}
+                onChange={(e) =>
+                  updateRow(row.id, {
+                    operator: e.target.value as Operator,
+                    value2: "",
+                    distance: "5",
+                  })
+                }
+                fontSize="xs"
+                paddingLeft="8px"
+              >
+                <option value="contains">contains</option>
+                <option value="AND">AND</option>
+                <option value="OR">OR</option>
+                <option value="NOT">NOT</option>
+                <option value="phrase">phrase</option>
+                <option value="proximity">proximity</option>
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+
+            {/* primary input */}
+            <Input
+              size="sm"
+              placeholder={
+                row.operator === "phrase" ? "enter phrase" : "term"
+              }
+              value={row.value1}
+              onChange={(e) => updateRow(row.id, { value1: e.target.value })}
+              flex="1"
+              fontSize="sm"
+              paddingLeft="8px"
+            />
+
+            {/* secondary input for two-input operators */}
+            {needsTwoInputs(row.operator) && (
+              <>
+                {row.operator === "proximity" && (
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    gap="2px"
+                    flexShrink={0}
+                  >
+                    <Text
+                      fontSize="xs"
+                      color="ui.textMuted"
+                      whiteSpace="nowrap"
+                    >
+                      NEAR/
+                    </Text>
+                    <Input
+                      size="sm"
+                      type="number"
+                      value={row.distance}
+                      onChange={(e) =>
+                        updateRow(row.id, { distance: e.target.value })
+                      }
+                      width="45px"
+                      fontSize="sm"
+                      textAlign="center"
+                    />
+                  </Box>
+                )}
+                {row.operator !== "proximity" && (
+                  <Text
+                    fontSize="xs"
+                    fontWeight="600"
+                    color="ui.textMuted"
+                    whiteSpace="nowrap"
+                  >
+                    {row.operator}
+                  </Text>
+                )}
+                <Input
+                  size="sm"
+                  placeholder="term"
+                  value={row.value2}
+                  onChange={(e) =>
+                    updateRow(row.id, { value2: e.target.value })
+                  }
+                  flex="1"
+                  fontSize="sm"
+                  paddingLeft="8px"
+                />
+              </>
+            )}
+
+            {/* remove row button */}
+            <Box
+              as="button"
+              onClick={() => removeRow(row.id)}
+              cursor={rows.length > 1 ? "pointer" : "not-allowed"}
+              opacity={rows.length > 1 ? 1 : 0.3}
+              _hover={rows.length > 1 ? { opacity: 0.7 } : {}}
+              display="flex"
+              alignItems="center"
+              flexShrink={0}
+            >
+              <FaTimes size={12} color="#999" />
+            </Box>
+          </Box>
+        </Box>
+      ))}
+
+      {/* add condition */}
+      <Box
+        as="button"
+        onClick={addRow}
+        display="flex"
+        alignItems="center"
+        gap="4px"
+        mt="8px"
+        mb="12px"
+        cursor="pointer"
+        color="brand.accent"
+        fontSize="xs"
+        _hover={{ opacity: 0.8 }}
+      >
+        <FaPlus size={10} />
+        <Text fontSize="xs">add condition</Text>
+      </Box>
+
+      {/* live query preview */}
+      {queryPreview && (
+        <Box
+          bg="brand.surface"
+          borderRadius="6px"
+          padding="8px 12px"
+          mb="12px"
+          border="1px solid"
+          borderColor="ui.borderLight"
+        >
+          <Text fontSize="xs" color="ui.textMuted" mb="2px">
+            query preview
+          </Text>
+          <Text
+            fontSize="sm"
+            fontFamily="monospace"
+            color="ui.text"
+            wordBreak="break-all"
+          >
+            {queryPreview}
+          </Text>
+        </Box>
+      )}
+
+      {/* backend search options */}
+      <Box mb="12px">
+        <Text fontSize="xs" color="ui.textMuted" mb="6px">
+          search options
+        </Text>
+        <Box display="flex" flexWrap="wrap" gap="8px">
+          <OptionPill
+            label="query expansion"
+            active={options.use_expansion}
+            onClick={() => toggleOption("use_expansion")}
+          />
+          <OptionPill
+            label="pagerank boost"
+            active={options.use_pagerank_boost}
+            onClick={() => toggleOption("use_pagerank_boost")}
+          />
+          <OptionPill
+            label="stemming"
+            active={options.use_stemming}
+            onClick={() => toggleOption("use_stemming")}
+          />
+          <OptionPill
+            label="hybrid search"
+            active={options.use_hybrid}
+            onClick={() => toggleOption("use_hybrid")}
+          />
+        </Box>
+      </Box>
+
+      {/* search button */}
+      <Box
+        as="button"
+        onClick={handleSearch}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        gap="6px"
+        width="100%"
+        padding="8px"
+        borderRadius="6px"
+        bg={queryPreview ? "brand.primary" : "ui.borderLight"}
+        color={queryPreview ? "white" : "ui.textMuted"}
+        cursor={queryPreview ? "pointer" : "not-allowed"}
+        fontSize="sm"
+        fontWeight="600"
+        _hover={queryPreview ? { opacity: 0.9 } : {}}
+        transition="all 0.15s"
+      >
+        <FaSearch size={12} />
+        Search
+      </Box>
+    </Box>
+  );
 };
