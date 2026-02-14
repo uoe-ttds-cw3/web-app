@@ -1,12 +1,14 @@
-import { Input, InputGroup, Box, Text, Link } from "@chakra-ui/react";
-import { SetStateAction, useState, useEffect } from "react";
+import { Input, Box, Text, Link } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import { FilterMenu } from "../FilterMenu";
 import { SearchTags } from "../SearchTags";
+import { AdvancedSearchPanel } from "../AdvancedSearchModal";
 import { useAutocomplete } from "@/lib/queries/useAutocomplete";
+import type { BackendOptions } from "@/lib/api/types";
 
 interface SearchFormProps {
-  onSearch?: (query: string, tags?: Array<{ id: string; type: string; value: string }>) => void;
+  onSearch?: (query: string, tags?: Array<{ id: string; type: string; value: string }>, backendOptions?: BackendOptions) => void;
   initialQuery?: string;
 }
 
@@ -29,6 +31,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [filterFocused, setFilterFocused] = useState(false);
+  const [advancedPanelOpen, setAdvancedPanelOpen] = useState(false);
   const [tags, setTags] = useState<Array<{ id: string; type: string; value: string }>>([]);
   const [showGibberishWarning, setShowGibberishWarning] = useState(false);
 
@@ -65,9 +68,9 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
     setTags([...tags, newTag]);
   }
 
-  function handleAdvancedSearch(query: string) {
+  function handleAdvancedSearch(query: string, backendOptions: BackendOptions) {
     setSearchTerm(query);
-    onSearch?.(query, tags);
+    onSearch?.(query, tags, backendOptions);
   }
 
   function updateTagValue(tagId: string, newValue: string) {
@@ -80,12 +83,9 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
     onSearch?.(searchTerm, updatedTags);
   }
 
-  // using react hook form
-  // in onValid callback func
-  // construct request to include search term and selected category
-
   return (
     <Box position="relative" width="100%">
+      {/* backdrop to close filter menu */}
       {filterFocused && (
         <Box
           position="fixed"
@@ -94,6 +94,17 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
           onClick={() => setFilterFocused(false)}
         />
       )}
+
+      {/* backdrop to close advanced panel */}
+      {advancedPanelOpen && (
+        <Box
+          position="fixed"
+          inset="0"
+          zIndex={19}
+          onClick={() => setAdvancedPanelOpen(false)}
+        />
+      )}
+
       <Box
         display="flex"
         alignItems="center"
@@ -167,7 +178,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
       </Box>
 
       {/* grouped autocomplete dropdown */}
-      {searchFocused && (deviceSuggestions.length > 0 || manufacturerSuggestions.length > 0) && (
+      {searchFocused && !advancedPanelOpen && (deviceSuggestions.length > 0 || manufacturerSuggestions.length > 0) && (
         <Box
           width="100%"
           background="ui.background"
@@ -264,24 +275,18 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         isOpen={filterFocused}
         onClose={() => setFilterFocused(false)}
         onFilterSelect={applyFilter}
-        onAdvancedSearch={handleAdvancedSearch}
+        onAdvancedSearchToggle={() => {
+          setAdvancedPanelOpen((prev) => !prev);
+          setFilterFocused(false);
+        }}
       />
 
-      {/* phil note: i commented this out because search bar position goes
-      off screen when this warning shows up, probably a better idea to put the
-      warning somewhere else. */}
-
-      {/* gibberish warning below search bar */}
-      {/* {showGibberishWarning && (
-        <Text
-          fontSize="sm"
-          color="status.warning"
-          marginTop="2"
-          paddingX="2"
-        >
-          this doesn&apos;t look like a valid search term
-        </Text>
-      )} */}
+      {/* advanced search panel below search bar */}
+      <AdvancedSearchPanel
+        isOpen={advancedPanelOpen}
+        onClose={() => setAdvancedPanelOpen(false)}
+        onSearch={handleAdvancedSearch}
+      />
     </Box>
   );
 };

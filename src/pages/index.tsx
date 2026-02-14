@@ -9,6 +9,7 @@ import { StartSearching } from "@/features/search/components/StartSearching";
 import { Stack, Text, Box, Spinner, Button, Collapsible } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult, FacetField } from "@/lib/api/types";
+import type { BackendOptions } from "@/lib/api/types";
 import { toaster } from "@/components/ui/Toaster";
 import { FaFilter, FaTimes } from "react-icons/fa";
 
@@ -21,6 +22,12 @@ export default function Home() {
   const dateAfter = (router.query.date_from as string) || undefined;
   const decision = (router.query.decision as string) || undefined;
   const deviceClass = (router.query.device_class as string) || undefined;
+
+  // backend search options from url
+  const useExpansion = router.query.use_expansion === 'true';
+  const usePagerankBoost = router.query.use_pagerank_boost === 'true';
+  const useStemming = router.query.use_stemming !== 'false'; // default true
+  const useHybrid = router.query.use_hybrid !== 'false'; // default true
 
   // pagination state from url
   const page = Number(router.query.page) || 1;
@@ -39,7 +46,11 @@ export default function Home() {
     device_class: deviceClass,
     limit,
     offset,
-    include_facets: true
+    include_facets: true,
+    use_expansion: useExpansion || undefined,
+    use_pagerank_boost: usePagerankBoost || undefined,
+    use_stemming: useStemming ? undefined : false,
+    use_hybrid: useHybrid ? undefined : false,
   });
   const results = data?.results.map(transformSearchResult) ?? [];
   const totalPages = data ? Math.ceil(data.total_results / limit) : 0;
@@ -61,7 +72,7 @@ export default function Home() {
     return `${year}-${month}-${day}`;
   };
 
-  const handleSearch = (newQuery: string, tags?: Array<{ id: string; type: string; value: string }>) => {
+  const handleSearch = (newQuery: string, tags?: Array<{ id: string; type: string; value: string }>, backendOptions?: BackendOptions) => {
     const queryParams: Record<string, string> = { q: newQuery };
 
     if (tags) {
@@ -76,6 +87,14 @@ export default function Home() {
           }
         }
       });
+    }
+
+    // serialize backend options - only non-default values
+    if (backendOptions) {
+      if (backendOptions.use_expansion) queryParams.use_expansion = 'true';
+      if (backendOptions.use_pagerank_boost) queryParams.use_pagerank_boost = 'true';
+      if (!backendOptions.use_stemming) queryParams.use_stemming = 'false';
+      if (!backendOptions.use_hybrid) queryParams.use_hybrid = 'false';
     }
 
     if (panel) {
