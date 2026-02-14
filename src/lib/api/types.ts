@@ -16,6 +16,7 @@ export interface SearchResultItem {
   decision: string | null;
   decision_code: string | null;
   decision_date: string | null;
+  date_received: string | null;
   device_class: string | null;
   pagerank_score: number | null;
 }
@@ -113,6 +114,7 @@ export interface DeviceLookupResponse {
   panel: string | null;
   decision: string | null;
   decision_date: string | null;
+  date_received: string | null;
   summary_text: string | null;
 }
 
