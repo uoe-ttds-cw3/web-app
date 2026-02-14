@@ -2,15 +2,18 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
   DeviceSummaryCard,
+  Device
 } from "@/features/search/components/DeviceSummaryCard";
 import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { NavBar } from "@/features/search/components/NavBar";
 import { StartSearching } from "@/features/search/components/StartSearching";
 import { Stack, Text, Box, Spinner, Button, Collapsible } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
-import { transformSearchResult, FacetField } from "@/lib/api/types";
+import { transformSearchResult } from "@/lib/api/types";
 import type { BackendOptions } from "@/lib/api/types";
 import { toaster } from "@/components/ui/Toaster";
+import { SideDrawer } from "@/features/search/components/SideDrawer";
+import { FullBleed } from "@/components/ui/FullBleed";
 import { FaFilter, FaTimes } from "react-icons/fa";
 
 export default function Home() {
@@ -29,13 +32,21 @@ export default function Home() {
   const useStemming = router.query.use_stemming !== 'false'; // default true
   const useHybrid = router.query.use_hybrid !== 'false'; // default true
 
-  // pagination state from url
+
   const page = Number(router.query.page) || 1;
   const limit = 20;
   const offset = (page - 1) * limit;
 
-  // filter dropdown state
+  // state for filters and selected devices
   const [filterOpen, setFilterOpen] = useState(false);
+  const [selectedDevices, setSelectedDevices] = useState<Device[]>([]);
+
+  const handleToggle = (device: Device) => {
+    setSelectedDevices(prev => {
+      const exists = prev.some(d => d.id === device.id);
+      return exists ? prev.filter(d => d.id !== device.id) : [...prev, device];
+    });
+  };
 
   const { data, isFetching, isLoading, error } = useSearch(query, {
     panel,
@@ -55,14 +66,13 @@ export default function Home() {
   const results = data?.results.map(transformSearchResult) ?? [];
   const totalPages = data ? Math.ceil(data.total_results / limit) : 0;
 
-  // show error toast when search fails
   useEffect(() => {
     if (error) {
       toaster.create({
         title: "Search failed",
         description: error instanceof Error ? error.message : 'Failed to fetch search results',
         type: "error",
-        duration: Infinity, // persist until dismissed
+        duration: Infinity,
       });
     }
   }, [error]);
@@ -109,60 +119,38 @@ export default function Home() {
   };
 
   const handleCategorySelect = (panelCode?: string) => {
-    // reset to page 1 on category change
     if (panelCode) {
       const { page: _removedPage, ...rest } = router.query;
-      router.push({
-        pathname: '/',
-        query: { ...rest, panel: panelCode }
-      }, undefined, { shallow: true });
+      router.push({ pathname: '/', query: { ...rest, panel: panelCode } }, undefined, { shallow: true });
     } else {
       const { panel: _removedPanel, page: _removedPage, ...rest } = router.query;
-      router.push({
-        pathname: '/',
-        query: rest
-      }, undefined, { shallow: true });
+      router.push({ pathname: '/', query: rest }, undefined, { shallow: true });
     }
   };
 
   const handlePageChange = (newPage: number) => {
-    router.push({
-      pathname: '/',
-      query: { ...router.query, page: String(newPage) }
-    }, undefined, { shallow: true });
+    router.push({ pathname: '/', query: { ...router.query, page: String(newPage) } }, undefined, { shallow: true });
   };
 
   const handleFacetFilter = (field: string, value: string) => {
-    // reset to page 1 on filter change
     const { page: _removedPage, ...rest } = router.query;
-    router.push({
-      pathname: '/',
-      query: { ...rest, [field]: value }
-    }, undefined, { shallow: true });
+    router.push({ pathname: '/', query: { ...rest, [field]: value } }, undefined, { shallow: true });
+    setFilterOpen(false);
   };
 
   const handleRemoveFacetFilter = (field: string) => {
     const { [field]: _removed, page: _removedPage, ...rest } = router.query;
-    router.push({
-      pathname: '/',
-      query: rest
-    }, undefined, { shallow: true });
+    router.push({ pathname: '/', query: rest }, undefined, { shallow: true });
   };
 
-  // navbar below header
   return (
     <div>
-      <NavBar
-        selectedCategory={panel}
-        onCategorySelect={handleCategorySelect}
-      />
+      
+      <Box pr="40px">
+      <NavBar selectedCategory={panel} onCategorySelect={handleCategorySelect}/>
+      </Box>
+      {!query && results.length === 0 && <StartSearching onSuggest={handleSearch} />}
 
-      {/* show start searching when no query */}
-      {!query && results.length === 0 && (
-        <StartSearching onSuggest={handleSearch} />
-      )}
-
-      {/* first load - centered spinner */}
       {isLoading && (
         <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" padding="40px">
           <Spinner size="lg" color="brand.primary" />
@@ -170,83 +158,30 @@ export default function Home() {
         </Box>
       )}
 
-      {/* results with loading overlay */}
       {data && (
-        <Box position="relative">
-          {/* loading overlay on top of stale results */}
-          {isFetching && (
-            <Box
-              position="absolute"
-              inset="0"
-              bg="whiteAlpha.700"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              zIndex="5"
-            >
-              <Box display="flex" flexDirection="column" alignItems="center">
-                <Spinner size="lg" color="brand.primary" />
-                <Text color="brand.primary" marginTop="16px" fontSize="lg">Searching...</Text>
-              </Box>
+        <FullBleed p={4}>
+          <Box display="flex" minH="100vh" p="4">
+            {/* Left sidebar */}
+            <Box w="20px" flexShrink={0} p="4">
+              {/* <LeftSidebar /> */}
             </Box>
-          )}
 
-          {/* empty results state */}
-          {data.results.length === 0 ? (
-            <Box textAlign="center" padding="40px" color="ui.textMuted">
-              <Text fontSize="lg" fontWeight="bold" color="brand.primary" mb="2">
-                No results found for &quot;{query}&quot;
-              </Text>
-              <Text mb="4">Try a different search term:</Text>
-              <Box display="flex" gap="8px" justifyContent="center" flexWrap="wrap">
-                {["insulin pump", "pacemaker", "catheter", "hip implant", "blood pressure"].map((suggestion) => (
-                  <Box
-                    key={suggestion}
-                    as="button"
-                    onClick={() => handleSearch(suggestion)}
-                    padding="6px 16px"
-                    borderRadius="20px"
-                    backgroundColor="brand.greenBg"
-                    color="brand.primary"
-                    fontSize="sm"
-                    cursor="pointer"
-                    _hover={{ backgroundColor: "brand.greenHover" }}
-                  >
-                    {suggestion}
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-          ) : (
-            <>
+            {/* Main content */}
+            <Box flex="1">
+              {/* Header + Filter button */}
               <Box display="flex" alignItems="center" justifyContent="space-between" marginBottom="4">
                 <ResultsHeader numResults={data.total_results} />
 
-                {/* filter button with dropdown */}
                 {data.facets && data.facets.length > 0 && (
                   <Box position="relative">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      colorScheme="green"
-                      onClick={() => setFilterOpen(!filterOpen)}
-                    >
+                    <Button size="sm" variant="outline" colorScheme="green" onClick={() => setFilterOpen(!filterOpen)}>
                       <FaFilter style={{ marginRight: '8px' }} />
                       Filter
                     </Button>
 
-                    {/* filter dropdown */}
                     {filterOpen && (
                       <>
-                        {/* backdrop to close dropdown */}
-                        <Box
-                          position="fixed"
-                          inset="0"
-                          zIndex={9}
-                          onClick={() => setFilterOpen(false)}
-                        />
-
-                        {/* dropdown content */}
+                        <Box position="fixed" inset="0" zIndex={9} onClick={() => setFilterOpen(false)} />
                         <Box
                           position="absolute"
                           top="100%"
@@ -263,9 +198,9 @@ export default function Home() {
                           zIndex={10}
                           padding="4"
                         >
-                          {data.facets.map((facet) => (
+                          {data.facets.map(facet => (
                             <Box key={facet.field} marginBottom="4">
-                              <Collapsible.Root defaultOpen={true}>
+                              <Collapsible.Root defaultOpen>
                                 <Collapsible.Trigger asChild>
                                   <Button
                                     variant="ghost"
@@ -283,14 +218,11 @@ export default function Home() {
                                 </Collapsible.Trigger>
                                 <Collapsible.Content>
                                   <Stack gap="1" marginTop="2">
-                                    {facet.values.slice(0, 10).map((facetValue) => (
+                                    {facet.values.slice(0, 10).map(fv => (
                                       <Box
-                                        key={facetValue.value}
+                                        key={fv.value}
                                         as="button"
-                                        onClick={() => {
-                                          handleFacetFilter(facet.field, facetValue.value);
-                                          setFilterOpen(false);
-                                        }}
+                                        onClick={() => handleFacetFilter(facet.field, fv.value)}
                                         display="flex"
                                         justifyContent="space-between"
                                         alignItems="center"
@@ -302,12 +234,8 @@ export default function Home() {
                                         width="100%"
                                         textAlign="left"
                                       >
-                                        <Text color="ui.text">
-                                          {facetValue.label || facetValue.value}
-                                        </Text>
-                                        <Text color="ui.textMuted" fontSize="xs">
-                                          ({facetValue.count})
-                                        </Text>
+                                        <Text color="ui.text">{fv.label || fv.value}</Text>
+                                        <Text color="ui.textMuted" fontSize="xs">({fv.count})</Text>
                                       </Box>
                                     ))}
                                   </Stack>
@@ -322,51 +250,21 @@ export default function Home() {
                 )}
               </Box>
 
-              {/* active filter chips */}
+              {/* Active filter chips */}
               {(decision || deviceClass) && (
                 <Box display="flex" gap="2" marginBottom="4" flexWrap="wrap">
                   {decision && (
-                    <Box
-                      display="inline-flex"
-                      alignItems="center"
-                      gap="2"
-                      padding="6px 12px"
-                      backgroundColor="brand.greenBg"
-                      color="brand.primary"
-                      borderRadius="16px"
-                      fontSize="sm"
-                    >
+                    <Box display="inline-flex" alignItems="center" gap="2" padding="6px 12px" backgroundColor="brand.greenBg" color="brand.primary" borderRadius="16px" fontSize="sm">
                       <Text>Decision: {decision}</Text>
-                      <Box
-                        as="button"
-                        onClick={() => handleRemoveFacetFilter('decision')}
-                        cursor="pointer"
-                        display="flex"
-                        alignItems="center"
-                      >
+                      <Box as="button" onClick={() => handleRemoveFacetFilter('decision')} cursor="pointer" display="flex" alignItems="center">
                         <FaTimes size={12} />
                       </Box>
                     </Box>
                   )}
                   {deviceClass && (
-                    <Box
-                      display="inline-flex"
-                      alignItems="center"
-                      gap="2"
-                      padding="6px 12px"
-                      backgroundColor="brand.greenBg"
-                      color="brand.primary"
-                      borderRadius="16px"
-                      fontSize="sm"
-                    >
+                    <Box display="inline-flex" alignItems="center" gap="2" padding="6px 12px" backgroundColor="brand.greenBg" color="brand.primary" borderRadius="16px" fontSize="sm">
                       <Text>Class: {deviceClass}</Text>
-                      <Box
-                        as="button"
-                        onClick={() => handleRemoveFacetFilter('device_class')}
-                        cursor="pointer"
-                        display="flex"
-                        alignItems="center"
-                      >
+                      <Box as="button" onClick={() => handleRemoveFacetFilter('device_class')} cursor="pointer" display="flex" alignItems="center">
                         <FaTimes size={12} />
                       </Box>
                     </Box>
@@ -375,56 +273,30 @@ export default function Home() {
               )}
 
               <Stack>
-                {results.map((device) => (
-                  <DeviceSummaryCard key={device.id} device={device} searchQuery={query} />
+                {results.map(device => (
+                  <DeviceSummaryCard
+                    key={device.id}
+                    device={device}
+                    selectedDevices={selectedDevices}
+                    onToggle={handleToggle}
+                  />
                 ))}
               </Stack>
 
-              {/* pagination controls */}
+              {/* Pagination */}
               {totalPages > 1 && (
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  gap="2"
-                  paddingY="6"
-                  marginTop="6"
-                >
-                  <Button
-                    onClick={() => handlePageChange(page - 1)}
-                    disabled={page <= 1}
-                    size="sm"
-                    variant="outline"
-                    colorScheme="green"
-                  >
-                    Previous
-                  </Button>
-
-                  {/* page numbers */}
+                <Box display="flex" alignItems="center" justifyContent="center" gap="2" paddingY="6" marginTop="6">
+                  <Button onClick={() => handlePageChange(page - 1)} disabled={page <= 1} size="sm" variant="outline" colorScheme="green">Previous</Button>
                   <Box display="flex" gap="1" alignItems="center">
                     {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
-                      // show first 3, current -2 to +2, last 3
                       const pageNum = i + 1;
-                      const showPage =
-                        pageNum <= 3 ||
-                        pageNum >= totalPages - 2 ||
-                        Math.abs(pageNum - page) <= 2;
-
+                      const showPage = pageNum <= 3 || pageNum >= totalPages - 2 || Math.abs(pageNum - page) <= 2;
                       if (!showPage) {
-                        // show ellipsis for skipped pages
-                        if (
-                          (pageNum === 4 && page > 6) ||
-                          (pageNum === totalPages - 3 && page < totalPages - 5)
-                        ) {
-                          return (
-                            <Text key={pageNum} color="ui.textMuted" px="1">
-                              ...
-                            </Text>
-                          );
+                        if ((pageNum === 4 && page > 6) || (pageNum === totalPages - 3 && page < totalPages - 5)) {
+                          return <Text key={pageNum} color="ui.textMuted" px="1">...</Text>;
                         }
                         return null;
                       }
-
                       return (
                         <Button
                           key={pageNum}
@@ -441,26 +313,18 @@ export default function Home() {
                       );
                     })}
                   </Box>
-
-                  <Button
-                    onClick={() => handlePageChange(page + 1)}
-                    disabled={page >= totalPages}
-                    size="sm"
-                    variant="outline"
-                    colorScheme="green"
-                  >
-                    Next
-                  </Button>
-
-                  {/* page info text */}
-                  <Text color="ui.textMuted" fontSize="sm" ml="4">
-                    Page {page} of {totalPages}
-                  </Text>
+                  <Button onClick={() => handlePageChange(page + 1)} disabled={page >= totalPages} size="sm" variant="outline" colorScheme="green">Next</Button>
+                  <Text color="ui.textMuted" fontSize="sm" ml="4">Page {page} of {totalPages}</Text>
                 </Box>
               )}
-            </>
-          )}
-        </Box>
+            </Box>
+
+            {/* Right sidebar */}
+            <Box w="40px" flexShrink={0} p="4">
+              <SideDrawer selectedDeviceIds={selectedDevices.map(d => d.id)} />
+            </Box>
+          </Box>
+        </FullBleed>
       )}
     </div>
   );

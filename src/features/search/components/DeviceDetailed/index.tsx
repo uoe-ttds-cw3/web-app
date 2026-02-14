@@ -19,6 +19,13 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
   };
 
   // truncate summary text to 300 chars for collapsed view
+  //const truncatedSummary = device.summary_text && device.summary_text.length > 300
+  //  ? device.summary_text.substring(0, 300) + '...'
+  
+    // Truncate year to last two digits and remove leading zero for URL construction straight to PDF (waiting on API response update to include date_received)
+  // const yearpart = device.date_received? device.date_received.slice(2, 4).replace(/^0/, ''): '';
+
+  // Truncate summary text to 500 chars
   const truncatedSummary = device.summary_text && device.summary_text.length > 300
     ? device.summary_text.substring(0, 300) + '...'
     : device.summary_text;

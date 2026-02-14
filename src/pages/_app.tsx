@@ -9,7 +9,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider>
       <Header />
-      <PageLayout>
+      <PageLayout >
         <Component {...pageProps} />
       </PageLayout>
     </Provider>
