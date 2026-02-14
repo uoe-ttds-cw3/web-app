@@ -39,9 +39,24 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
         <Heading size="xl" color="brand.primary" marginBottom="8px">
           {device.device_name}
         </Heading>
-        <Badge colorScheme="gray" fontSize="md" marginBottom="8px" padding="4px 8px">
-          {device.submission_number}
-        </Badge>
+        <Box display="flex" alignItems="center" gap="8px" marginBottom="8px">
+          <Badge colorScheme="gray" fontSize="md" padding="4px 8px">
+            {device.submission_number}
+          </Badge>
+          {/* link to the official fda 510(k) pdf using date_received for the url path */}
+          {device.date_received && (
+            <ChakraLink
+              href={`https://www.accessdata.fda.gov/cdrh_docs/pdf${device.date_received.slice(2, 4).replace(/^0/, '')}/${device.submission_number}.pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              color="brand.primary"
+              fontSize="sm"
+              textDecoration="underline"
+            >
+              view fda document
+            </ChakraLink>
+          )}
+        </Box>
         <Text fontSize="lg" color="black">
           Manufacturer: <Box as="span" fontWeight="bold">{device.sponsor}</Box>
         </Text>
