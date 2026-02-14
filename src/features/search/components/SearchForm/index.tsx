@@ -65,6 +65,11 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
     setTags([...tags, newTag]);
   }
 
+  function handleAdvancedSearch(query: string) {
+    setSearchTerm(query);
+    onSearch?.(query, tags);
+  }
+
   function updateTagValue(tagId: string, newValue: string) {
     setTags(tags.map(tag => tag.id === tagId ? { ...tag, value: newValue } : tag));
   }
@@ -259,10 +264,15 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         isOpen={filterFocused}
         onClose={() => setFilterFocused(false)}
         onFilterSelect={applyFilter}
+        onAdvancedSearch={handleAdvancedSearch}
       />
 
+      {/* phil note: i commented this out because search bar position goes
+      off screen when this warning shows up, probably a better idea to put the
+      warning somewhere else. */}
+
       {/* gibberish warning below search bar */}
-      {showGibberishWarning && (
+      {/* {showGibberishWarning && (
         <Text
           fontSize="sm"
           color="status.warning"
@@ -271,7 +281,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         >
           this doesn&apos;t look like a valid search term
         </Text>
-      )}
+      )} */}
     </Box>
   );
 };

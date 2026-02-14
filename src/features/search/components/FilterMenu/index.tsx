@@ -1,15 +1,19 @@
 import { Box, Text, Link } from "@chakra-ui/react";
-import { FaBarcode } from "react-icons/fa";
+import { FaBarcode, FaSearch } from "react-icons/fa";
 import { MdNumbers } from "react-icons/md";
 import { IoCalendarNumber } from "react-icons/io5";
+import { useState } from "react";
+import { AdvancedSearchModal } from "../AdvancedSearchModal";
 
 interface FilterMenuProps {
     isOpen: boolean;
     onClose: () => void;
     onFilterSelect: (filterId: string) => void;
+    onAdvancedSearch?: (query: string) => void;
 }
 
-export const FilterMenu = ({ isOpen, onClose, onFilterSelect }: FilterMenuProps) => {
+export const FilterMenu = ({ isOpen, onClose, onFilterSelect, onAdvancedSearch }: FilterMenuProps) => {
+    const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
     const filterOptions = [
         {
             id: "submissionNumber",
@@ -34,10 +38,14 @@ export const FilterMenu = ({ isOpen, onClose, onFilterSelect }: FilterMenuProps)
             title: "Date After",
             icon: IoCalendarNumber,
             description: "Cleared after date"
+        },
+        {
+            id: "advancedSearch",
+            title: "Advanced Search",
+            icon: FaSearch,
+            description: "Search using operators"
         }
     ];
-
-    if (!isOpen) return null;
 
     return (
         <Box
