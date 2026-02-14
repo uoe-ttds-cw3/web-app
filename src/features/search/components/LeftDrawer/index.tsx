@@ -1,43 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Checkmark,
   createTreeCollection,
   TreeView,
   Collapsible,
   useTreeViewNodeContext,
-  Box,
-  Icon,
 } from "@chakra-ui/react";
 import { PiArrowLeft, PiArrowRight } from "react-icons/pi";
 import { LuFile, LuFolder } from "react-icons/lu";
 import { useQuery } from "@tanstack/react-query";
 
-type PanelsResponse = {
-  panels: { code: string; name: string; device_count: number }[];
-  total_panels: number;
-};
-
-const fetchPanels = async (): Promise<Category[]> => {
-  const response = await fetch("/api/panels");
-  if (!response.ok) {
-    throw new Error("Failed to fetch panels");
-  }
-  const data: PanelsResponse = await response.json();
-  return data.panels.map((panel) => ({
-    id: panel.code,
-    name: panel.name,
-  }));
-};
-
-type Category = {
+export type TreeNodeData = {
   id: string;
   name: string;
-  code?: string;
-  children?: Category[];
+  children?: TreeNodeData[];
+  sample_children?: any[];
+};
+
+const fetchTreeData = async (): Promise<TreeNodeData> => {
+  const response = await fetch("/data/devicetree.json");
+  if (!response.ok) {
+    throw new Error("Failed to fetch tree data");
+  }
+  return response.json();
 };
 
 type LeftDrawerProps = {
-  categories?: Category[];
+  treeData?: TreeNodeData;
   onCategorySelect?: (categoryId: string) => void;
 };
 
@@ -58,35 +47,38 @@ const TreeNodeCheckbox = (props: TreeView.NodeCheckboxProps) => {
     </TreeView.NodeCheckbox>
   );
 };
+
 export const LeftDrawer = ({
-  categories: categoriesProp,
+  treeData: treeDataProp,
   onCategorySelect,
 }: LeftDrawerProps) => {
   const {
-    data: fetchedCategories,
+    data: fetchedTreeData,
     isFetching,
     error,
   } = useQuery({
-    queryKey: ["panels"],
-    queryFn: fetchPanels,
-    enabled: !categoriesProp,
+    queryKey: ["deviceTree"],
+    queryFn: fetchTreeData,
+    enabled: !treeDataProp,
   });
 
-  const categories = categoriesProp || fetchedCategories || [];
+  const treeData = treeDataProp || fetchedTreeData || [];
 
   const collection = React.useMemo(() => {
+    if (!treeData) return null;
     return createTreeCollection({
-      rootNode: {
-        id: "ROOT",
-        name: "Root",
-        children: categories,
+      rootNode: treeData,
+      nodeToValue: (node) => node?.id || node?.name,
+      nodeToChildren: (node) => {
+        if (node?.children && node.children.length > 0) {
+          return node.children;
+        }
+        return undefined;
       },
-      nodeToValue: (node) => node.id || node.code || node.name,
-      nodeToChildren: (node) => node.children,
     });
-  }, [categories]);
+  }, [treeData]);
 
-  if (!categories.length) return null;
+  if (!treeData || !collection) return null;
 
   return (
     <Collapsible.Root defaultOpen unmountOnExit>
@@ -102,7 +94,7 @@ export const LeftDrawer = ({
         >
           <PiArrowRight />
         </Collapsible.Indicator>
-        Hierarchy
+        Medical Device Tree
       </Collapsible.Trigger>
       <Collapsible.Content>
         <TreeView.Root collection={collection} selectionMode="multiple">
@@ -125,9 +117,8 @@ export const LeftDrawer = ({
                 ) : (
                   <TreeView.Item>
                     <TreeNodeCheckbox />
-                    <TreeView.ItemText>
-                      {node.name || node.label}
-                    </TreeView.ItemText>
+                    <LuFile />
+                    <TreeView.ItemText>{node.name}</TreeView.ItemText>
                   </TreeView.Item>
                 )
               }
