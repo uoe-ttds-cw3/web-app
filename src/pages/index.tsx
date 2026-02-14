@@ -37,9 +37,24 @@ export default function Home() {
   const limit = 20;
   const offset = (page - 1) * limit;
 
-  // state for filters and selected devices
   const [filterOpen, setFilterOpen] = useState(false);
-  const [selectedDevices, setSelectedDevices] = useState<Device[]>([]);
+  const [selectedDevices, setSelectedDevices] = useState<Device[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('selectedDevices');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error('Failed to parse saved devices:', e);
+        }
+      }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('selectedDevices', JSON.stringify(selectedDevices));
+  }, [selectedDevices]);
 
   const handleToggle = (device: Device) => {
     setSelectedDevices(prev => {
