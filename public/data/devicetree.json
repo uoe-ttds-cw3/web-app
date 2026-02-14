@@ -403,7 +403,28 @@
         {
             "id": "86",
             "name": "Opthalmic Devices",
-            "children": []
+            "children": [
+                {
+                    "id": "86.B",
+                    "name": "Diagnostic Devices",
+                    "children": []
+                },
+                {
+                    "id": "86.D",
+                    "name": "Prosthetic Devices",
+                    "children": []
+                },
+                {
+                    "id": "86.E",
+                    "name": "Surgical Devices",
+                    "children": []
+                },
+                {
+                    "id": "86.F",
+                    "name": "Therapeutic Devices",
+                    "children": []
+                }
+            ]
         },
         {
             "id": "87",
