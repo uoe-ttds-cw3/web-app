@@ -116,9 +116,11 @@ export const DeviceSummaryCard = ({
         )}
       </HStack>
 
-      <Text fontSize="sm" color={getRecallColor(device.recalls)} mb="2">
-        Number of recalls: {device.recalls}
-      </Text>
+      <Link href={`/devices/${device.id}`} legacyBehavior>
+        <Box as="a" fontSize="sm" color="brand.primary" cursor="pointer" _hover={{ textDecoration: "underline" }} mb="2" display="block">
+          view safety data &rarr;
+        </Box>
+      </Link>
 
       {device.snippet && (
         <Box fontSize="sm" color="ui.textMuted">
