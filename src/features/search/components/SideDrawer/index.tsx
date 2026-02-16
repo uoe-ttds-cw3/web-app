@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Tooltip, Button, CloseButton, Drawer, Kbd, Portal, Table, HStack, Text, Box, Stack, type StackProps } from "@chakra-ui/react";
+import { Button, CloseButton, Drawer, Kbd, Portal, Table, HStack, Text, Box, Stack, type StackProps } from "@chakra-ui/react";
 import type { DeviceLookupResponse, LineageResponse, SafetyProfileResponse } from "@/lib/api/types";
 import { forwardRef, useRef } from "react"
 import React from "react";
+import { MdCompare, MdClose } from "react-icons/md";
 
 interface SideDrawerProps {
   selectedDeviceIds: string[];
@@ -19,16 +20,20 @@ const DrawerContainer = forwardRef<HTMLDivElement, StackProps>(
     return (
       <Stack
         position="fixed"
-        top="0"
+        bottom="20px"
         right="0"
-        bottom="0"
-        w="40px" // width of sidebar strip — adjust
+        w="80px"
+        h="80px"
         backgroundColor="whiteAlpha.700"
         padding="2px"
         borderLeft="1px solid"
+        borderTopLeftRadius="80px"
+        borderBottomLeftRadius="80px"
         borderColor="gray.200"
         shadow="md"
         zIndex="1000"
+        alignItems="center"
+        justifyContent="center"
         ref={ref}
         {...props}
       />
@@ -90,30 +95,27 @@ export const SideDrawer = ({ selectedDeviceIds }: SideDrawerProps) => {
     fetchData();
   }, [selectedDeviceIds]);
 
+  const handleRemoveRow = (index: number) => {
+    setRows(rows.filter((_, i) => i !== index));
+  };
+
   return (
     <HStack>
-      <Drawer.Root size="full">
+      <Drawer.Root size="md">
         <Box position="fixed" top="0" left="0" w="100%" h="100%" zIndex={999} alignItems="center" justifyContent="center" pointerEvents="none">
           <DrawerContainer position="absolute" right="0" ref={portalRef} pointerEvents="auto">
-            <Drawer.Trigger  asChild>
-            <Button
+            <Drawer.Trigger asChild>
+              <Button
                 variant="ghost"
-                size="sm"
+                size="lg"
                 display="flex"
-                flexDirection="column"
                 alignItems="center"
                 justifyContent="center"
-                top="50%"
-                position="absolute"
-                transform="translateY(-50%)"
-                height="100px"
-                
+                color="green.700"
+                fontSize="xl"
+                title="Open Comparison"
               >
-                {"Open Comparison".split("").map((char, i) => (
-                  <Box key={i} lineHeight="1" fontSize="sm">
-                    {char}
-                  </Box>
-                ))}
+                <MdCompare />
               </Button>
             </Drawer.Trigger> 
           </DrawerContainer>
@@ -121,13 +123,13 @@ export const SideDrawer = ({ selectedDeviceIds }: SideDrawerProps) => {
         <Portal>
           <Drawer.Backdrop />
           <Drawer.Positioner>
-            <Drawer.Content>
-            <Box backgroundColor="whiteAlpha.700" padding="16px" borderRadius="8px" color="#266429" marginBottom="16px">
-              <Drawer.Header>
-                <Drawer.Title>Device Comparison</Drawer.Title>
-              </Drawer.Header>
+            <Drawer.Content maxW="85vw" maxH="85vh" m="auto" borderRadius="12px" p="4">
+              <Box display="flex" justifyContent="space-between" alignItems="center" p="4" borderBottomWidth="1px">
+                <Drawer.Title fontSize="lg" color="brand.primary" fontWeight="bold">Device Comparison</Drawer.Title>
+                <Drawer.CloseTrigger asChild>
+                  <CloseButton size="sm" />
+                </Drawer.CloseTrigger>
               </Box>
-              <Box backgroundColor="whiteAlpha.700" padding="16px" borderRadius="8px" color="#266429" marginBottom="16px"> 
               <Drawer.Body overflow="auto">
                 {loading ? (
                   <Text>Loading...</Text>
@@ -136,6 +138,7 @@ export const SideDrawer = ({ selectedDeviceIds }: SideDrawerProps) => {
                   <Table.Root size="sm" interactive>
                     <Table.Header>
                       <Table.Row minH="400px">
+                        <Table.ColumnHeader p={4}></Table.ColumnHeader>
                         <Table.ColumnHeader p={4}>Name</Table.ColumnHeader>
                         <Table.ColumnHeader p={4}>Product Code</Table.ColumnHeader>
                         <Table.ColumnHeader p={4}>Manufacturer</Table.ColumnHeader>
@@ -155,6 +158,16 @@ export const SideDrawer = ({ selectedDeviceIds }: SideDrawerProps) => {
 
                         return (
                           <Table.Row minH="400px" key={device.submission_number}>
+                            <Table.Cell p={4}>
+                              <Button
+                                size="xs"
+                                variant="ghost"
+                                onClick={() => handleRemoveRow(index)}
+                                title="Remove from comparison"
+                              >
+                                <MdClose />
+                              </Button>
+                            </Table.Cell>
                             <Table.Cell p={4}>{formatCell(device.device_name)}</Table.Cell>
                             <Table.Cell p={4}>{device.product_code}</Table.Cell>
                             <Table.Cell p={4}>{formatCell(device.sponsor)}</Table.Cell>
@@ -172,18 +185,7 @@ export const SideDrawer = ({ selectedDeviceIds }: SideDrawerProps) => {
                   </Table.ScrollArea>
                 )}
                 <Text mt={2}>Press the <Kbd>esc</Kbd> key to close the comparison.</Text>
-              </Drawer.Body></Box>
-
-              <Drawer.Footer paddingRight={4}>
-                <Drawer.ActionTrigger asChild>
-                  <Button p={4} variant="outline">Cancel</Button>
-                </Drawer.ActionTrigger>
-                <Button p={4} >Save</Button>
-              </Drawer.Footer>
-
-              <Drawer.CloseTrigger asChild>
-                <CloseButton size="sm" />
-              </Drawer.CloseTrigger>
+              </Drawer.Body>
             </Drawer.Content>
           </Drawer.Positioner>
         </Portal>

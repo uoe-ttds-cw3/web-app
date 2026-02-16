@@ -20,6 +20,16 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
     return num.toLocaleString();
   };
 
+  let yearpart = '';
+
+  if (device.date_received) {
+    const year = parseInt(device.date_received.slice(0, 4), 10);
+
+    if (year >= 2000) {
+      yearpart = device.date_received.slice(2, 4).replace(/^0/, '');
+    }
+  }
+
   // try to find the useful section of the summary text instead of showing raw pdf header
   const extractUsefulSummary = (text: string): string => {
     // look for common section headings in fda 510(k) summaries
@@ -79,14 +89,14 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
           {/* link to the official fda 510(k) pdf using date_received for the url path */}
           {device.date_received && (
             <ChakraLink
-              href={`https://www.accessdata.fda.gov/cdrh_docs/pdf${device.date_received.slice(2, 4).replace(/^0/, '')}/${device.submission_number}.pdf`}
+              href={`https://www.accessdata.fda.gov/cdrh_docs/pdf${yearpart}/${device.submission_number}.pdf`}
               target="_blank"
               rel="noopener noreferrer"
               color="brand.primary"
               fontSize="sm"
               textDecoration="underline"
             >
-              view fda document
+              View FDA Document
             </ChakraLink>
           )}
         </Box>
