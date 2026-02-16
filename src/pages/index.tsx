@@ -148,13 +148,23 @@ export default function Home() {
   };
 
   const handleFacetFilter = (field: string, value: string) => {
+    const fieldMap: Record<string, string> = {
+      panel_code: 'panel',
+      decision_code: 'decision',
+    };
+    const paramName = fieldMap[field] || field;
     const { page: _removedPage, ...rest } = router.query;
-    router.push({ pathname: '/', query: { ...rest, [field]: value } }, undefined, { shallow: true });
+    router.push({ pathname: '/', query: { ...rest, [paramName]: value } }, undefined, { shallow: true });
     setFilterOpen(false);
   };
 
   const handleRemoveFacetFilter = (field: string) => {
-    const { [field]: _removed, page: _removedPage, ...rest } = router.query;
+    const fieldMap: Record<string, string> = {
+      panel_code: 'panel',
+      decision_code: 'decision',
+    };
+    const paramName = fieldMap[field] || field;
+    const { [paramName]: _removed, page: _removedPage, ...rest } = router.query;
     router.push({ pathname: '/', query: rest }, undefined, { shallow: true });
   };
 
@@ -259,7 +269,7 @@ export default function Home() {
               </Box>
 
               {/* Active filter chips */}
-              {(decision || deviceClass) && (
+              {(decision || deviceClass || panel || productCode) && (
                 <Box display="flex" gap="2" marginBottom="4" flexWrap="wrap">
                   {decision && (
                     <Box display="inline-flex" alignItems="center" gap="2" padding="6px 12px" backgroundColor="brand.greenBg" color="brand.primary" borderRadius="16px" fontSize="sm">
@@ -273,6 +283,22 @@ export default function Home() {
                     <Box display="inline-flex" alignItems="center" gap="2" padding="6px 12px" backgroundColor="brand.greenBg" color="brand.primary" borderRadius="16px" fontSize="sm">
                       <Text>Class: {deviceClass}</Text>
                       <Box as="button" onClick={() => handleRemoveFacetFilter('device_class')} cursor="pointer" display="flex" alignItems="center">
+                        <FaTimes size={12} />
+                      </Box>
+                    </Box>
+                  )}
+                  {panel && (
+                    <Box display="inline-flex" alignItems="center" gap="2" padding="6px 12px" backgroundColor="brand.greenBg" color="brand.primary" borderRadius="16px" fontSize="sm">
+                      <Text>Panel: {panel}</Text>
+                      <Box as="button" onClick={() => handleRemoveFacetFilter('panel')} cursor="pointer" display="flex" alignItems="center">
+                        <FaTimes size={12} />
+                      </Box>
+                    </Box>
+                  )}
+                  {productCode && (
+                    <Box display="inline-flex" alignItems="center" gap="2" padding="6px 12px" backgroundColor="brand.greenBg" color="brand.primary" borderRadius="16px" fontSize="sm">
+                      <Text>Product: {productCode}</Text>
+                      <Box as="button" onClick={() => handleRemoveFacetFilter('product_code')} cursor="pointer" display="flex" alignItems="center">
                         <FaTimes size={12} />
                       </Box>
                     </Box>

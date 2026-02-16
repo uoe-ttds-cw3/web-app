@@ -86,6 +86,15 @@ export default async function handler(
         decision_code: result.decision_code ?? '',
         decision_date: result.decision_date ?? '',
         device_class: result.device_class ?? '',
+        indications_for_use: result.indications_for_use ?? null,
+        device_description: result.device_description ?? null,
+        materials: result.materials ?? [],
+        standards_referenced: result.standards_referenced ?? [],
+        has_clinical_data: result.has_clinical_data ?? false,
+        has_sterilization: result.has_sterilization ?? false,
+        has_biocompatibility: result.has_biocompatibility ?? false,
+        has_software: result.has_software ?? false,
+        has_electrical_safety: result.has_electrical_safety ?? false,
       })),
     };
 

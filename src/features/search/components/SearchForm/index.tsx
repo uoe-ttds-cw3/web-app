@@ -40,7 +40,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
 
   // group suggestions by source type
   const deviceSuggestions = suggestions.filter(s => s.source === 'device_name' || s.source === 'product_code');
-  const manufacturerSuggestions = suggestions.filter(s => s.source === 'sponsor');
+  const manufacturerSuggestions = suggestions.filter(s => s.source === 'manufacturer');
 
   // check for gibberish and update warning state
   useEffect(() => {

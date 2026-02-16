@@ -19,6 +19,17 @@ export interface SearchResultItem {
   date_received: string | null;
   device_class: string | null;
   pagerank_score: number | null;
+
+  // structured extraction fields
+  indications_for_use: string | null;
+  device_description: string | null;
+  materials: string[];
+  standards_referenced: string[];
+  has_clinical_data: boolean;
+  has_sterilization: boolean;
+  has_biocompatibility: boolean;
+  has_software: boolean;
+  has_electrical_safety: boolean;
 }
 
 export interface QueryDebugInfo {
@@ -131,6 +142,18 @@ export interface DeviceLookupResponse {
   decision_date: string | null;
   date_received: string | null;
   summary_text: string | null;
+
+  // structured extraction fields
+  indications_for_use: string | null;
+  device_description: string | null;
+  materials: string[];
+  standards_referenced: string[];
+  sterilization_methods: string[];
+  has_clinical_data: boolean;
+  has_sterilization: boolean;
+  has_biocompatibility: boolean;
+  has_software: boolean;
+  has_electrical_safety: boolean;
 }
 
 // Lineage types
@@ -205,6 +228,13 @@ export interface Device {
   relevanceScore: number;
   deviceClass: string | null;
   pagerankScore: number | null;
+  materials: string[];
+  indicationsForUse: string | null;
+  hasClinicalData: boolean;
+  hasSterilization: boolean;
+  hasBiocompatibility: boolean;
+  hasSoftware: boolean;
+  hasElectricalSafety: boolean;
 }
 
 /**
@@ -220,9 +250,18 @@ export function transformSearchResult(item: SearchResultItem): Device {
     pCode: item.product_code || '',
     recalls: 0, // populated later from safety data
     availability: true,
-    snippet: item.snippet || '',
+    snippet: item.indications_for_use && item.indications_for_use.length > (item.snippet?.length || 0)
+      ? item.indications_for_use
+      : (item.snippet || ''),
     relevanceScore: item.relevance_score,
     deviceClass: item.device_class,
     pagerankScore: item.pagerank_score,
+    materials: item.materials || [],
+    indicationsForUse: item.indications_for_use,
+    hasClinicalData: item.has_clinical_data,
+    hasSterilization: item.has_sterilization,
+    hasBiocompatibility: item.has_biocompatibility,
+    hasSoftware: item.has_software,
+    hasElectricalSafety: item.has_electrical_safety,
   };
 }

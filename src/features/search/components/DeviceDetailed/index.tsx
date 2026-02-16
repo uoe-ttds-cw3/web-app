@@ -1,7 +1,7 @@
-import { Box, Text, Heading, Grid, Badge, Separator, Link as ChakraLink, Card } from "@chakra-ui/react";
+import { Box, Text, Heading, Grid, Badge, Separator, Link as ChakraLink, Card, HStack } from "@chakra-ui/react";
 import { useState } from "react";
 import Link from "next/link";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import type { DeviceLookupResponse, LineageResponse, SafetyProfileResponse } from "@/lib/api/types";
 
 type DeviceDetailedProps = {
@@ -12,6 +12,8 @@ type DeviceDetailedProps = {
 
 export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps) => {
   const [showFullSummary, setShowFullSummary] = useState(false);
+  const [showFullIfu, setShowFullIfu] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   // format large numbers with commas
   const formatNumber = (num: number): string => {
@@ -22,19 +24,49 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
 
   if (device.date_received) {
     const year = parseInt(device.date_received.slice(0, 4), 10);
-  
+
     if (year >= 2000) {
-      // Last two digits, remove leading zero
       yearpart = device.date_received.slice(2, 4).replace(/^0/, '');
-    } 
+    }
   }
 
-  // Truncate summary text to 300 chars
-  const truncatedSummary = device.summary_text && device.summary_text.length > 300
-    ? device.summary_text.substring(0, 300) + '...'
-    : device.summary_text;
+  // try to find the useful section of the summary text instead of showing raw pdf header
+  const extractUsefulSummary = (text: string): string => {
+    // look for common section headings in fda 510(k) summaries
+    const sectionPatterns = [
+      /indications?\s+for\s+use/i,
+      /device\s+description/i,
+      /predicate\s+device/i,
+      /intended\s+use/i,
+      /summary\s+of\s+submission/i,
+    ];
 
-  const displaySummary = showFullSummary ? device.summary_text : truncatedSummary;
+    for (const pattern of sectionPatterns) {
+      const match = text.search(pattern);
+      if (match !== -1) {
+        return text.substring(match);
+      }
+    }
+
+    // fallback: skip past the fda letter header (usually starts with date, address, "Re: K...")
+    const reMatch = text.search(/Re:\s*K\d/i);
+    if (reMatch !== -1) {
+      // find the next paragraph after the "Re:" line
+      const afterRe = text.indexOf('\n', reMatch + 10);
+      if (afterRe !== -1) {
+        return text.substring(afterRe).trim();
+      }
+    }
+
+    // last fallback: return as-is
+    return text;
+  };
+
+  const usefulSummary = device.summary_text ? extractUsefulSummary(device.summary_text) : null;
+  const truncatedSummary = usefulSummary && usefulSummary.length > 300
+    ? usefulSummary.substring(0, 300) + '...'
+    : usefulSummary;
+  const displaySummary = showFullSummary ? usefulSummary : truncatedSummary;
 
   return (
     <Card.Root
@@ -100,8 +132,162 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
         </Grid>
       </Box>
 
+      {/* feature flags */}
+      <Separator marginY="16px" />
+      <Box marginBottom="24px">
+        <Heading size="md" color="brand.primary" marginBottom="12px">
+          Feature Flags
+        </Heading>
+        <HStack gap="3" flexWrap="wrap">
+          <Badge colorPalette={device.has_clinical_data ? "green" : "gray"} variant="subtle" padding="4px 8px">
+            clinical data
+          </Badge>
+          <Badge colorPalette={device.has_sterilization ? "green" : "gray"} variant="subtle" padding="4px 8px">
+            sterilization
+          </Badge>
+          <Badge colorPalette={device.has_biocompatibility ? "green" : "gray"} variant="subtle" padding="4px 8px">
+            biocompatibility
+          </Badge>
+          <Badge colorPalette={device.has_software ? "green" : "gray"} variant="subtle" padding="4px 8px">
+            software
+          </Badge>
+          <Badge colorPalette={device.has_electrical_safety ? "green" : "gray"} variant="subtle" padding="4px 8px">
+            electrical safety
+          </Badge>
+        </HStack>
+      </Box>
+
+      {/* indications for use */}
+      {device.indications_for_use && (
+        <>
+          <Separator marginY="16px" />
+          <Box marginBottom="24px">
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              Indications for Use
+            </Heading>
+            <Box
+              padding="12px"
+              borderRadius="4px"
+              backgroundColor="ui.surface"
+              borderWidth="1px"
+              borderColor="ui.border"
+            >
+              <Text color="black" whiteSpace="pre-wrap">
+                {showFullIfu || device.indications_for_use.length <= 300
+                  ? device.indications_for_use
+                  : device.indications_for_use.substring(0, 300) + '...'}
+              </Text>
+              {device.indications_for_use.length > 300 && (
+                <Text
+                  color="brand.primary"
+                  marginTop="8px"
+                  cursor="pointer"
+                  textDecoration="underline"
+                  onClick={() => setShowFullIfu(!showFullIfu)}
+                >
+                  {showFullIfu ? 'show less' : 'show more'}
+                </Text>
+              )}
+            </Box>
+          </Box>
+        </>
+      )}
+
+      {/* device description */}
+      {device.device_description && (
+        <>
+          <Separator marginY="16px" />
+          <Box marginBottom="24px">
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              Device Description
+            </Heading>
+            <Box
+              padding="12px"
+              borderRadius="4px"
+              backgroundColor="ui.surface"
+              borderWidth="1px"
+              borderColor="ui.border"
+            >
+              <Text color="black" whiteSpace="pre-wrap">
+                {showFullDescription || device.device_description.length <= 300
+                  ? device.device_description
+                  : device.device_description.substring(0, 300) + '...'}
+              </Text>
+              {device.device_description.length > 300 && (
+                <Text
+                  color="brand.primary"
+                  marginTop="8px"
+                  cursor="pointer"
+                  textDecoration="underline"
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                >
+                  {showFullDescription ? 'show less' : 'show more'}
+                </Text>
+              )}
+            </Box>
+          </Box>
+        </>
+      )}
+
+      {/* materials */}
+      {device.materials && device.materials.length > 0 && (
+        <>
+          <Separator marginY="16px" />
+          <Box marginBottom="24px">
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              Materials
+            </Heading>
+            <HStack gap="2" flexWrap="wrap">
+              {device.materials.map((material) => (
+                <Badge key={material} variant="subtle" colorPalette="gray" padding="4px 8px">
+                  {material}
+                </Badge>
+              ))}
+            </HStack>
+          </Box>
+        </>
+      )}
+
+      {/* standards referenced */}
+      {device.standards_referenced && device.standards_referenced.length > 0 && (
+        <>
+          <Separator marginY="16px" />
+          <Box marginBottom="24px">
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              Standards Referenced
+            </Heading>
+            <Box>
+              {device.standards_referenced.map((standard) => (
+                <Text key={standard} fontSize="sm" color="black" marginBottom="4px">
+                  {standard}
+                </Text>
+              ))}
+            </Box>
+          </Box>
+        </>
+      )}
+
+      {/* sterilization methods */}
+      {device.sterilization_methods && device.sterilization_methods.length > 0 && (
+        <>
+          <Separator marginY="16px" />
+          <Box marginBottom="24px">
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              Sterilization Methods
+            </Heading>
+            <HStack gap="2" flexWrap="wrap">
+              {device.sterilization_methods.map((method) => (
+                <Badge key={method} variant="subtle" colorPalette="gray" padding="4px 8px">
+                  {method}
+                </Badge>
+              ))}
+            </HStack>
+          </Box>
+        </>
+      )}
+
       {/* 510(k) summary - collapsible */}
-      {device.summary_text && device.summary_text.length > 0 && (
+      {usefulSummary && usefulSummary.length > 0 && (
         <>
           <Separator marginY="16px" />
           <Box marginBottom="24px">
@@ -118,7 +304,7 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
               <Text color="black" whiteSpace="pre-wrap">
                 {displaySummary}
               </Text>
-              {device.summary_text.length > 300 && (
+              {usefulSummary && usefulSummary.length > 300 && (
                 <Text
                   color="brand.primary"
                   marginTop="8px"
@@ -215,42 +401,66 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
                 </Text>
               </Box>
             </Grid>
-            {safety.event_breakdown.total > 0 && (
-              <Box marginBottom="12px">
-                <Text color="brand.primary" fontWeight="bold" marginBottom="4px">
-                  Event Breakdown:
-                </Text>
-                {Object.entries(safety.event_breakdown.counts).map(([type, count]) => {
-                  const percentage = ((count / safety.event_breakdown.total) * 100).toFixed(1);
-                  return (
-                    <Text key={type} color="black" fontSize="sm">
-                      {type}: {formatNumber(count)} ({percentage}%)
-                    </Text>
-                  );
-                })}
-                {/* show chart if 2+ event types exist */}
-                {Object.keys(safety.event_breakdown.counts).length >= 2 && (
-                  <Box marginTop="16px">
-                    <ResponsiveContainer width="100%" height={250}>
-                      <BarChart
-                        data={Object.entries(safety.event_breakdown.counts).map(([type, count]) => ({
-                          type,
-                          count,
-                          percentage: ((count / safety.event_breakdown.total) * 100).toFixed(1)
-                        }))}
-                        layout="vertical"
-                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                      >
-                        <XAxis type="number" />
-                        <YAxis dataKey="type" type="category" width={150} />
-                        <Tooltip />
-                        <Bar dataKey="count" fill="var(--chakra-colors-brand-primary)" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </Box>
-                )}
-              </Box>
-            )}
+            {safety.event_breakdown.total > 0 && (() => {
+              const severityOrder = ['Death', 'Injury', 'Malfunction', 'Other', 'Unknown', 'Unclassified'];
+              const severityColors: Record<string, string> = {
+                'Death': '#DC2626',
+                'Injury': '#D97706',
+                'Malfunction': 'var(--chakra-colors-brand-primary)',
+                'Other': '#6B7280',
+                'Unknown': '#9CA3AF',
+                'Unclassified': '#9CA3AF',
+              };
+
+              const sortedEvents = Object.entries(safety.event_breakdown.counts)
+                .map(([type, count]) => ({
+                  type: type.trim() === '' ? 'Unclassified' : type,
+                  count,
+                }))
+                .sort((a, b) => {
+                  const aIdx = severityOrder.indexOf(a.type);
+                  const bIdx = severityOrder.indexOf(b.type);
+                  return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
+                });
+
+              return (
+                <Box marginBottom="12px">
+                  <Text color="brand.primary" fontWeight="bold" marginBottom="4px">
+                    Event Breakdown:
+                  </Text>
+                  {sortedEvents.map(({ type, count }) => {
+                    const percentage = ((count / safety.event_breakdown.total) * 100).toFixed(1);
+                    const color = severityColors[type] || '#6B7280';
+                    return (
+                      <Text key={type} fontSize="sm" style={{ color }}>
+                        {type}: {formatNumber(count)} ({percentage}%)
+                      </Text>
+                    );
+                  })}
+                  {/* show chart if 2+ event types exist */}
+                  {sortedEvents.length >= 2 && (
+                    <Box marginTop="16px">
+                      <ResponsiveContainer width="100%" height={250}>
+                        <BarChart
+                          data={sortedEvents.map(({ type, count }) => ({ type, count, percentage: ((count / safety.event_breakdown.total) * 100).toFixed(1) }))}
+                          layout="vertical"
+                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                        >
+                          <XAxis type="number" />
+                          <YAxis dataKey="type" type="category" width={150} />
+                          <Tooltip />
+                          <Bar dataKey="count">
+                            {sortedEvents.map(({ type }) => (
+                              <Cell key={type} fill={severityColors[type] || '#6B7280'} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </Box>
+                  )}
+                </Box>
+              );
+            })()}
             {safety.most_recent_recall_date && (
               <Box>
                 <Text color="brand.primary" fontWeight="bold">Most Recent Recall:</Text>
