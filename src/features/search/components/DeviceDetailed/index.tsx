@@ -18,14 +18,18 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
     return num.toLocaleString();
   };
 
-  // truncate summary text to 300 chars for collapsed view
-  //const truncatedSummary = device.summary_text && device.summary_text.length > 300
-  //  ? device.summary_text.substring(0, 300) + '...'
-  
-    // Truncate year to last two digits and remove leading zero for URL construction straight to PDF (waiting on API response update to include date_received)
-  // const yearpart = device.date_received? device.date_received.slice(2, 4).replace(/^0/, ''): '';
+  let yearpart = '';
 
-  // Truncate summary text to 500 chars
+  if (device.date_received) {
+    const year = parseInt(device.date_received.slice(0, 4), 10);
+  
+    if (year >= 2000) {
+      // Last two digits, remove leading zero
+      yearpart = device.date_received.slice(2, 4).replace(/^0/, '');
+    } 
+  }
+
+  // Truncate summary text to 300 chars
   const truncatedSummary = device.summary_text && device.summary_text.length > 300
     ? device.summary_text.substring(0, 300) + '...'
     : device.summary_text;
@@ -53,7 +57,7 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
           {/* link to the official fda 510(k) pdf using date_received for the url path */}
           {device.date_received && (
             <ChakraLink
-              href={`https://www.accessdata.fda.gov/cdrh_docs/pdf${device.date_received.slice(2, 4).replace(/^0/, '')}/${device.submission_number}.pdf`}
+              href={`https://www.accessdata.fda.gov/cdrh_docs/pdf${yearpart}/${device.submission_number}.pdf`}
               target="_blank"
               rel="noopener noreferrer"
               color="brand.primary"
