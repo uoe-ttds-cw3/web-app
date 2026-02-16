@@ -1,4 +1,4 @@
-import { Box, Text, Heading, Grid, Badge, Separator, Link as ChakraLink, Card } from "@chakra-ui/react";
+import { Box, Text, Heading, Grid, Badge, Separator, Link as ChakraLink, Card, HStack } from "@chakra-ui/react";
 import { useState } from "react";
 import Link from "next/link";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -12,6 +12,8 @@ type DeviceDetailedProps = {
 
 export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps) => {
   const [showFullSummary, setShowFullSummary] = useState(false);
+  const [showFullIfu, setShowFullIfu] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   // format large numbers with commas
   const formatNumber = (num: number): string => {
@@ -119,6 +121,160 @@ export const DeviceDetailed = ({ device, lineage, safety }: DeviceDetailedProps)
           </Box>
         </Grid>
       </Box>
+
+      {/* feature flags */}
+      <Separator marginY="16px" />
+      <Box marginBottom="24px">
+        <Heading size="md" color="brand.primary" marginBottom="12px">
+          Feature Flags
+        </Heading>
+        <HStack gap="3" flexWrap="wrap">
+          <Badge colorPalette={device.has_clinical_data ? "green" : "gray"} variant="subtle" padding="4px 8px">
+            clinical data
+          </Badge>
+          <Badge colorPalette={device.has_sterilization ? "green" : "gray"} variant="subtle" padding="4px 8px">
+            sterilization
+          </Badge>
+          <Badge colorPalette={device.has_biocompatibility ? "green" : "gray"} variant="subtle" padding="4px 8px">
+            biocompatibility
+          </Badge>
+          <Badge colorPalette={device.has_software ? "green" : "gray"} variant="subtle" padding="4px 8px">
+            software
+          </Badge>
+          <Badge colorPalette={device.has_electrical_safety ? "green" : "gray"} variant="subtle" padding="4px 8px">
+            electrical safety
+          </Badge>
+        </HStack>
+      </Box>
+
+      {/* indications for use */}
+      {device.indications_for_use && (
+        <>
+          <Separator marginY="16px" />
+          <Box marginBottom="24px">
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              Indications for Use
+            </Heading>
+            <Box
+              padding="12px"
+              borderRadius="4px"
+              backgroundColor="ui.surface"
+              borderWidth="1px"
+              borderColor="ui.border"
+            >
+              <Text color="black" whiteSpace="pre-wrap">
+                {showFullIfu || device.indications_for_use.length <= 300
+                  ? device.indications_for_use
+                  : device.indications_for_use.substring(0, 300) + '...'}
+              </Text>
+              {device.indications_for_use.length > 300 && (
+                <Text
+                  color="brand.primary"
+                  marginTop="8px"
+                  cursor="pointer"
+                  textDecoration="underline"
+                  onClick={() => setShowFullIfu(!showFullIfu)}
+                >
+                  {showFullIfu ? 'show less' : 'show more'}
+                </Text>
+              )}
+            </Box>
+          </Box>
+        </>
+      )}
+
+      {/* device description */}
+      {device.device_description && (
+        <>
+          <Separator marginY="16px" />
+          <Box marginBottom="24px">
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              Device Description
+            </Heading>
+            <Box
+              padding="12px"
+              borderRadius="4px"
+              backgroundColor="ui.surface"
+              borderWidth="1px"
+              borderColor="ui.border"
+            >
+              <Text color="black" whiteSpace="pre-wrap">
+                {showFullDescription || device.device_description.length <= 300
+                  ? device.device_description
+                  : device.device_description.substring(0, 300) + '...'}
+              </Text>
+              {device.device_description.length > 300 && (
+                <Text
+                  color="brand.primary"
+                  marginTop="8px"
+                  cursor="pointer"
+                  textDecoration="underline"
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                >
+                  {showFullDescription ? 'show less' : 'show more'}
+                </Text>
+              )}
+            </Box>
+          </Box>
+        </>
+      )}
+
+      {/* materials */}
+      {device.materials && device.materials.length > 0 && (
+        <>
+          <Separator marginY="16px" />
+          <Box marginBottom="24px">
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              Materials
+            </Heading>
+            <HStack gap="2" flexWrap="wrap">
+              {device.materials.map((material) => (
+                <Badge key={material} variant="subtle" colorPalette="gray" padding="4px 8px">
+                  {material}
+                </Badge>
+              ))}
+            </HStack>
+          </Box>
+        </>
+      )}
+
+      {/* standards referenced */}
+      {device.standards_referenced && device.standards_referenced.length > 0 && (
+        <>
+          <Separator marginY="16px" />
+          <Box marginBottom="24px">
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              Standards Referenced
+            </Heading>
+            <Box>
+              {device.standards_referenced.map((standard) => (
+                <Text key={standard} fontSize="sm" color="black" marginBottom="4px">
+                  {standard}
+                </Text>
+              ))}
+            </Box>
+          </Box>
+        </>
+      )}
+
+      {/* sterilization methods */}
+      {device.sterilization_methods && device.sterilization_methods.length > 0 && (
+        <>
+          <Separator marginY="16px" />
+          <Box marginBottom="24px">
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              Sterilization Methods
+            </Heading>
+            <HStack gap="2" flexWrap="wrap">
+              {device.sterilization_methods.map((method) => (
+                <Badge key={method} variant="subtle" colorPalette="gray" padding="4px 8px">
+                  {method}
+                </Badge>
+              ))}
+            </HStack>
+          </Box>
+        </>
+      )}
 
       {/* 510(k) summary - collapsible */}
       {usefulSummary && usefulSummary.length > 0 && (

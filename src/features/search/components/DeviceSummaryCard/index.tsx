@@ -1,4 +1,4 @@
-import { Box, HStack, Text, Checkbox } from "@chakra-ui/react";
+import { Box, HStack, Text, Checkbox, Badge } from "@chakra-ui/react";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
 import Link from "next/link";
@@ -16,6 +16,13 @@ export type Device = {
   relevanceScore: number;
   deviceClass: string | null;
   pagerankScore: number | null;
+  materials: string[];
+  indicationsForUse: string | null;
+  hasClinicalData: boolean;
+  hasSterilization: boolean;
+  hasBiocompatibility: boolean;
+  hasSoftware: boolean;
+  hasElectricalSafety: boolean;
 };
 
 type DeviceSummaryCardProps = {
@@ -115,6 +122,24 @@ export const DeviceSummaryCard = ({
           </Text>
         )}
       </HStack>
+
+      {/* feature badges - only show flags that are true */}
+      {(device.hasClinicalData || device.hasSterilization || device.hasBiocompatibility || device.hasSoftware || device.hasElectricalSafety) && (
+        <HStack gap="2" flexWrap="wrap" mb="2">
+          {device.hasClinicalData && <Badge variant="subtle" colorPalette="gray" fontSize="xs">clinical data</Badge>}
+          {device.hasSterilization && <Badge variant="subtle" colorPalette="gray" fontSize="xs">sterilization</Badge>}
+          {device.hasBiocompatibility && <Badge variant="subtle" colorPalette="gray" fontSize="xs">biocompatibility</Badge>}
+          {device.hasSoftware && <Badge variant="subtle" colorPalette="gray" fontSize="xs">software</Badge>}
+          {device.hasElectricalSafety && <Badge variant="subtle" colorPalette="gray" fontSize="xs">electrical safety</Badge>}
+        </HStack>
+      )}
+
+      {/* materials */}
+      {device.materials.length > 0 && (
+        <Text fontSize="sm" color="ui.textMuted" mb="2">
+          {device.materials.join(' · ')}
+        </Text>
+      )}
 
       <Link href={`/devices/${device.id}`} legacyBehavior>
         <Box as="a" fontSize="sm" color="brand.primary" cursor="pointer" _hover={{ textDecoration: "underline" }} mb="2" display="block">
