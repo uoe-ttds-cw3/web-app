@@ -3,27 +3,30 @@ import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 
 interface ResultsHeaderProps {
-    numResults: number;
+  numResults: number;
 }
 
+export const ResultsHeader = ({ numResults = 0 }: ResultsHeaderProps) => {
+  const [sort, setValue] = useState("default");
 
-export const ResultsHeader = ({numResults = 0}: ResultsHeaderProps) => {
-    const [sort, setValue] = useState("default")
-
-    return (
-        <Box
-            paddingBottom="4"
-            color="brand.primary"
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-        >
-            <Text display="inline-flex" alignItems="center">
-                <FaSearch color="var(--chakra-colors-brand-accent)" style={{ marginRight: "8px" }} />
-                Found {numResults == 0 ? "no" : numResults} device{numResults==1 ? "" : "s"}...
-            </Text>
-            {/* This doesn't work right now so am just going to comment it out */}
-            {/* <Box>
+  return (
+    <Box
+      paddingBottom="4"
+      color="brand.primary"
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+    >
+      <Text display="inline-flex" alignItems="center">
+        <FaSearch
+          color="var(--chakra-colors-brand-accent)"
+          style={{ marginRight: "8px" }}
+        />
+        Found {numResults == 0 ? "no" : numResults} device
+        {numResults == 1 ? "" : "s"}...
+      </Text>
+      {/* This doesn't work right now so am just going to comment it out */}
+      {/* <Box>
                 <NativeSelect.Root width="190px" borderRadius="8px" border="none">
                 <NativeSelect.Field
                     textAlign="right"
@@ -41,6 +44,6 @@ export const ResultsHeader = ({numResults = 0}: ResultsHeaderProps) => {
                 <NativeSelect.Indicator />
                 </NativeSelect.Root>
             </Box> */}
-        </Box>
-    );
+    </Box>
+  );
 };
