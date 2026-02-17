@@ -47,7 +47,7 @@ export default async function handler(
         : Promise.resolve(null),
     ]);
 
-    // Provide defaults for null fields in device response
+    // provide defaults for null fields in device response
     const transformedDevice: DeviceLookupResponse = {
       ...device,
       product_code: device.product_code ?? '',
@@ -55,6 +55,16 @@ export default async function handler(
       decision: device.decision ?? '',
       decision_date: device.decision_date ?? '',
       summary_text: device.summary_text ?? '',
+      indications_for_use: device.indications_for_use ?? null,
+      device_description: device.device_description ?? null,
+      materials: device.materials ?? [],
+      standards_referenced: device.standards_referenced ?? [],
+      sterilization_methods: device.sterilization_methods ?? [],
+      has_clinical_data: device.has_clinical_data ?? false,
+      has_sterilization: device.has_sterilization ?? false,
+      has_biocompatibility: device.has_biocompatibility ?? false,
+      has_software: device.has_software ?? false,
+      has_electrical_safety: device.has_electrical_safety ?? false,
     };
 
     return res.status(200).json({

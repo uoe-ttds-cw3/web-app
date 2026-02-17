@@ -1,5 +1,5 @@
 import { Box, Text, Link } from "@chakra-ui/react";
-import { FaBarcode } from "react-icons/fa";
+import { FaBarcode, FaSearch } from "react-icons/fa";
 import { MdNumbers } from "react-icons/md";
 import { IoCalendarNumber } from "react-icons/io5";
 
@@ -7,9 +7,10 @@ interface FilterMenuProps {
     isOpen: boolean;
     onClose: () => void;
     onFilterSelect: (filterId: string) => void;
+    onAdvancedSearchToggle: () => void;
 }
 
-export const FilterMenu = ({ isOpen, onClose, onFilterSelect }: FilterMenuProps) => {
+export const FilterMenu = ({ isOpen, onClose, onFilterSelect, onAdvancedSearchToggle }: FilterMenuProps) => {
     const filterOptions = [
         {
             id: "submissionNumber",
@@ -34,6 +35,12 @@ export const FilterMenu = ({ isOpen, onClose, onFilterSelect }: FilterMenuProps)
             title: "Date After",
             icon: IoCalendarNumber,
             description: "Cleared after date"
+        },
+        {
+            id: "advancedSearch",
+            title: "Advanced Search",
+            icon: FaSearch,
+            description: "Search using operators"
         }
     ];
 
@@ -56,12 +63,19 @@ export const FilterMenu = ({ isOpen, onClose, onFilterSelect }: FilterMenuProps)
         >
             {filterOptions.map((option) => {
                 const IconComponent = option.icon;
+                const isAdvanced = option.id === "advancedSearch";
+
                 return (
                     <Link
                         key={option.id}
                         onClick={() => {
-                            onFilterSelect(option.id);
-                            onClose();
+                            if (isAdvanced) {
+                                onAdvancedSearchToggle();
+                                onClose();
+                            } else {
+                                onFilterSelect(option.id);
+                                onClose();
+                            }
                         }}
                         display="block"
                         width="100%"

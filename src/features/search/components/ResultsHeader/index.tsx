@@ -22,7 +22,8 @@ export const ResultsHeader = ({numResults = 0}: ResultsHeaderProps) => {
                 <FaSearch color="var(--chakra-colors-brand-accent)" style={{ marginRight: "8px" }} />
                 Found {numResults == 0 ? "no" : numResults} device{numResults==1 ? "" : "s"}...
             </Text>
-            <Box>
+            {/* This doesn't work right now so am just going to comment it out */}
+            {/* <Box>
                 <NativeSelect.Root width="190px" borderRadius="8px" border="none">
                 <NativeSelect.Field
                     textAlign="right"
@@ -39,7 +40,7 @@ export const ResultsHeader = ({numResults = 0}: ResultsHeaderProps) => {
                 </NativeSelect.Field>
                 <NativeSelect.Indicator />
                 </NativeSelect.Root>
-            </Box>
+            </Box> */}
         </Box>
     );
 };
