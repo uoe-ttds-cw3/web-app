@@ -13,6 +13,7 @@ import {
   type StackProps,
   Badge,
 } from "@chakra-ui/react";
+import posthog from "posthog-js";
 import type {
   DeviceLookupResponse,
   LineageResponse,
@@ -149,6 +150,12 @@ export const SideDrawer = ({ selectedDeviceIds }: SideDrawerProps) => {
                 color="green.700"
                 fontSize="xl"
                 title="Open Comparison"
+                onClick={() => {
+                  // track comparison drawer opened
+                  posthog.capture("comparison_drawer_opened", {
+                    device_count: rows.length,
+                  });
+                }}
               >
                 <MdCompare />
                 {rows.length > 0 && (

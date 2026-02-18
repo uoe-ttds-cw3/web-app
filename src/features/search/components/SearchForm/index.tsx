@@ -1,6 +1,7 @@
 import { Input, Box, Text, Link } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
+import posthog from "posthog-js";
 import { FilterMenu } from "../FilterMenu";
 import { SearchTags } from "../SearchTags";
 import { AdvancedSearchPanel } from "../AdvancedSearchModal";
@@ -208,6 +209,13 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
                 <Link
                   key={`${suggestion.text}-${index}`}
                   onClick={() => {
+                    // track autocomplete suggestion selected
+                    posthog.capture("autocomplete_suggestion_selected", {
+                      suggestion_text: suggestion.text,
+                      suggestion_source: suggestion.source,
+                      suggestion_type: "device",
+                      typed_query: searchTerm,
+                    });
                     setSearchTerm(suggestion.text);
                     onSearch?.(suggestion.text, tags);
                     setSearchFocused(false);
@@ -248,6 +256,13 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
                 <Link
                   key={`${suggestion.text}-${index}`}
                   onClick={() => {
+                    // track autocomplete suggestion selected
+                    posthog.capture("autocomplete_suggestion_selected", {
+                      suggestion_text: suggestion.text,
+                      suggestion_source: suggestion.source,
+                      suggestion_type: "manufacturer",
+                      typed_query: searchTerm,
+                    });
                     setSearchTerm(suggestion.text);
                     onSearch?.(suggestion.text, tags);
                     setSearchFocused(false);

@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { Box, Text, Link, Spinner } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useEffect, useState } from "react";
+import posthog from "posthog-js";
 import { useDevice } from "@/lib/queries/useDevice";
 import { DeviceDetailed } from "@/features/search/components/DeviceDetailed";
 
@@ -15,6 +16,19 @@ export default function DeviceDetailsPage() {
   };
 
   const { data, isLoading, error } = useDevice(deviceId);
+
+  // track device view when data loads
+  useEffect(() => {
+    if (data?.device && deviceId) {
+      posthog.capture("device_viewed", {
+        device_id: deviceId,
+        device_name: data.device.device_name,
+        product_code: data.device.product_code,
+        manufacturer: data.device.sponsor,
+        has_recalls: data.safety?.recall_count ? data.safety.recall_count > 0 : false,
+      });
+    }
+  }, [data, deviceId]);
 
   // delayed not-found: wait 1s after loading completes before showing error
   useEffect(() => {

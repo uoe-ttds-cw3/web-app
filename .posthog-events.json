@@ -1,0 +1,72 @@
+[
+  {
+    "event": "search_performed",
+    "description": "user performs a search query from the search form",
+    "file_path": "src/pages/index.tsx"
+  },
+  {
+    "event": "search_suggestion_clicked",
+    "description": "user clicks a search suggestion from the start searching page",
+    "file_path": "src/features/search/components/StartSearching/index.tsx"
+  },
+  {
+    "event": "autocomplete_suggestion_selected",
+    "description": "user selects an autocomplete suggestion while typing",
+    "file_path": "src/features/search/components/SearchForm/index.tsx"
+  },
+  {
+    "event": "advanced_search_used",
+    "description": "user executes a search using the advanced query builder",
+    "file_path": "src/features/search/components/AdvancedSearchModal/index.tsx"
+  },
+  {
+    "event": "category_selected",
+    "description": "user selects or deselects a device category from the navbar",
+    "file_path": "src/pages/index.tsx"
+  },
+  {
+    "event": "filter_applied",
+    "description": "user applies a facet filter from the results dropdown",
+    "file_path": "src/pages/index.tsx"
+  },
+  {
+    "event": "filter_removed",
+    "description": "user removes an active filter chip",
+    "file_path": "src/pages/index.tsx"
+  },
+  {
+    "event": "device_viewed",
+    "description": "user views a device detail page",
+    "file_path": "src/pages/devices/[id].tsx"
+  },
+  {
+    "event": "device_added_to_comparison",
+    "description": "user adds a device to the comparison list",
+    "file_path": "src/pages/index.tsx"
+  },
+  {
+    "event": "device_removed_from_comparison",
+    "description": "user removes a device from the comparison list",
+    "file_path": "src/pages/index.tsx"
+  },
+  {
+    "event": "comparison_drawer_opened",
+    "description": "user opens the device comparison drawer",
+    "file_path": "src/features/search/components/SideDrawer/index.tsx"
+  },
+  {
+    "event": "pagination_changed",
+    "description": "user navigates to a different page of results",
+    "file_path": "src/pages/index.tsx"
+  },
+  {
+    "event": "fda_document_link_clicked",
+    "description": "user clicks to view the official fda 510(k) pdf document",
+    "file_path": "src/features/search/components/DeviceDetailed/index.tsx"
+  },
+  {
+    "event": "predicate_device_clicked",
+    "description": "user clicks to view a predicate device in the lineage section",
+    "file_path": "src/features/search/components/DeviceDetailed/index.tsx"
+  }
+]
