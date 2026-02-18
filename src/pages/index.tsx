@@ -21,6 +21,7 @@ import type { BackendOptions } from "@/lib/api/types";
 import { toaster } from "@/components/ui/Toaster";
 import { SideDrawer } from "@/features/search/components/SideDrawer";
 import { FaFilter, FaTimes } from "react-icons/fa";
+import useLocalStorage from "use-local-storage";
 
 export default function Home() {
   const router = useRouter();
@@ -43,23 +44,11 @@ export default function Home() {
   const offset = (page - 1) * limit;
 
   const [filterOpen, setFilterOpen] = useState(false);
-  const [selectedDevices, setSelectedDevices] = useState<Device[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("selectedDevices");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error("Failed to parse saved devices:", e);
-        }
-      }
-    }
-    return [];
-  });
 
-  useEffect(() => {
-    localStorage.setItem("selectedDevices", JSON.stringify(selectedDevices));
-  }, [selectedDevices]);
+  const [selectedDevices, setSelectedDevices] = useLocalStorage<Device[]>(
+    "selectedDevices",
+    [],
+  );
 
   const handleToggle = (device: Device) => {
     setSelectedDevices((prev) => {
@@ -532,7 +521,7 @@ export default function Home() {
         </Box>
       )}
 
-      <SideDrawer selectedDeviceIds={selectedDevices.map((d) => d.id)} />
+      <SideDrawer />
     </div>
   );
 }

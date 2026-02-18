@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Button,
   CloseButton,
@@ -14,6 +13,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import type {
+  Device,
   DeviceLookupResponse,
   LineageResponse,
   SafetyProfileResponse,
@@ -21,16 +21,8 @@ import type {
 import { forwardRef, useRef } from "react";
 import React from "react";
 import { MdCompare, MdClose } from "react-icons/md";
-
-interface SideDrawerProps {
-  selectedDeviceIds: string[];
-}
-
-interface DevicePageData {
-  device: DeviceLookupResponse | null;
-  lineage: LineageResponse | null;
-  safety: SafetyProfileResponse | null;
-}
+import { useQueries } from "@tanstack/react-query";
+import useLocalStorage from "use-local-storage";
 
 const DrawerContainer = forwardRef<HTMLDivElement, StackProps>(
   function DrawerContainer(props, ref) {
@@ -80,43 +72,46 @@ export function formatCell(
   return "-";
 }
 
-export const SideDrawer = ({ selectedDeviceIds }: SideDrawerProps) => {
-  const [loading, setLoading] = useState(false);
-  const [rows, setRows] = useState<DevicePageData[]>([]);
+function useDevices(selectedDevices: Device[]) {
+  console.log("useDevices called");
+  const selectedDeviceIds = selectedDevices.map(({ id }) => id);
+
+  const queryResults = useQueries({
+    queries: selectedDeviceIds.map((id) => ({
+      queryKey: ["device", id],
+      queryFn: async () => {
+        console.log("fetching", id);
+        const res = await fetch(`/api/device/${id}`);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch device ${id}`);
+        }
+        return res.json();
+      },
+      enabled: Boolean(id),
+    })),
+  });
+
+  const rows = queryResults.map((q) => q.data).filter(Boolean);
+  const isLoading = queryResults.some((q) => q.isLoading);
+  const isError = queryResults.some((q) => q.isError);
+  const error = queryResults.find((q) => q.error)?.error;
+
+  return { rows, isLoading, isError, error };
+}
+
+export const SideDrawer = () => {
   const portalRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    if (
-      selectedDeviceIds.length === 0 && <Text>Select devices to compare.</Text>
-    ) {
-      setRows([]);
-      return;
-    }
+  const [selectedDevices, setSelectedDevices] = useLocalStorage<Device[]>(
+    "selectedDevices",
+    [],
+  );
 
-    async function fetchData() {
-      setLoading(true);
-
-      try {
-        const data = await Promise.all(
-          selectedDeviceIds.map((id) =>
-            fetch(`/api/device/${id}`).then((res) => res.json()),
-          ),
-        );
-
-        // Each item has { device, lineage, safety }
-        setRows(data);
-      } catch (err) {
-        console.error("Error fetching device data:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [selectedDeviceIds]);
+  const { rows, isLoading: loading } = useDevices(selectedDevices);
 
   const handleRemoveRow = (index: number) => {
-    setRows(rows.filter((_, i) => i !== index));
+    const updatedRows = rows.filter((_, i) => i !== index);
+    setSelectedDevices(updatedRows as Device[]);
   };
 
   return (
@@ -151,8 +146,8 @@ export const SideDrawer = ({ selectedDeviceIds }: SideDrawerProps) => {
                 title="Open Comparison"
               >
                 <MdCompare />
-                {rows.length > 0 && (
-                  <Badge colorPalette="green"> {rows.length} </Badge>
+                {selectedDevices.length > 0 && (
+                  <Badge colorPalette="green"> {selectedDevices.length} </Badge>
                 )}
               </Button>
             </Drawer.Trigger>
