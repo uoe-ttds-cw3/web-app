@@ -1,0 +1,22 @@
+// server-side posthog client for api routes
+import { PostHog } from "posthog-node";
+
+let posthogClient: PostHog | null = null;
+
+export function getPostHogClient() {
+  if (!posthogClient) {
+    posthogClient = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+      host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+      // flush immediately for short-lived server functions
+      flushAt: 1,
+      flushInterval: 0,
+    });
+  }
+  return posthogClient;
+}
+
+export async function shutdownPostHog() {
+  if (posthogClient) {
+    await posthogClient.shutdown();
+  }
+}

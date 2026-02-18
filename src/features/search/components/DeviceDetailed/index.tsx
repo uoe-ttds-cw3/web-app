@@ -20,6 +20,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import posthog from "posthog-js";
 import type {
   DeviceLookupResponse,
   LineageResponse,
@@ -129,6 +130,14 @@ export const DeviceDetailed = ({
               color="brand.primary"
               fontSize="sm"
               textDecoration="underline"
+              onClick={() => {
+                // track fda document link click
+                posthog.capture("fda_document_link_clicked", {
+                  device_id: device.submission_number,
+                  device_name: device.device_name,
+                  product_code: device.product_code,
+                });
+              }}
             >
               View FDA Document
             </ChakraLink>
@@ -444,6 +453,14 @@ export const DeviceDetailed = ({
                           color="brand.primary"
                           textDecoration="underline"
                           cursor="pointer"
+                          onClick={() => {
+                            // track predicate device click
+                            posthog.capture("predicate_device_clicked", {
+                              from_device_id: device.submission_number,
+                              from_device_name: device.device_name,
+                              predicate_device_id: predicate,
+                            });
+                          }}
                         >
                           {predicate}
                         </ChakraLink>

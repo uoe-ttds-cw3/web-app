@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import posthog from "posthog-js";
 import {
   DeviceSummaryCard,
   Device,
@@ -39,8 +40,8 @@ export default function Home() {
   const useStemming = router.query.use_stemming !== "false"; // default true
   const useHybrid = router.query.use_hybrid !== "false"; // default true
 
-  const page = Number(router.query.page) || 1;
-  const limit = 20;
+  let page = Number(router.query.page) || 1;
+  const limit = 100;
   const offset = (page - 1) * limit;
 
   const [filterOpen, setFilterOpen] = useState(false);
@@ -53,6 +54,21 @@ export default function Home() {
   const handleToggle = (device: Device) => {
     setSelectedDevices((prev) => {
       const exists = prev.some((d) => d.id === device.id);
+      // track device comparison toggle
+      if (exists) {
+        posthog.capture("device_removed_from_comparison", {
+          device_id: device.id,
+          device_name: device.name,
+          product_code: device.pCode,
+        });
+      } else {
+        posthog.capture("device_added_to_comparison", {
+          device_id: device.id,
+          device_name: device.name,
+          product_code: device.pCode,
+          comparison_count: prev.length + 1,
+        });
+      }
       return exists
         ? prev.filter((d) => d.id !== device.id)
         : [...prev, device];
@@ -75,7 +91,9 @@ export default function Home() {
     use_hybrid: useHybrid ? undefined : false,
   });
   const results = data?.results.map(transformSearchResult) ?? [];
-  const totalPages = data ? Math.ceil(data.total_results / limit) : 0;
+  const resultsPerPage = 10;
+  const totalPages = data ? Math.ceil(data.total_results / resultsPerPage) : 0;
+  page = Math.max(Math.min(page, totalPages), 1)
 
   useEffect(() => {
     if (error) {
@@ -101,6 +119,18 @@ export default function Home() {
     tags?: Array<{ id: string; type: string; value: string }>,
     backendOptions?: BackendOptions,
   ) => {
+    // track search performed
+    posthog.capture("search_performed", {
+      query: newQuery,
+      has_filters: !!tags && tags.length > 0,
+      filter_count: tags?.length ?? 0,
+      panel_filter: panel,
+      use_expansion: backendOptions?.use_expansion ?? false,
+      use_pagerank_boost: backendOptions?.use_pagerank_boost ?? false,
+      use_stemming: backendOptions?.use_stemming ?? true,
+      use_hybrid: backendOptions?.use_hybrid ?? true,
+    });
+
     const queryParams: Record<string, string> = { q: newQuery };
 
     if (tags) {
@@ -142,6 +172,13 @@ export default function Home() {
   };
 
   const handleCategorySelect = (panelCode?: string) => {
+    // track category selection
+    posthog.capture("category_selected", {
+      panel_code: panelCode || null,
+      action: panelCode ? "selected" : "deselected",
+      current_query: query,
+    });
+
     if (panelCode) {
       const { page: _removedPage, ...rest } = router.query;
       router.push(
@@ -160,6 +197,14 @@ export default function Home() {
   };
 
   const handlePageChange = (newPage: number) => {
+    // track pagination
+    posthog.capture("pagination_changed", {
+      from_page: page,
+      to_page: newPage,
+      total_pages: totalPages,
+      query: query,
+    });
+
     router.push(
       { pathname: "/", query: { ...router.query, page: String(newPage) } },
       undefined,
@@ -168,6 +213,13 @@ export default function Home() {
   };
 
   const handleFacetFilter = (field: string, value: string) => {
+    // track filter applied
+    posthog.capture("filter_applied", {
+      filter_type: field,
+      filter_value: value,
+      current_query: query,
+    });
+
     const fieldMap: Record<string, string> = {
       panel_code: "panel",
       decision_code: "decision",
@@ -183,6 +235,12 @@ export default function Home() {
   };
 
   const handleRemoveFacetFilter = (field: string) => {
+    // track filter removed
+    posthog.capture("filter_removed", {
+      filter_type: field,
+      current_query: query,
+    });
+
     const fieldMap: Record<string, string> = {
       panel_code: "panel",
       decision_code: "decision",
@@ -438,12 +496,13 @@ export default function Home() {
             )}
 
             <Stack>
-              {results.map((device) => (
+              {results.slice((page-1)*resultsPerPage, page*resultsPerPage).map((device) => (
                 <DeviceSummaryCard
                   key={device.id}
                   device={device}
                   selectedDevices={selectedDevices}
                   onToggle={handleToggle}
+                  searchQuery={query}
                 />
               ))}
             </Stack>
