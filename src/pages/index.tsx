@@ -38,8 +38,8 @@ export default function Home() {
   const useStemming = router.query.use_stemming !== "false"; // default true
   const useHybrid = router.query.use_hybrid !== "false"; // default true
 
-  const page = Number(router.query.page) || 1;
-  const limit = 20;
+  let page = Number(router.query.page) || 1;
+  const limit = 1;
   const offset = (page - 1) * limit;
 
   const [filterOpen, setFilterOpen] = useState(false);
@@ -86,7 +86,9 @@ export default function Home() {
     use_hybrid: useHybrid ? undefined : false,
   });
   const results = data?.results.map(transformSearchResult) ?? [];
-  const totalPages = data ? Math.ceil(data.total_results / limit) : 0;
+  const resultsPerPage = 10;
+  const totalPages = data ? Math.ceil(data.total_results / resultsPerPage) : 0;
+  page = Math.max(Math.min(page, totalPages), 1)
 
   useEffect(() => {
     if (error) {
@@ -449,12 +451,13 @@ export default function Home() {
             )}
 
             <Stack>
-              {results.map((device) => (
+              {results.slice((page-1)*resultsPerPage, page*resultsPerPage).map((device) => (
                 <DeviceSummaryCard
                   key={device.id}
                   device={device}
                   selectedDevices={selectedDevices}
                   onToggle={handleToggle}
+                  searchQuery={query}
                 />
               ))}
             </Stack>
