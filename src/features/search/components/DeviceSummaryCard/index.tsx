@@ -56,16 +56,15 @@ export const DeviceSummaryCard = ({
       borderColor="ui.borderLight"
       marginBottom="4"
     >
-      <Link href={`/devices/${device.id}`} legacyBehavior>
-        <Box
-          as="a"
-          fontWeight="bold"
-          fontSize="lg"
-          color="brand.primary"
-          _hover={{ textDecoration: "underline" }}
-          display="block"
-          marginBottom="2"
-        >
+      <Box
+        fontWeight="bold"
+        fontSize="lg"
+        color="brand.primary"
+        _hover={{ textDecoration: "underline" }}
+        display="block"
+        marginBottom="2"
+      >
+        <Link href={`/devices/${device.id}`} legacyBehavior>
           {searchQuery ? (
             <Highlighter
               searchWords={searchQuery.split(/\s+/)}
@@ -79,8 +78,8 @@ export const DeviceSummaryCard = ({
           ) : (
             device.name
           )}
-        </Box>
-      </Link>
+        </Link>
+      </Box>
 
       <HStack fontSize="sm" color="ui.textMuted" gap="3" flexWrap="wrap" mb="2">
         {device.manufacturer && (

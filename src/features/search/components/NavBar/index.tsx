@@ -103,13 +103,7 @@ export const NavBar = ({
               }
               color="brand.primary"
               padding="12px 24px"
-              borderRadius={
-                index === 0
-                  ? "8px 0 0 8px"
-                  : index === categories.length - 1
-                    ? "0 8px 8px 0"
-                    : "0"
-              }
+              borderRadius="8px"
               _hover={{
                 backgroundColor:
                   selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
