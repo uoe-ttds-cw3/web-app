@@ -39,7 +39,7 @@ export default function Home() {
   const useHybrid = router.query.use_hybrid !== "false"; // default true
 
   let page = Number(router.query.page) || 1;
-  const limit = 1;
+  const limit = 100;
   const offset = (page - 1) * limit;
 
   const [filterOpen, setFilterOpen] = useState(false);
