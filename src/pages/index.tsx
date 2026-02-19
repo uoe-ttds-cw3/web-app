@@ -24,6 +24,7 @@ import { toaster } from "@/components/ui/Toaster";
 import { SideDrawer } from "@/features/search/components/SideDrawer";
 import { FaFilter, FaTimes } from "react-icons/fa";
 import useLocalStorage from "use-local-storage";
+import { LANGUAGE_NOT_SUPPORTED } from "@/constants/error-codes";
 
 const subscribe = () => () => {};
 
@@ -509,7 +510,7 @@ export default function Home() {
               </Box>
             )}
 
-            {data?.error_code === "LANGUAGE_NOT_SUPPORTED" &&
+            {data?.error_code === LANGUAGE_NOT_SUPPORTED &&
             data?.error_message ? (
               <Alert.Root status="warning" title={data.error_message}>
                 <Alert.Indicator />
