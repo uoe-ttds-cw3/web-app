@@ -15,6 +15,7 @@ import {
   Spinner,
   Button,
   Collapsible,
+  Alert,
 } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
@@ -47,7 +48,11 @@ export default function Home() {
   const offset = (page - 1) * limit;
 
   const [filterOpen, setFilterOpen] = useState(false);
-  const isHydrated = useSyncExternalStore(subscribe, () => true, () => false);
+  const isHydrated = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 
   const [selectedDevices, setSelectedDevices] = useLocalStorage<Device[]>(
     "selectedDevices",
@@ -95,10 +100,11 @@ export default function Home() {
     use_stemming: useStemming ? undefined : false,
     use_hybrid: useHybrid ? undefined : false,
   });
+
   const results = data?.results.map(transformSearchResult) ?? [];
   const resultsPerPage = 10;
   const totalPages = data ? Math.ceil(data.total_results / resultsPerPage) : 0;
-  page = Math.max(Math.min(page, totalPages), 1)
+  page = Math.max(Math.min(page, totalPages), 1);
 
   useEffect(() => {
     if (error) {
@@ -261,7 +267,9 @@ export default function Home() {
         <NavBar
           selectedCategory={panel}
           onCategorySelect={handleCategorySelect}
-          searchFacets={data?.facets?.find((f) => f.field === "panel_code")?.values}
+          searchFacets={
+            data?.facets?.find((f) => f.field === "panel_code")?.values
+          }
         />
       </Box>
       {!query && results.length === 0 && (
@@ -501,86 +509,106 @@ export default function Home() {
               </Box>
             )}
 
-            <Stack>
-              {results.slice((page-1)*resultsPerPage, page*resultsPerPage).map((device) => (
-                <DeviceSummaryCard
-                  key={device.id}
-                  device={device}
-                  selectedDevices={selectedDevicesForRender}
-                  onToggle={handleToggle}
-                  searchQuery={query}
-                />
-              ))}
-            </Stack>
+            {data?.error_code === "LANGUAGE_NOT_SUPPORTED" &&
+            data?.error_message ? (
+              <Alert.Root status="warning" title={data.error_message}>
+                <Alert.Indicator />
+                <Alert.Title>{data.error_message}</Alert.Title>
+              </Alert.Root>
+            ) : (
+              <>
+                <Stack>
+                  {results
+                    .slice((page - 1) * resultsPerPage, page * resultsPerPage)
+                    .map((device) => (
+                      <DeviceSummaryCard
+                        key={device.id}
+                        device={device}
+                        selectedDevices={selectedDevicesForRender}
+                        onToggle={handleToggle}
+                        searchQuery={query}
+                      />
+                    ))}
+                </Stack>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                gap="2"
-                paddingY="6"
-                marginTop="6"
-              >
-                <Button
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={page <= 1}
-                  size="sm"
-                  variant="outline"
-                  colorScheme="green"
-                >
-                  Previous
-                </Button>
-                <Box display="flex" gap="1" alignItems="center">
-                  {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
-                    const pageNum = i + 1;
-                    const showPage =
-                      pageNum <= 3 ||
-                      pageNum >= totalPages - 2 ||
-                      Math.abs(pageNum - page) <= 2;
-                    if (!showPage) {
-                      if (
-                        (pageNum === 4 && page > 6) ||
-                        (pageNum === totalPages - 3 && page < totalPages - 5)
-                      ) {
-                        return (
-                          <Text key={pageNum} color="ui.textMuted" px="1">
-                            ...
-                          </Text>
-                        );
-                      }
-                      return null;
-                    }
-                    return (
-                      <Button
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        size="sm"
-                        variant={pageNum === page ? "solid" : "ghost"}
-                        colorScheme="green"
-                        bg={pageNum === page ? "brand.primary" : undefined}
-                        color={pageNum === page ? "white" : "brand.primary"}
-                        minW="8"
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
-                </Box>
-                <Button
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={page >= totalPages}
-                  size="sm"
-                  variant="outline"
-                  colorScheme="green"
-                >
-                  Next
-                </Button>
-                <Text color="ui.textMuted" fontSize="sm" ml="4">
-                  Page {page} of {totalPages}
-                </Text>
-              </Box>
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap="2"
+                    paddingY="6"
+                    marginTop="6"
+                  >
+                    <Button
+                      onClick={() => handlePageChange(page - 1)}
+                      disabled={page <= 1}
+                      size="sm"
+                      variant="outline"
+                      colorScheme="green"
+                    >
+                      Previous
+                    </Button>
+                    <Box display="flex" gap="1" alignItems="center">
+                      {Array.from(
+                        { length: Math.min(totalPages, 10) },
+                        (_, i) => {
+                          const pageNum = i + 1;
+                          const showPage =
+                            pageNum <= 3 ||
+                            pageNum >= totalPages - 2 ||
+                            Math.abs(pageNum - page) <= 2;
+                          if (!showPage) {
+                            if (
+                              (pageNum === 4 && page > 6) ||
+                              (pageNum === totalPages - 3 &&
+                                page < totalPages - 5)
+                            ) {
+                              return (
+                                <Text key={pageNum} color="ui.textMuted" px="1">
+                                  ...
+                                </Text>
+                              );
+                            }
+                            return null;
+                          }
+                          return (
+                            <Button
+                              key={pageNum}
+                              onClick={() => handlePageChange(pageNum)}
+                              size="sm"
+                              variant={pageNum === page ? "solid" : "ghost"}
+                              colorScheme="green"
+                              bg={
+                                pageNum === page ? "brand.primary" : undefined
+                              }
+                              color={
+                                pageNum === page ? "white" : "brand.primary"
+                              }
+                              minW="8"
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        },
+                      )}
+                    </Box>
+                    <Button
+                      onClick={() => handlePageChange(page + 1)}
+                      disabled={page >= totalPages}
+                      size="sm"
+                      variant="outline"
+                      colorScheme="green"
+                    >
+                      Next
+                    </Button>
+                    <Text color="ui.textMuted" fontSize="sm" ml="4">
+                      Page {page} of {totalPages}
+                    </Text>
+                  </Box>
+                )}
+              </>
             )}
           </Box>
         </Box>

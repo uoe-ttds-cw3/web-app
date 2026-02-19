@@ -83,6 +83,8 @@ export interface SearchResponse {
   facets: FacetField[] | null;
   expansion_info: ExpansionInfo | null;
   debug_info: QueryDebugInfo | null;
+  error_code?: string | null;
+  error_message?: string | null;
 }
 
 // backend search options controlled by the advanced search panel
