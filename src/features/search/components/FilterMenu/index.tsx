@@ -35,12 +35,6 @@ export const FilterMenu = ({ isOpen, onClose, onFilterSelect, onAdvancedSearchTo
             title: "Date After",
             icon: IoCalendarNumber,
             description: "Cleared after date"
-        },
-        {
-            id: "advancedSearch",
-            title: "Advanced Search",
-            icon: FaSearch,
-            description: "Search using operators"
         }
     ];
 

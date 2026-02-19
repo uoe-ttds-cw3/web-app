@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import posthog from "posthog-js";
 import { FilterMenu } from "../FilterMenu";
+import { AdvancedSearchButton } from "../AdvancedSearchButton";
 import { SearchTags } from "../SearchTags";
 import { AdvancedSearchPanel } from "../AdvancedSearchModal";
 import { useAutocomplete } from "@/lib/queries/useAutocomplete";
@@ -155,7 +156,9 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
             setSearchTerm(e.target.value);
             if (!searchFocused) setSearchFocused(true);
           }}
-          onFocus={() => setSearchFocused(true)}
+          onFocus={() => {
+            setSearchFocused(true);
+          }}
           onBlur={() => {
             setSearchFocused(false);
             setFilterFocused(false);
@@ -179,6 +182,13 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
       </Box>
 
       {/* grouped autocomplete dropdown */}
+      {searchFocused && searchTerm.length==0 &&
+        <AdvancedSearchButton isOpen={filterFocused}
+          onAdvancedSearchToggle={() => {
+            setAdvancedPanelOpen((prev) => !prev);
+        }}/>
+      }
+
       {searchFocused && !advancedPanelOpen && (deviceSuggestions.length > 0 || manufacturerSuggestions.length > 0) && (
         <Box
           width="100%"
