@@ -19,10 +19,12 @@ import type {
   LineageResponse,
   SafetyProfileResponse,
 } from "@/lib/api/types";
-import { forwardRef, useRef } from "react";
+import { forwardRef, useRef, useSyncExternalStore } from "react";
 import React from "react";
 import { MdCompare, MdClose } from "react-icons/md";
 import useLocalStorage from "use-local-storage";
+
+const subscribe = () => () => {};
 
 const DrawerContainer = forwardRef<HTMLDivElement, StackProps>(
   function DrawerContainer(props, ref) {
@@ -74,14 +76,17 @@ export function formatCell(
 
 export const SideDrawer = () => {
   const portalRef = useRef<HTMLDivElement | null>(null);
+  const isHydrated = useSyncExternalStore(subscribe, () => true, () => false);
 
   const [selectedDevices, setSelectedDevices] = useLocalStorage<Device[]>(
     "selectedDevices",
     [],
   );
 
+  const selectedDevicesForRender = isHydrated ? selectedDevices : [];
+
   const handleRemoveRow = (index: number) => {
-    const updatedRows = selectedDevices.filter((_, i) => i !== index);
+    const updatedRows = selectedDevicesForRender.filter((_, i) => i !== index);
     setSelectedDevices(updatedRows as Device[]);
   };
 
@@ -118,13 +123,13 @@ export const SideDrawer = () => {
                 onClick={() => {
                   // track comparison drawer opened
                   posthog.capture("comparison_drawer_opened", {
-                    device_count: selectedDevices.length,
+                    device_count: selectedDevicesForRender.length,
                   });
                 }}
               >
                 <MdCompare />
-                {selectedDevices.length > 0 && (
-                  <Badge colorPalette="green"> {selectedDevices.length} </Badge>
+                {selectedDevicesForRender.length > 0 && (
+                  <Badge colorPalette="green"> {selectedDevicesForRender.length} </Badge>
                 )}
               </Button>
             </Drawer.Trigger>
@@ -191,7 +196,7 @@ export const SideDrawer = () => {
                     </Table.Header>
 
                     <Table.Body>
-                      {selectedDevices.map((selectedDevice, index) => {
+                      {selectedDevicesForRender.map((selectedDevice, index) => {
                         if (!selectedDevice) return null;
 
                         return (

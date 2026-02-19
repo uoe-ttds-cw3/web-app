@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import posthog from "posthog-js";
 import {
   DeviceSummaryCard,
@@ -24,6 +24,8 @@ import { SideDrawer } from "@/features/search/components/SideDrawer";
 import { FaFilter, FaTimes } from "react-icons/fa";
 import useLocalStorage from "use-local-storage";
 
+const subscribe = () => () => {};
+
 export default function Home() {
   const router = useRouter();
   const query = (router.query.q as string) || "";
@@ -45,14 +47,17 @@ export default function Home() {
   const offset = (page - 1) * limit;
 
   const [filterOpen, setFilterOpen] = useState(false);
+  const isHydrated = useSyncExternalStore(subscribe, () => true, () => false);
 
   const [selectedDevices, setSelectedDevices] = useLocalStorage<Device[]>(
     "selectedDevices",
     [],
   );
 
+  const selectedDevicesForRender = isHydrated ? selectedDevices : [];
+
   const handleToggle = (device: Device) => {
-    setSelectedDevices((prev) => {
+    setSelectedDevices((prev = []) => {
       const exists = prev.some((d) => d.id === device.id);
       // track device comparison toggle
       if (exists) {
@@ -500,7 +505,7 @@ export default function Home() {
                 <DeviceSummaryCard
                   key={device.id}
                   device={device}
-                  selectedDevices={selectedDevices}
+                  selectedDevices={selectedDevicesForRender}
                   onToggle={handleToggle}
                   searchQuery={query}
                 />
