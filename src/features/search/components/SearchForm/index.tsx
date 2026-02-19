@@ -178,13 +178,34 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         </Box>
       </Box>
 
+      <Box
+        position="absolute"
+        right="0"
+        top="100%"
+      >
+        <Box
+          as="button"
+          fontSize="xs"
+          color="brand.primary"
+          textDecoration="underline"
+          cursor="pointer"
+          onClick={() => {
+            setAdvancedPanelOpen(true);
+            setFilterFocused(false);
+            setSearchFocused(false);
+          }}
+        >
+          Advanced Search
+        </Box>
+      </Box>
+
       {/* grouped autocomplete dropdown */}
       {searchFocused && !advancedPanelOpen && (deviceSuggestions.length > 0 || manufacturerSuggestions.length > 0) && (
         <Box
           width="100%"
           background="ui.background"
           borderRadius="8px"
-          marginTop="8px"
+          marginTop="12px"
           position="absolute"
           zIndex={10}
           boxShadow="lg"
