@@ -91,7 +91,7 @@ export const NavBar = ({
         color="#266429"
       >
         <Icon as={PiMedalDuotone} marginRight="8px" />
-        Search by Category
+        Filter by Category
       </Text>
 
       {/* error state */}
