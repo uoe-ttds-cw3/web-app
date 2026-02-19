@@ -19,10 +19,17 @@ type Category = {
   deviceCount: number;
 };
 
+type SearchFacetValue = {
+  value: string;
+  count: number;
+  label: string | null;
+};
+
 type NavBarProps = {
   categories?: Category[];
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
+  searchFacets?: SearchFacetValue[];
 };
 
 type PanelsResponse = {
@@ -49,6 +56,7 @@ export const NavBar = ({
   categories: categoriesProp,
   onCategorySelect,
   selectedCategory,
+  searchFacets,
 }: NavBarProps) => {
   const {
     data: fetchedCategories,
@@ -60,7 +68,19 @@ export const NavBar = ({
     enabled: !categoriesProp,
   });
 
-  const categories = categoriesProp || fetchedCategories || [];
+  const allCategories = categoriesProp || fetchedCategories || [];
+
+  // when search facets are provided, only show panels that appear in the results
+  // and use the search-scoped counts instead of total index counts
+  const categories = searchFacets
+    ? allCategories
+        .filter((cat) => searchFacets.some((f) => f.value === cat.id))
+        .map((cat) => {
+          const facet = searchFacets.find((f) => f.value === cat.id);
+          return { ...cat, deviceCount: facet?.count ?? cat.deviceCount };
+        })
+        .sort((a, b) => b.deviceCount - a.deviceCount)
+    : allCategories;
 
   return (
     <Box padding="24px 0">

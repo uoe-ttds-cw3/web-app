@@ -261,6 +261,7 @@ export default function Home() {
         <NavBar
           selectedCategory={panel}
           onCategorySelect={handleCategorySelect}
+          searchFacets={data?.facets?.find((f) => f.field === "panel_code")?.values}
         />
       </Box>
       {!query && results.length === 0 && (
