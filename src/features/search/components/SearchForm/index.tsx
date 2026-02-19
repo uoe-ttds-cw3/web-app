@@ -9,7 +9,11 @@ import { useAutocomplete } from "@/lib/queries/useAutocomplete";
 import type { BackendOptions } from "@/lib/api/types";
 
 interface SearchFormProps {
-  onSearch?: (query: string, tags?: Array<{ id: string; type: string; value: string }>, backendOptions?: BackendOptions) => void;
+  onSearch?: (
+    query: string,
+    tags?: Array<{ id: string; type: string; value: string }>,
+    backendOptions?: BackendOptions,
+  ) => void;
   initialQuery?: string;
 }
 
@@ -19,7 +23,11 @@ const isLikelyGibberish = (text: string): boolean => {
   const consonantCluster = /[^aeiou\s]{5,}/i;
   const repeatedChars = /(.)\1{3,}/;
   const keyboardMash = /[qwertasdfgzxcvb]{6,}/i;
-  return consonantCluster.test(text) || repeatedChars.test(text) || keyboardMash.test(text);
+  return (
+    consonantCluster.test(text) ||
+    repeatedChars.test(text) ||
+    keyboardMash.test(text)
+  );
 };
 
 export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
@@ -33,15 +41,21 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
   const [searchFocused, setSearchFocused] = useState(false);
   const [filterFocused, setFilterFocused] = useState(false);
   const [advancedPanelOpen, setAdvancedPanelOpen] = useState(false);
-  const [tags, setTags] = useState<Array<{ id: string; type: string; value: string }>>([]);
+  const [tags, setTags] = useState<
+    Array<{ id: string; type: string; value: string }>
+  >([]);
   const [showGibberishWarning, setShowGibberishWarning] = useState(false);
 
   const { data: autocompleteData } = useAutocomplete(searchTerm);
   const suggestions = autocompleteData?.suggestions ?? [];
 
   // group suggestions by source type
-  const deviceSuggestions = suggestions.filter(s => s.source === 'device_name' || s.source === 'product_code');
-  const manufacturerSuggestions = suggestions.filter(s => s.source === 'manufacturer');
+  const deviceSuggestions = suggestions.filter(
+    (s) => s.source === "device_name" || s.source === "product_code",
+  );
+  const manufacturerSuggestions = suggestions.filter(
+    (s) => s.source === "manufacturer",
+  );
 
   // check for gibberish and update warning state
   useEffect(() => {
@@ -64,7 +78,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
     const newTag = {
       id: `${filterId}-${Date.now()}`,
       type: filterType,
-      value: ""
+      value: "",
     };
     setTags([...tags, newTag]);
   }
@@ -75,11 +89,13 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
   }
 
   function updateTagValue(tagId: string, newValue: string) {
-    setTags(tags.map(tag => tag.id === tagId ? { ...tag, value: newValue } : tag));
+    setTags(
+      tags.map((tag) => (tag.id === tagId ? { ...tag, value: newValue } : tag)),
+    );
   }
 
   function removeTag(tagId: string) {
-    const updatedTags = tags.filter(tag => tag.id !== tagId);
+    const updatedTags = tags.filter((tag) => tag.id !== tagId);
     setTags(updatedTags);
     onSearch?.(searchTerm, updatedTags);
   }
@@ -126,9 +142,9 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
           flexShrink={0}
           maxWidth="60%"
           css={{
-            '&::-webkit-scrollbar': {
-              display: 'none'
-            }
+            "&::-webkit-scrollbar": {
+              display: "none",
+            },
           }}
         >
           {tags.map((tag) => (
@@ -147,7 +163,11 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
           flex="1"
           borderRadius="8px"
           colorPalette="gray"
-          placeholder={tags.length > 0 ? "" : "Search by manufacturer, material, recall event"}
+          placeholder={
+            tags.length > 0
+              ? ""
+              : "Search by manufacturer, material, recall event"
+          }
           border="none"
           _focus={{ boxShadow: "none", outline: "none" }}
           value={searchTerm}
@@ -161,7 +181,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
             setFilterFocused(false);
           }}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === "Enter") {
               onSearch?.(searchTerm, tags);
               setSearchFocused(false);
             }
@@ -179,112 +199,124 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
       </Box>
 
       {/* grouped autocomplete dropdown */}
-      {searchFocused && !advancedPanelOpen && (deviceSuggestions.length > 0 || manufacturerSuggestions.length > 0) && (
-        <Box
-          width="100%"
-          background="ui.background"
-          borderRadius="8px"
-          marginTop="8px"
-          position="absolute"
-          zIndex={10}
-          boxShadow="lg"
-          border="1px solid"
-          borderColor="ui.borderLight"
-          onMouseDown={(e) => e.preventDefault()}
-        >
-          {/* devices section */}
-          {deviceSuggestions.length > 0 && (
-            <Box>
-              <Text
-                fontSize="xs"
-                fontWeight="semibold"
-                color="ui.textMuted"
-                padding="8px 12px 4px"
-                textTransform="uppercase"
-                letterSpacing="wide"
-              >
-                Devices
-              </Text>
-              {deviceSuggestions.map((suggestion, index) => (
-                <Link
-                  key={`${suggestion.text}-${index}`}
-                  onClick={() => {
-                    // track autocomplete suggestion selected
-                    posthog.capture("autocomplete_suggestion_selected", {
-                      suggestion_text: suggestion.text,
-                      suggestion_source: suggestion.source,
-                      suggestion_type: "device",
-                      typed_query: searchTerm,
-                    });
-                    setSearchTerm(suggestion.text);
-                    onSearch?.(suggestion.text, tags);
-                    setSearchFocused(false);
-                  }}
-                  display="block"
-                  width="100%"
-                  padding="8px 12px"
-                  borderRadius="4px"
-                  _hover={{
-                    bg: "ui.surface",
-                    textDecoration: "none",
-                  }}
-                  cursor="pointer"
+      {searchFocused &&
+        !advancedPanelOpen &&
+        (deviceSuggestions.length > 0 ||
+          manufacturerSuggestions.length > 0) && (
+          <Box
+            width="100%"
+            background="ui.background"
+            borderRadius="8px"
+            marginTop="8px"
+            position="absolute"
+            zIndex={10}
+            boxShadow="lg"
+            border="1px solid"
+            borderColor="ui.borderLight"
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            {/* devices section */}
+            {deviceSuggestions.length > 0 && (
+              <Box>
+                <Text
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  color="ui.textMuted"
+                  padding="8px 12px 4px"
+                  textTransform="uppercase"
+                  letterSpacing="wide"
                 >
-                  <Text fontSize="sm">{suggestion.text}</Text>
-                  <Text fontSize="xs" color="ui.textSubtle">
-                    {suggestion.source === 'product_code' ? 'product code' : 'device name'}
-                  </Text>
-                </Link>
-              ))}
-            </Box>
-          )}
+                  Devices
+                </Text>
+                {deviceSuggestions.map((suggestion, index) => (
+                  <Link
+                    key={`${suggestion.text}-${index}`}
+                    onClick={() => {
+                      // track autocomplete suggestion selected
+                      posthog.capture("autocomplete_suggestion_selected", {
+                        suggestion_text: suggestion.text,
+                        suggestion_source: suggestion.source,
+                        suggestion_type: "device",
+                        typed_query: searchTerm,
+                      });
+                      setSearchTerm(suggestion.text);
+                      onSearch?.(suggestion.text, tags);
+                      setSearchFocused(false);
+                    }}
+                    display="block"
+                    width="100%"
+                    padding="8px 12px"
+                    borderRadius="4px"
+                    _hover={{
+                      bg: "ui.surface",
+                      textDecoration: "none",
+                    }}
+                    cursor="pointer"
+                  >
+                    <Text fontSize="sm">{suggestion.text}</Text>
+                    <Text fontSize="xs" color="ui.textSubtle">
+                      {suggestion.source === "product_code"
+                        ? "product code"
+                        : "device name"}
+                    </Text>
+                  </Link>
+                ))}
+              </Box>
+            )}
 
-          {/* manufacturers section */}
-          {manufacturerSuggestions.length > 0 && (
-            <Box borderTop={deviceSuggestions.length > 0 ? "1px solid" : undefined} borderColor="ui.borderLight">
-              <Text
-                fontSize="xs"
-                fontWeight="semibold"
-                color="ui.textMuted"
-                padding="8px 12px 4px"
-                textTransform="uppercase"
-                letterSpacing="wide"
+            {/* manufacturers section */}
+            {manufacturerSuggestions.length > 0 && (
+              <Box
+                borderTop={
+                  deviceSuggestions.length > 0 ? "1px solid" : undefined
+                }
+                borderColor="ui.borderLight"
               >
-                Manufacturers
-              </Text>
-              {manufacturerSuggestions.map((suggestion, index) => (
-                <Link
-                  key={`${suggestion.text}-${index}`}
-                  onClick={() => {
-                    // track autocomplete suggestion selected
-                    posthog.capture("autocomplete_suggestion_selected", {
-                      suggestion_text: suggestion.text,
-                      suggestion_source: suggestion.source,
-                      suggestion_type: "manufacturer",
-                      typed_query: searchTerm,
-                    });
-                    setSearchTerm(suggestion.text);
-                    onSearch?.(suggestion.text, tags);
-                    setSearchFocused(false);
-                  }}
-                  display="block"
-                  width="100%"
-                  padding="8px 12px"
-                  borderRadius="4px"
-                  _hover={{
-                    bg: "ui.surface",
-                    textDecoration: "none",
-                  }}
-                  cursor="pointer"
+                <Text
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  color="ui.textMuted"
+                  padding="8px 12px 4px"
+                  textTransform="uppercase"
+                  letterSpacing="wide"
                 >
-                  <Text fontSize="sm">{suggestion.text}</Text>
-                  <Text fontSize="xs" color="ui.textSubtle">manufacturer</Text>
-                </Link>
-              ))}
-            </Box>
-          )}
-        </Box>
-      )}
+                  Manufacturers
+                </Text>
+                {manufacturerSuggestions.map((suggestion, index) => (
+                  <Link
+                    key={`${suggestion.text}-${index}`}
+                    onClick={() => {
+                      // track autocomplete suggestion selected
+                      posthog.capture("autocomplete_suggestion_selected", {
+                        suggestion_text: suggestion.text,
+                        suggestion_source: suggestion.source,
+                        suggestion_type: "manufacturer",
+                        typed_query: searchTerm,
+                      });
+                      setSearchTerm(suggestion.text);
+                      onSearch?.(suggestion.text, tags);
+                      setSearchFocused(false);
+                    }}
+                    display="block"
+                    width="100%"
+                    padding="8px 12px"
+                    borderRadius="4px"
+                    _hover={{
+                      bg: "ui.surface",
+                      textDecoration: "none",
+                    }}
+                    cursor="pointer"
+                  >
+                    <Text fontSize="sm">{suggestion.text}</Text>
+                    <Text fontSize="xs" color="ui.textSubtle">
+                      manufacturer
+                    </Text>
+                  </Link>
+                ))}
+              </Box>
+            )}
+          </Box>
+        )}
 
       <FilterMenu
         isOpen={filterFocused}

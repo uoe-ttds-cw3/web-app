@@ -13,12 +13,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import posthog from "posthog-js";
-import type {
-  Device,
-  DeviceLookupResponse,
-  LineageResponse,
-  SafetyProfileResponse,
-} from "@/lib/api/types";
+import type { Device } from "@/lib/api/types";
 import { forwardRef, useRef, useSyncExternalStore } from "react";
 import React from "react";
 import { MdCompare, MdClose } from "react-icons/md";
@@ -76,7 +71,11 @@ export function formatCell(
 
 export const SideDrawer = () => {
   const portalRef = useRef<HTMLDivElement | null>(null);
-  const isHydrated = useSyncExternalStore(subscribe, () => true, () => false);
+  const isHydrated = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 
   const [selectedDevices, setSelectedDevices] = useLocalStorage<Device[]>(
     "selectedDevices",
@@ -129,7 +128,10 @@ export const SideDrawer = () => {
               >
                 <MdCompare />
                 {selectedDevicesForRender.length > 0 && (
-                  <Badge colorPalette="green"> {selectedDevicesForRender.length} </Badge>
+                  <Badge colorPalette="green">
+                    {" "}
+                    {selectedDevicesForRender.length}{" "}
+                  </Badge>
                 )}
               </Button>
             </Drawer.Trigger>
@@ -177,16 +179,6 @@ export const SideDrawer = () => {
                           Manufacturer
                         </Table.ColumnHeader>
                         <Table.ColumnHeader p={4}>
-                          Direct Predicates
-                        </Table.ColumnHeader>
-                        <Table.ColumnHeader p={4}>Ancestors</Table.ColumnHeader>
-                        <Table.ColumnHeader p={4}>
-                          Number of Ancestors
-                        </Table.ColumnHeader>
-                        <Table.ColumnHeader p={4}>
-                          Descendants
-                        </Table.ColumnHeader>
-                        <Table.ColumnHeader p={4}>
                           Decision Date
                         </Table.ColumnHeader>
                         <Table.ColumnHeader p={4} textAlign="end">
@@ -217,11 +209,9 @@ export const SideDrawer = () => {
                             <Table.Cell p={4}>
                               {selectedDevice.pCode}
                             </Table.Cell>
-                            <Table.Cell p={4}>TODO</Table.Cell>
-                            <Table.Cell p={4}>TODO</Table.Cell>
-                            <Table.Cell p={4}>TODO</Table.Cell>
-                            <Table.Cell p={4}>TODO</Table.Cell>
-                            <Table.Cell p={4}>TODO</Table.Cell>
+                            <Table.Cell p={4}>
+                              {selectedDevice.sponsor}
+                            </Table.Cell>
                             <Table.Cell p={4}>{selectedDevice.date}</Table.Cell>
                             <Table.Cell p={4} textAlign="end">
                               {selectedDevice.recalls}
