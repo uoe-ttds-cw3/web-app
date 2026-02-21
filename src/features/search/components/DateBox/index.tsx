@@ -4,8 +4,8 @@ import { useCallback, useEffect } from "react";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { Tooltip } from "@/components/ui/Tooltip";
 
-const DATEBOX_QUERY_KEY = "calendar_date";
-const DATEBOX_STORAGE_KEY = "calendar_date";
+const DATEBOX_QUERY_KEY = "snapshot_cutoff";
+const DATEBOX_STORAGE_KEY = "snapshot_cutoff";
 
 export const DateBox = () => {
     const router = useRouter();

@@ -12,7 +12,7 @@ export function Header() {
   const productCode = (router.query.product_code as string) || undefined;
   const dateBefore = (router.query.date_to as string) || undefined;
   const dateAfter = (router.query.date_from as string) || undefined;
-  const calendarDate = (router.query.calendar_date as string) || undefined;
+  const snapshotCutoff = (router.query.snapshot_cutoff as string) || undefined;
 
   const convertDateFormat = (ddmmyyyy: string): string => {
     const [day, month, year] = ddmmyyyy.split("/");
