@@ -145,9 +145,14 @@ export const DeviceDetailed = ({
         </Box>
         <Text fontSize="lg" color="black">
           Manufacturer:{" "}
-          <Box as="span" fontWeight="bold">
+          <ChakraLink
+            href={`/?q=${encodeURIComponent(device.sponsor)}`}
+            fontWeight="bold"
+            color="brand.primary"
+            textDecoration="underline"
+          >
             {device.sponsor}
-          </Box>
+          </ChakraLink>
         </Text>
       </Box>
 

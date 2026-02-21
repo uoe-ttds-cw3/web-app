@@ -67,7 +67,7 @@ export function Header() {
         maxW={{ base: "100%", md: "1200px" }}
         mx="auto"
         px={{ base: 4, md: 6, lg: 8 }}
-        h="64px"
+        h="96px"
         align="center"
         gap="4"
       >

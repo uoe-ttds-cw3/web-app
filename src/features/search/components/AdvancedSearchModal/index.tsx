@@ -299,8 +299,6 @@ export const AdvancedSearchPanel = ({
                 paddingLeft="8px"
               >
                 <option value="contains">contains</option>
-                <option value="AND">AND</option>
-                <option value="OR">OR</option>
                 <option value="NOT">NOT</option>
                 <option value="phrase">phrase</option>
                 <option value="proximity">proximity</option>
