@@ -546,11 +546,11 @@ export const DeviceDetailed = ({
                 ];
                 const severityColors: Record<string, string> = {
                   Death: "#DC2626",
-                  Injury: "#D97706",
+                  Injury: "#a05806",
                   Malfunction: "var(--chakra-colors-brand-primary)",
                   Other: "#6B7280",
                   Unknown: "#9CA3AF",
-                  Unclassified: "#9CA3AF",
+                  Unclassified: "#000000",
                 };
 
                 const sortedEvents = Object.entries(
