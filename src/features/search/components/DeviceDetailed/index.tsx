@@ -545,8 +545,8 @@ export const DeviceDetailed = ({
                   "Unclassified",
                 ];
                 const severityColors: Record<string, string> = {
-                  Death: "#DC2626",
-                  Injury: "#a05806",
+                  Death: "var(--chakra-colors-status-danger)",
+                  Injury: "var(--chakra-colors-status-warning)",
                   Malfunction: "var(--chakra-colors-brand-primary)",
                   Other: "#6B7280",
                   Unknown: "#9CA3AF",

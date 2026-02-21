@@ -4,6 +4,7 @@ import { FaPlus, FaTimes, FaSearch } from "react-icons/fa";
 import posthog from "posthog-js";
 import type { BackendOptions } from "@/lib/api/types";
 import { defaultBackendOptions } from "@/lib/api/types";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 type Operator = "contains" | "AND" | "OR" | "NOT" | "phrase" | "proximity";
 type Joiner = "AND" | "OR";
@@ -47,9 +48,7 @@ function buildRowFragment(row: QueryRow): string {
     case "phrase":
       return v1 ? `"${v1}"` : "";
     case "proximity":
-      return v1 && v2
-        ? `${v1} NEAR/${row.distance || "5"} ${v2}`
-        : v1 || v2;
+      return v1 && v2 ? `${v1} NEAR/${row.distance || "5"} ${v2}` : v1 || v2;
     default:
       return "";
   }
@@ -63,30 +62,53 @@ const OptionPill = ({
   label,
   active,
   onClick,
+  tooltip,
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
-}) => (
-  <Box
-    as="button"
-    onClick={onClick}
-    px="8px"
-    py="3px"
-    borderRadius="12px"
-    fontSize="xs"
-    cursor="pointer"
-    bg={active ? "brand.greenBg" : "transparent"}
-    color={active ? "brand.primary" : "ui.textMuted"}
-    border="1px solid"
-    borderColor={active ? "brand.primary" : "ui.borderLight"}
-    transition="all 0.15s"
-    _hover={{ opacity: 0.8 }}
-    whiteSpace="nowrap"
-  >
-    {label}
-  </Box>
-);
+  tooltip?: string;
+}) => {
+  const pill = (
+    <Box
+      as="button"
+      onClick={onClick}
+      px="8px"
+      py="3px"
+      borderRadius="12px"
+      fontSize="xs"
+      cursor="pointer"
+      bg={active ? "brand.greenBg" : "transparent"}
+      color={active ? "brand.primary" : "ui.textMuted"}
+      border="1px solid"
+      borderColor={active ? "brand.primary" : "ui.borderLight"}
+      transition="all 0.15s"
+      _hover={{ opacity: 0.8 }}
+      whiteSpace="nowrap"
+    >
+      {label}
+    </Box>
+  );
+  return tooltip ? (
+    <Tooltip
+      content={tooltip}
+      showArrow={false}
+      interactive
+      color="white"
+      contentProps={{
+        bg: "ui.background",
+        color: "ui.text",
+        px: 2,
+        py: 1,
+        borderRadius: "md",
+      }}
+    >
+      {pill}
+    </Tooltip>
+  ) : (
+    pill
+  );
+};
 
 export const AdvancedSearchPanel = ({
   isOpen,
@@ -120,14 +142,11 @@ export const AdvancedSearchPanel = ({
     });
   }, [rows, joiners]);
 
-  const updateRow = useCallback(
-    (id: string, updates: Partial<QueryRow>) => {
-      setRows((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, ...updates } : r))
-      );
-    },
-    []
-  );
+  const updateRow = useCallback((id: string, updates: Partial<QueryRow>) => {
+    setRows((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, ...updates } : r)),
+    );
+  }, []);
 
   const addRow = () => {
     setRows((prev) => [...prev, createRow()]);
@@ -309,9 +328,7 @@ export const AdvancedSearchPanel = ({
             {/* primary input */}
             <Input
               size="sm"
-              placeholder={
-                row.operator === "phrase" ? "enter phrase" : "term"
-              }
+              placeholder={row.operator === "phrase" ? "enter phrase" : "term"}
               value={row.value1}
               onChange={(e) => updateRow(row.id, { value1: e.target.value })}
               flex="1"
@@ -400,7 +417,7 @@ export const AdvancedSearchPanel = ({
         mt="8px"
         mb="12px"
         cursor="pointer"
-        color="brand.accent"
+        color="brand.primary"
         fontSize="xs"
         _hover={{ opacity: 0.8 }}
       >
@@ -442,21 +459,26 @@ export const AdvancedSearchPanel = ({
             label="query expansion"
             active={options.use_expansion}
             onClick={() => toggleOption("use_expansion")}
+            tooltip="Broadens search to include synonyms and related terms, e.g. 'heart attack' may also search for 'myocardial infarction'"
           />
+
           <OptionPill
             label="pagerank boost"
             active={options.use_pagerank_boost}
             onClick={() => toggleOption("use_pagerank_boost")}
+            tooltip="Boosts most influential or highly referenced records to the top of results."
           />
           <OptionPill
             label="stemming"
             active={options.use_stemming}
             onClick={() => toggleOption("use_stemming")}
+            tooltip="Matches different forms of a word, e.g. 'sterilizing' may also search for 'sterilize' and 'sterile'"
           />
           <OptionPill
             label="hybrid search"
             active={options.use_hybrid}
             onClick={() => toggleOption("use_hybrid")}
+            tooltip="Blends exact keyword matching with medical concept matching to find both exact terms and conceptually related devices. Automatically ranks the most relevant records to the top."
           />
         </Box>
       </Box>
