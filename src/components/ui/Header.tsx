@@ -74,7 +74,7 @@ export function Header() {
         {/* logo left */}
         <HStack flexShrink={0}>
           <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
-            <Text fontWeight="semibold">Medical Device Search</Text>
+            <Text fontWeight="semibold">searchFDA</Text>
           </Link>
         </HStack>
 
