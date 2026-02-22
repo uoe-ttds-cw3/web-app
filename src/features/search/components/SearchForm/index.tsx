@@ -1,6 +1,6 @@
 import { Input, Box, Text, Link } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import { FaSearch, FaFilter } from "react-icons/fa";
+import { FaSearch, FaFilter, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import posthog from "posthog-js";
 import { FilterMenu } from "../FilterMenu";
 import { SearchTags } from "../SearchTags";
@@ -198,22 +198,43 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         </Box>
       </Box>
 
-      <Box position="absolute" right="0" top="100%">
-        <Box
-          as="button"
-          fontSize="xs"
-          color="brand.primary"
-          textDecoration="underline"
-          cursor="pointer"
-          onClick={() => {
-            setAdvancedPanelOpen(true);
-            setFilterFocused(false);
-            setSearchFocused(false);
-          }}
-        >
-          Advanced Search
-        </Box>
+      {/* always-visible advanced search toggle button */}
+      <Box
+        as="button"
+        display="flex"
+        alignItems="center"
+        gap="4px"
+        marginTop="8px"
+        fontSize="xs"
+        color="ui.textMuted"
+        cursor="pointer"
+        onClick={() => {
+          setAdvancedPanelOpen(!advancedPanelOpen);
+          setFilterFocused(false);
+          setSearchFocused(false);
+        }}
+        _hover={{ color: "brand.primary" }}
+        transition="color 0.15s"
+      >
+        {advancedPanelOpen ? (
+          <>
+            <FaChevronUp size={10} />
+            <Text fontSize="xs">close advanced search</Text>
+          </>
+        ) : (
+          <>
+            <FaChevronDown size={10} />
+            <Text fontSize="xs">advanced search</Text>
+          </>
+        )}
       </Box>
+
+      {/* advanced search panel below button */}
+      <AdvancedSearchPanel
+        isOpen={advancedPanelOpen}
+        onClose={() => setAdvancedPanelOpen(false)}
+        onSearch={handleAdvancedSearch}
+      />
 
       {/* grouped autocomplete dropdown */}
       {searchFocused &&
@@ -343,13 +364,6 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
           setAdvancedPanelOpen((prev) => !prev);
           setFilterFocused(false);
         }}
-      />
-
-      {/* advanced search panel below search bar */}
-      <AdvancedSearchPanel
-        isOpen={advancedPanelOpen}
-        onClose={() => setAdvancedPanelOpen(false)}
-        onSearch={handleAdvancedSearch}
       />
     </Box>
   );
