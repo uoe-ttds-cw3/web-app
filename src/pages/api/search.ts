@@ -23,7 +23,8 @@ export default async function handler(
     use_hybrid,
     remove_stopwords,
     pagerank_weight,
-    include_facets
+    include_facets,
+    sort_by
   } = req.query;
 
   if (!q || typeof q !== "string") {
@@ -61,6 +62,8 @@ export default async function handler(
     params.append("pagerank_weight", pagerank_weight);
   if (include_facets === "true")
     params.append("include_facets", "true");
+  if (sort_by && typeof sort_by === "string")
+    params.append("sort_by", sort_by);
 
   try {
     const response = await fetch(`${API_BASE}/api/search?${params.toString()}`);

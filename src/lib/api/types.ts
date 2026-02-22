@@ -118,6 +118,8 @@ export interface SearchFilters {
   pagerank_weight?: number;
   date_from?: string;
   date_to?: string;
+  sort_by?: string;
+  page_size?: number;
 }
 
 // Autocomplete types
