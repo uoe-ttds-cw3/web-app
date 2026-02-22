@@ -741,7 +741,7 @@ export const DeviceDetailed = ({
                   Lineage Graph:
                 </Text>
                 <Text fontSize="xs" color="ui.textMuted" marginBottom="8px">
-                  click on any device to view its details
+                  Click on any device to view its details.
                 </Text>
                 <Box
                   height="400px"
@@ -928,7 +928,8 @@ export const DeviceDetailed = ({
             )}
             {safety.recall_count > 0 && (
               <Box marginTop="8px">
-                <ChakraLink
+                {/* Link doesn't work */}
+                {/* <ChakraLink
                   href="https://www.accessdata.fda.gov/scripts/cdrh/cfRes/res.cfm"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -936,8 +937,8 @@ export const DeviceDetailed = ({
                   fontSize="sm"
                   textDecoration="underline"
                 >
-                  search fda recall database ↗
-                </ChakraLink>
+                  Search FDA Recall Database ↗
+                </ChakraLink> */}
               </Box>
             )}
           </Box>
@@ -950,7 +951,7 @@ export const DeviceDetailed = ({
           <Separator marginY="16px" />
           <Box>
             <Heading size="md" color="brand.primary" marginBottom="12px">
-              more from {device.sponsor}
+              More from {device.sponsor}
             </Heading>
             {isLoadingManufacturer ? (
               <HStack gap="3" overflowX="auto" paddingY="8px">
@@ -1017,10 +1018,10 @@ export const DeviceDetailed = ({
           <Separator marginY="16px" />
           <Box>
             <Heading size="md" color="brand.primary" marginBottom="12px">
-              similar devices
+              Similar Devices
             </Heading>
             <Text fontSize="sm" color="ui.textMuted" marginBottom="8px">
-              devices with product code: {device.product_code}
+              Devices with Product Code: {device.product_code}
             </Text>
             {isLoadingSimilar ? (
               <HStack gap="3" overflowX="auto" paddingY="8px">
