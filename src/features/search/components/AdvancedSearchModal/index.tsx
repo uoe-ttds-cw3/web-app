@@ -7,7 +7,6 @@ import { defaultBackendOptions } from "@/lib/api/types";
 import { Tooltip } from "@/components/ui/Tooltip";
 
 type Operator = "contains" | "AND" | "OR" | "NOT" | "phrase" | "proximity";
-type Joiner = "AND" | "OR";
 
 interface QueryRow {
   id: string;
@@ -93,6 +92,7 @@ const OptionPill = ({
     <Tooltip
       content={tooltip}
       showArrow={false}
+      openDelay={300}
       interactive
       color="white"
       contentProps={{
@@ -116,7 +116,6 @@ export const AdvancedSearchPanel = ({
   onSearch,
 }: AdvancedSearchPanelProps) => {
   const [rows, setRows] = useState<QueryRow[]>([createRow()]);
-  const [joiners, setJoiners] = useState<Joiner[]>([]);
   const [options, setOptions] = useState<BackendOptions>({
     ...defaultBackendOptions,
   });
@@ -130,17 +129,13 @@ export const AdvancedSearchPanel = ({
     return () => document.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
 
-  // live query preview
+  // live query preview - all conditions joined with AND
   const queryPreview = useMemo(() => {
     const fragments = rows.map(buildRowFragment).filter(Boolean);
     if (fragments.length === 0) return "";
     if (fragments.length === 1) return fragments[0];
-    return fragments.reduce((acc, frag, i) => {
-      if (i === 0) return frag;
-      const joiner = joiners[i - 1] || "AND";
-      return `${acc} ${joiner} ${frag}`;
-    });
-  }, [rows, joiners]);
+    return fragments.join(" AND ");
+  }, [rows]);
 
   const updateRow = useCallback((id: string, updates: Partial<QueryRow>) => {
     setRows((prev) =>
@@ -150,28 +145,11 @@ export const AdvancedSearchPanel = ({
 
   const addRow = () => {
     setRows((prev) => [...prev, createRow()]);
-    setJoiners((prev) => [...prev, "AND"]);
   };
 
   const removeRow = (id: string) => {
     if (rows.length <= 1) return;
-    const index = rows.findIndex((r) => r.id === id);
     setRows((prev) => prev.filter((r) => r.id !== id));
-    setJoiners((prev) => {
-      const next = [...prev];
-      // remove the joiner above this row, or below if it's the first
-      if (index > 0) next.splice(index - 1, 1);
-      else if (next.length > 0) next.splice(0, 1);
-      return next;
-    });
-  };
-
-  const toggleJoiner = (index: number) => {
-    setJoiners((prev) => {
-      const next = [...prev];
-      next[index] = next[index] === "AND" ? "OR" : "AND";
-      return next;
-    });
   };
 
   const toggleOption = (key: keyof BackendOptions) => {
@@ -206,19 +184,19 @@ export const AdvancedSearchPanel = ({
 
   return (
     <Box
-      position="absolute"
-      top="100%"
-      left="0"
-      right="0"
+      position="relative"
       marginTop="8px"
-      background="ui.background"
+      background="white"
       borderRadius="8px"
       zIndex={20}
-      boxShadow="lg"
+      boxShadow="0 4px 12px rgba(0, 0, 0, 0.1)"
       border="1px solid"
       borderColor="ui.borderLight"
       padding="16px"
       onKeyDown={handleKeyDown}
+      opacity={isOpen ? 1 : 0}
+      transform={isOpen ? "translateY(0)" : "translateY(-8px)"}
+      transition="all 0.2s ease-in-out"
     >
       {/* header */}
       <Box
@@ -245,59 +223,20 @@ export const AdvancedSearchPanel = ({
       {/* query rows */}
       {rows.map((row, index) => (
         <Box key={row.id}>
-          {/* joiner toggle between rows */}
+          {/* and label between rows */}
           {index > 0 && (
             <Box display="flex" justifyContent="center" my="6px">
-              <Box
-                display="inline-flex"
+              <Text
+                fontSize="xs"
+                fontWeight="600"
+                color="brand.primary"
+                bg="brand.greenBg"
+                px="10px"
+                py="2px"
                 borderRadius="4px"
-                overflow="hidden"
-                border="1px solid"
-                borderColor="ui.borderLight"
               >
-                <Box
-                  as="button"
-                  px="10px"
-                  py="2px"
-                  fontSize="xs"
-                  fontWeight="600"
-                  cursor="pointer"
-                  bg={
-                    joiners[index - 1] === "AND"
-                      ? "brand.greenBg"
-                      : "transparent"
-                  }
-                  color={
-                    joiners[index - 1] === "AND"
-                      ? "brand.primary"
-                      : "ui.textMuted"
-                  }
-                  onClick={() => toggleJoiner(index - 1)}
-                >
-                  AND
-                </Box>
-                <Box
-                  as="button"
-                  px="10px"
-                  py="2px"
-                  fontSize="xs"
-                  fontWeight="600"
-                  cursor="pointer"
-                  bg={
-                    joiners[index - 1] === "OR"
-                      ? "brand.greenBg"
-                      : "transparent"
-                  }
-                  color={
-                    joiners[index - 1] === "OR"
-                      ? "brand.primary"
-                      : "ui.textMuted"
-                  }
-                  onClick={() => toggleJoiner(index - 1)}
-                >
-                  OR
-                </Box>
-              </Box>
+                AND
+              </Text>
             </Box>
           )}
 
@@ -456,29 +395,28 @@ export const AdvancedSearchPanel = ({
         </Text>
         <Box display="flex" flexWrap="wrap" gap="8px">
           <OptionPill
-            label="query expansion"
-            active={options.use_expansion}
-            onClick={() => toggleOption("use_expansion")}
-            tooltip="Broadens search to include synonyms and related terms, e.g. 'heart attack' may also search for 'myocardial infarction'"
-          />
-
-          <OptionPill
-            label="pagerank boost"
-            active={options.use_pagerank_boost}
-            onClick={() => toggleOption("use_pagerank_boost")}
-            tooltip="Boosts most influential or highly referenced records to the top of results."
+            label="hybrid search"
+            active={options.use_hybrid}
+            onClick={() => toggleOption("use_hybrid")}
+            tooltip="combines keyword matching with semantic similarity for better results"
           />
           <OptionPill
             label="stemming"
             active={options.use_stemming}
             onClick={() => toggleOption("use_stemming")}
-            tooltip="Matches different forms of a word, e.g. 'sterilizing' may also search for 'sterilize' and 'sterile'"
+            tooltip="matches word variations like 'running' and 'ran'"
           />
           <OptionPill
-            label="hybrid search"
-            active={options.use_hybrid}
-            onClick={() => toggleOption("use_hybrid")}
-            tooltip="Blends exact keyword matching with medical concept matching to find both exact terms and conceptually related devices. Automatically ranks the most relevant records to the top."
+            label="query expansion"
+            active={options.use_expansion}
+            onClick={() => toggleOption("use_expansion")}
+            tooltip="adds related medical terms to broaden your search"
+          />
+          <OptionPill
+            label="pagerank boost"
+            active={options.use_pagerank_boost}
+            onClick={() => toggleOption("use_pagerank_boost")}
+            tooltip="ranks devices higher if they are frequently cited by other devices"
           />
         </Box>
       </Box>
