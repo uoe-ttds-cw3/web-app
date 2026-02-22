@@ -8,6 +8,7 @@ import {
   Link as ChakraLink,
   Card,
   HStack,
+  Skeleton,
 } from "@chakra-ui/react";
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
@@ -34,6 +35,7 @@ import {
 import dagre from "dagre";
 import "@xyflow/react/dist/style.css";
 import posthog from "posthog-js";
+import { useSearch } from "@/lib/queries/useSearch";
 import type {
   DeviceLookupResponse,
   LineageResponse,
@@ -111,6 +113,34 @@ export const DeviceDetailed = ({
   const [showFullSummary, setShowFullSummary] = useState(false);
   const [showFullIfu, setShowFullIfu] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
+
+  // fetch related devices from same manufacturer
+  const { data: manufacturerDevices, isLoading: isLoadingManufacturer } = useSearch(
+    device.sponsor || "",
+    { limit: 6 }
+  );
+
+  // fetch similar devices with same product code
+  const { data: similarDevices, isLoading: isLoadingSimilar } = useSearch(
+    device.product_code || "",
+    { limit: 6 }
+  );
+
+  // filter out current device from manufacturer results
+  const filteredManufacturerDevices = useMemo(() => {
+    if (!manufacturerDevices?.results) return [];
+    return manufacturerDevices.results
+      .filter((d) => d.submission_number !== device.submission_number)
+      .slice(0, 5);
+  }, [manufacturerDevices, device.submission_number]);
+
+  // filter out current device from similar results
+  const filteredSimilarDevices = useMemo(() => {
+    if (!similarDevices?.results) return [];
+    return similarDevices.results
+      .filter((d) => d.submission_number !== device.submission_number)
+      .slice(0, 5);
+  }, [similarDevices, device.submission_number]);
 
   // build lineage graph from lineage data
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
@@ -909,6 +939,147 @@ export const DeviceDetailed = ({
                   search fda recall database ↗
                 </ChakraLink>
               </Box>
+            )}
+          </Box>
+        </>
+      )}
+
+      {/* related devices from manufacturer */}
+      {(isLoadingManufacturer || filteredManufacturerDevices.length > 0) && (
+        <>
+          <Separator marginY="16px" />
+          <Box>
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              more from {device.sponsor}
+            </Heading>
+            {isLoadingManufacturer ? (
+              <HStack gap="3" overflowX="auto" paddingY="8px">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Skeleton key={i} height="120px" minWidth="220px" borderRadius="8px" />
+                ))}
+              </HStack>
+            ) : (
+              <HStack gap="3" overflowX="auto" paddingY="8px">
+                {filteredManufacturerDevices.map((relatedDevice) => (
+                  <Box
+                    key={relatedDevice.submission_number}
+                    minWidth="220px"
+                    maxWidth="220px"
+                    padding="12px"
+                    borderWidth="1px"
+                    borderColor="ui.border"
+                    borderRadius="8px"
+                    cursor="pointer"
+                    _hover={{
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                      borderColor: "brand.primary",
+                    }}
+                    onClick={() => {
+                      posthog.capture("related_manufacturer_device_clicked", {
+                        from_device_id: device.submission_number,
+                        from_device_name: device.device_name,
+                        to_device_id: relatedDevice.submission_number,
+                        to_device_name: relatedDevice.device_name,
+                      });
+                      router.push(`/devices/${relatedDevice.submission_number}`);
+                    }}
+                  >
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      color="brand.primary"
+                      marginBottom="8px"
+                      noOfLines={2}
+                      lineHeight="1.3"
+                      minHeight="36px"
+                    >
+                      {relatedDevice.device_name}
+                    </Text>
+                    <Text fontSize="xs" color="ui.textMuted" marginBottom="4px">
+                      {relatedDevice.submission_number}
+                    </Text>
+                    {relatedDevice.decision_date && (
+                      <Text fontSize="xs" color="ui.textMuted">
+                        {relatedDevice.decision_date}
+                      </Text>
+                    )}
+                  </Box>
+                ))}
+              </HStack>
+            )}
+          </Box>
+        </>
+      )}
+
+      {/* similar devices with same product code */}
+      {(isLoadingSimilar || filteredSimilarDevices.length > 0) && (
+        <>
+          <Separator marginY="16px" />
+          <Box>
+            <Heading size="md" color="brand.primary" marginBottom="12px">
+              similar devices
+            </Heading>
+            <Text fontSize="sm" color="ui.textMuted" marginBottom="8px">
+              devices with product code: {device.product_code}
+            </Text>
+            {isLoadingSimilar ? (
+              <HStack gap="3" overflowX="auto" paddingY="8px">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Skeleton key={i} height="120px" minWidth="220px" borderRadius="8px" />
+                ))}
+              </HStack>
+            ) : (
+              <HStack gap="3" overflowX="auto" paddingY="8px">
+                {filteredSimilarDevices.map((relatedDevice) => (
+                  <Box
+                    key={relatedDevice.submission_number}
+                    minWidth="220px"
+                    maxWidth="220px"
+                    padding="12px"
+                    borderWidth="1px"
+                    borderColor="ui.border"
+                    borderRadius="8px"
+                    cursor="pointer"
+                    _hover={{
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                      borderColor: "brand.primary",
+                    }}
+                    onClick={() => {
+                      posthog.capture("related_similar_device_clicked", {
+                        from_device_id: device.submission_number,
+                        from_device_name: device.device_name,
+                        to_device_id: relatedDevice.submission_number,
+                        to_device_name: relatedDevice.device_name,
+                        product_code: device.product_code,
+                      });
+                      router.push(`/devices/${relatedDevice.submission_number}`);
+                    }}
+                  >
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      color="brand.primary"
+                      marginBottom="8px"
+                      noOfLines={2}
+                      lineHeight="1.3"
+                      minHeight="36px"
+                    >
+                      {relatedDevice.device_name}
+                    </Text>
+                    <Text fontSize="xs" color="ui.textMuted" marginBottom="4px">
+                      {relatedDevice.submission_number}
+                    </Text>
+                    <Text fontSize="xs" color="ui.textMuted" marginBottom="4px">
+                      {relatedDevice.sponsor}
+                    </Text>
+                    {relatedDevice.decision_date && (
+                      <Text fontSize="xs" color="ui.textMuted">
+                        {relatedDevice.decision_date}
+                      </Text>
+                    )}
+                  </Box>
+                ))}
+              </HStack>
             )}
           </Box>
         </>
