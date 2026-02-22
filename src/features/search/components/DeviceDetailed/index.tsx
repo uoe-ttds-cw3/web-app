@@ -9,7 +9,7 @@ import {
   Card,
   HStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
@@ -21,6 +21,18 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import {
+  ReactFlow,
+  Node,
+  Edge,
+  Background,
+  Controls,
+  useNodesState,
+  useEdgesState,
+  type NodeTypes,
+} from "@xyflow/react";
+import dagre from "dagre";
+import "@xyflow/react/dist/style.css";
 import posthog from "posthog-js";
 import type {
   DeviceLookupResponse,
@@ -34,6 +46,62 @@ type DeviceDetailedProps = {
   safety: SafetyProfileResponse | null;
 };
 
+// custom node component for the lineage graph
+const DeviceNode = ({ data }: { data: { label: string; isCurrent: boolean } }) => {
+  return (
+    <Box
+      padding="8px 12px"
+      borderRadius="8px"
+      borderWidth="2px"
+      borderColor={data.isCurrent ? "brand.primary" : "ui.border"}
+      backgroundColor={data.isCurrent ? "brand.light" : "white"}
+      fontWeight={data.isCurrent ? "bold" : "normal"}
+      fontSize="sm"
+      color="black"
+      cursor="pointer"
+      _hover={{ borderColor: "brand.primary", backgroundColor: "brand.light" }}
+      minWidth="120px"
+      textAlign="center"
+    >
+      {data.label}
+    </Box>
+  );
+};
+
+const nodeTypes: NodeTypes = {
+  device: DeviceNode,
+};
+
+// dagre layout algorithm for automatic graph positioning
+const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  dagreGraph.setGraph({ rankdir: "TB", ranksep: 80, nodesep: 40 });
+
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: 150, height: 50 });
+  });
+
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  const layoutedNodes = nodes.map((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    return {
+      ...node,
+      position: {
+        x: nodeWithPosition.x - 75, // center the node (half of width)
+        y: nodeWithPosition.y - 25, // center the node (half of height)
+      },
+    };
+  });
+
+  return { nodes: layoutedNodes, edges };
+};
+
 export const DeviceDetailed = ({
   device,
   lineage,
@@ -43,6 +111,129 @@ export const DeviceDetailed = ({
   const [showFullSummary, setShowFullSummary] = useState(false);
   const [showFullIfu, setShowFullIfu] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
+
+  // build lineage graph from lineage data
+  const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
+    if (!lineage || (lineage.direct_predicates.length === 0 && lineage.direct_citations.length === 0)) {
+      return { nodes: [], edges: [] };
+    }
+
+    const nodes: Node[] = [];
+    const edges: Edge[] = [];
+
+    // current device node (centered, highlighted)
+    nodes.push({
+      id: device.submission_number,
+      type: "device",
+      data: { label: device.submission_number, isCurrent: true },
+      position: { x: 0, y: 0 }, // will be overridden by dagre layout
+    });
+
+    // limit predicates to first 15 if too many
+    const predicates = lineage.direct_predicates.slice(0, 15);
+    const hasMorePredicates = lineage.direct_predicates.length > 15;
+
+    // add predicate nodes (parents - devices this one cites)
+    predicates.forEach((predicate) => {
+      nodes.push({
+        id: predicate,
+        type: "device",
+        data: { label: predicate, isCurrent: false },
+        position: { x: 0, y: 0 },
+      });
+      // edge from predicate to current device (parent → child)
+      edges.push({
+        id: `${predicate}-${device.submission_number}`,
+        source: predicate,
+        target: device.submission_number,
+        animated: false,
+        style: { stroke: "var(--chakra-colors-brand-primary)" },
+      });
+    });
+
+    // add "and N more" indicator node if predicates were limited
+    if (hasMorePredicates) {
+      const moreCount = lineage.direct_predicates.length - 15;
+      nodes.push({
+        id: "more-predicates",
+        type: "device",
+        data: { label: `and ${moreCount} more...`, isCurrent: false },
+        position: { x: 0, y: 0 },
+      });
+      edges.push({
+        id: `more-predicates-${device.submission_number}`,
+        source: "more-predicates",
+        target: device.submission_number,
+        animated: false,
+        style: { stroke: "#9CA3AF", strokeDasharray: "5,5" },
+      });
+    }
+
+    // limit citations to first 15 if too many
+    const citations = lineage.direct_citations.slice(0, 15);
+    const hasMoreCitations = lineage.direct_citations.length > 15;
+
+    // add citation nodes (children - devices that cite this one)
+    citations.forEach((citation) => {
+      nodes.push({
+        id: citation,
+        type: "device",
+        data: { label: citation, isCurrent: false },
+        position: { x: 0, y: 0 },
+      });
+      // edge from current device to citation (parent → child)
+      edges.push({
+        id: `${device.submission_number}-${citation}`,
+        source: device.submission_number,
+        target: citation,
+        animated: false,
+        style: { stroke: "var(--chakra-colors-brand-primary)" },
+      });
+    });
+
+    // add "and N more" indicator node if citations were limited
+    if (hasMoreCitations) {
+      const moreCount = lineage.direct_citations.length - 15;
+      nodes.push({
+        id: "more-citations",
+        type: "device",
+        data: { label: `and ${moreCount} more...`, isCurrent: false },
+        position: { x: 0, y: 0 },
+      });
+      edges.push({
+        id: `${device.submission_number}-more-citations`,
+        source: device.submission_number,
+        target: "more-citations",
+        animated: false,
+        style: { stroke: "#9CA3AF", strokeDasharray: "5,5" },
+      });
+    }
+
+    return getLayoutedElements(nodes, edges);
+  }, [lineage, device.submission_number]);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // handle node click to navigate to device detail page
+  const onNodeClick = useCallback(
+    (_event: React.MouseEvent, node: Node) => {
+      // don't navigate for "and N more" indicator nodes
+      if (node.id.startsWith("more-")) {
+        return;
+      }
+
+      // track lineage graph node click
+      posthog.capture("lineage_graph_node_clicked", {
+        from_device_id: device.submission_number,
+        from_device_name: device.device_name,
+        clicked_device_id: node.id,
+      });
+
+      router.push(`/devices/${node.id}`);
+    },
+    [router, device.submission_number, device.device_name]
+  );
 
   // format large numbers with commas
   const formatNumber = (num: number): string => {
@@ -512,8 +703,50 @@ export const DeviceDetailed = ({
                 </Box>
               </Box>
             )}
+
+            {/* interactive lineage graph */}
+            {(lineage.direct_predicates.length > 0 || lineage.direct_citations.length > 0) ? (
+              <Box marginTop="16px">
+                <Text color="brand.primary" fontWeight="bold" marginBottom="8px">
+                  Lineage Graph:
+                </Text>
+                <Text fontSize="xs" color="ui.textMuted" marginBottom="8px">
+                  click on any device to view its details
+                </Text>
+                <Box
+                  height="400px"
+                  borderWidth="1px"
+                  borderColor="ui.border"
+                  borderRadius="8px"
+                  overflow="hidden"
+                >
+                  <ReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    onNodeClick={onNodeClick}
+                    nodeTypes={nodeTypes}
+                    fitView
+                    minZoom={0.5}
+                    maxZoom={1.5}
+                    proOptions={{ hideAttribution: true }}
+                  >
+                    <Background />
+                    <Controls />
+                  </ReactFlow>
+                </Box>
+              </Box>
+            ) : (
+              <Box marginTop="12px">
+                <Text fontSize="sm" color="ui.textMuted">
+                  no known predicate relationships
+                </Text>
+              </Box>
+            )}
+
             {lineage.pagerank !== null && (
-              <Box>
+              <Box marginTop="12px">
                 <Text color="brand.primary" fontWeight="bold">
                   PageRank Score:
                 </Text>
