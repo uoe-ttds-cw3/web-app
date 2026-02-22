@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   BarChart,
   Bar,
@@ -38,6 +39,7 @@ export const DeviceDetailed = ({
   lineage,
   safety,
 }: DeviceDetailedProps) => {
+  const router = useRouter();
   const [showFullSummary, setShowFullSummary] = useState(false);
   const [showFullIfu, setShowFullIfu] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -112,7 +114,7 @@ export const DeviceDetailed = ({
         <Heading size="xl" color="brand.primary" marginBottom="8px">
           {device.device_name}
         </Heading>
-        <Box display="flex" alignItems="center" gap="8px" marginBottom="8px">
+        <Box display="flex" alignItems="center" gap="8px" marginBottom="8px" flexWrap="wrap">
           <Badge
             colorScheme="gray"
             fontSize="md"
@@ -139,21 +141,48 @@ export const DeviceDetailed = ({
                 });
               }}
             >
-              View FDA Document
+              view fda document ↗
             </ChakraLink>
           )}
-        </Box>
-        <Text fontSize="lg" color="black">
-          Manufacturer:{" "}
+          {/* fda pmn database link */}
           <ChakraLink
-            href={`/?q=${encodeURIComponent(device.sponsor)}`}
+            href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${device.submission_number}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            color="brand.primary"
+            fontSize="sm"
+            textDecoration="underline"
+          >
+            view on fda ↗
+          </ChakraLink>
+        </Box>
+        <Box>
+          <Text fontSize="lg" color="black" display="inline">
+            Manufacturer:{" "}
+          </Text>
+          <ChakraLink
+            onClick={() => router.push({ pathname: "/", query: { q: device.sponsor } })}
             fontWeight="bold"
             color="brand.primary"
             textDecoration="underline"
+            cursor="pointer"
+            fontSize="lg"
           >
             {device.sponsor}
           </ChakraLink>
-        </Text>
+          {/* fda manufacturer search link */}
+          <ChakraLink
+            href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfPMN/pmn.cfm?applicant=${encodeURIComponent(device.sponsor)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            color="brand.primary"
+            fontSize="xs"
+            textDecoration="underline"
+            marginLeft="8px"
+          >
+            view on fda ↗
+          </ChakraLink>
+        </Box>
       </Box>
 
       <Separator marginY="16px" />
@@ -450,6 +479,9 @@ export const DeviceDetailed = ({
                 <Text color="brand.primary" fontWeight="bold">
                   Direct Predicates:
                 </Text>
+                <Text fontSize="xs" color="ui.textMuted" marginBottom="4px">
+                  predicate device - this device claims substantial equivalence to the following
+                </Text>
                 <Box>
                   {lineage.direct_predicates.map((predicate, index) => (
                     <Box key={predicate} display="inline">
@@ -628,7 +660,21 @@ export const DeviceDetailed = ({
                 <Text color="brand.primary" fontWeight="bold">
                   Most Recent Recall:
                 </Text>
-                <Text color="black">{safety.most_recent_recall_date}</Text>
+                <Text color="black" marginBottom="4px">{safety.most_recent_recall_date}</Text>
+              </Box>
+            )}
+            {safety.recall_count > 0 && (
+              <Box marginTop="8px">
+                <ChakraLink
+                  href="https://www.accessdata.fda.gov/scripts/cdrh/cfRes/res.cfm"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  color="brand.primary"
+                  fontSize="sm"
+                  textDecoration="underline"
+                >
+                  search fda recall database ↗
+                </ChakraLink>
               </Box>
             )}
           </Box>
