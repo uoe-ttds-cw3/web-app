@@ -362,7 +362,7 @@ export const DeviceDetailed = ({
                 });
               }}
             >
-              view fda document ↗
+              View FDA document ↗
             </ChakraLink>
           )}
           {/* fda pmn database link */}
@@ -374,7 +374,7 @@ export const DeviceDetailed = ({
             fontSize="sm"
             textDecoration="underline"
           >
-            view on fda ↗
+            View on FDA ↗
           </ChakraLink>
         </Box>
         <Box>
@@ -401,7 +401,7 @@ export const DeviceDetailed = ({
             textDecoration="underline"
             marginLeft="8px"
           >
-            view on fda ↗
+            View on FDA ↗
           </ChakraLink>
         </Box>
       </Box>
@@ -701,7 +701,7 @@ export const DeviceDetailed = ({
                   Direct Predicates:
                 </Text>
                 <Text fontSize="xs" color="ui.textMuted" marginBottom="4px">
-                  predicate device - this device claims substantial equivalence to the following
+                  Predicate Device - This device claims substantial equivalence to the following:
                 </Text>
                 <Box>
                   {lineage.direct_predicates.map((predicate, index) => (

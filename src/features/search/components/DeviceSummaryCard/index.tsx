@@ -165,7 +165,7 @@ export const DeviceSummaryCard = ({
               textDecoration="underline"
               _hover={{ opacity: 0.8 }}
             >
-              view on fda ↗
+              View on FDA ↗
             </ChakraLink>
           </>
         )}
@@ -223,7 +223,7 @@ export const DeviceSummaryCard = ({
           mb="2"
           display="block"
         >
-          view safety data &rarr;
+          View safety data &rarr;
         </Box>
       </Link>
 
