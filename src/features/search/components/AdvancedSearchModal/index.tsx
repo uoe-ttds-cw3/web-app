@@ -397,25 +397,25 @@ export const AdvancedSearchPanel = ({
             label="hybrid search"
             active={options.use_hybrid}
             onClick={() => toggleOption("use_hybrid")}
-            tooltip="combines keyword matching with semantic similarity for better results"
+            tooltip="Blends exact keyword matching with medical concept matching to find both exact terms and conceptually related devices."
           />
           <OptionPill
             label="stemming"
             active={options.use_stemming}
             onClick={() => toggleOption("use_stemming")}
-            tooltip="matches word variations like 'running' and 'ran'"
+            tooltip="Matches different forms of a word, e.g. 'sterilizing' may also search for 'sterilize' and 'sterile'."
           />
           <OptionPill
             label="query expansion"
             active={options.use_expansion}
             onClick={() => toggleOption("use_expansion")}
-            tooltip="adds related medical terms to broaden your search"
+            tooltip="Broadens search to include synonyms and related terms, e.g. 'heart attack' may also search for 'myocardial infraction'"
           />
           <OptionPill
             label="pagerank boost"
             active={options.use_pagerank_boost}
             onClick={() => toggleOption("use_pagerank_boost")}
-            tooltip="ranks devices higher if they are frequently cited by other devices"
+            tooltip="Boosts most influential or highly referenced devices, i.e. devices with many descendants to the top of search results."
           />
         </Box>
       </Box>
