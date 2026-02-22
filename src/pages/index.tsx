@@ -16,6 +16,7 @@ import {
   Button,
   Collapsible,
   Alert,
+  NativeSelect,
 } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
@@ -45,8 +46,9 @@ export default function Home() {
   const useHybrid = router.query.use_hybrid !== "false"; // default true
 
   let page = Number(router.query.page) || 1;
-  const limit = 100;
-  const offset = (page - 1) * limit;
+  const pageSize = Number(router.query.page_size) || 10;
+  const offset = (page - 1) * pageSize;
+  const sortBy = (router.query.sort_by as string) || undefined;
 
   const [filterOpen, setFilterOpen] = useState(false);
   const isHydrated = useSyncExternalStore(
@@ -93,18 +95,18 @@ export default function Home() {
     date_to: dateBefore,
     decision,
     device_class: deviceClass,
-    limit,
+    limit: pageSize,
     offset,
     include_facets: true,
     use_expansion: useExpansion || undefined,
     use_pagerank_boost: usePagerankBoost || undefined,
     use_stemming: useStemming ? undefined : false,
     use_hybrid: useHybrid ? undefined : false,
+    sort_by: sortBy,
   });
 
   const results = data?.results.map(transformSearchResult) ?? [];
-  const resultsPerPage = 10;
-  const totalPages = data ? Math.ceil(data.total_results / resultsPerPage) : 0;
+  const totalPages = data ? Math.ceil(data.total_results / pageSize) : 0;
   page = Math.max(Math.min(page, totalPages), 1);
 
   useEffect(() => {
@@ -217,11 +219,50 @@ export default function Home() {
       query: query,
     });
 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     router.push(
       { pathname: "/", query: { ...router.query, page: String(newPage) } },
       undefined,
       { shallow: true },
     );
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    posthog.capture("page_size_changed", {
+      from_size: pageSize,
+      to_size: newPageSize,
+      query: query,
+    });
+
+    const { page: _removedPage, ...rest } = router.query;
+    router.push(
+      { pathname: "/", query: { ...rest, page_size: String(newPageSize) } },
+      undefined,
+      { shallow: true },
+    );
+  };
+
+  const handleSortChange = (newSort: string) => {
+    posthog.capture("sort_changed", {
+      sort_by: newSort || "relevance",
+      query: query,
+    });
+
+    const { page: _removedPage, ...rest } = router.query;
+    if (newSort) {
+      router.push(
+        { pathname: "/", query: { ...rest, sort_by: newSort } },
+        undefined,
+        { shallow: true },
+      );
+    } else {
+      const { sort_by: _removedSort, ...finalRest } = rest;
+      router.push(
+        { pathname: "/", query: finalRest },
+        undefined,
+        { shallow: true },
+      );
+    }
   };
 
   const handleFacetFilter = (field: string, value: string) => {
@@ -295,28 +336,29 @@ export default function Home() {
       {data && (
         <Box margin="0 auto" maxW="1000px" px="4">
           <Box minH="100vh" p="4">
-            {/* Header + Filter button */}
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-              marginBottom="4"
-            >
-              <ResultsHeader numResults={data.total_results} />
+            {/* Header + Controls */}
+            <Box marginBottom="4">
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                marginBottom="3"
+              >
+                <ResultsHeader numResults={data.total_results} />
 
-              {data.facets &&
-                data.facets.length > 0 &&
-                data.facets.some(({ total }) => total) && (
-                  <Box position="relative">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      colorScheme="green"
-                      onClick={() => setFilterOpen(!filterOpen)}
-                    >
-                      <FaFilter style={{ marginRight: "8px" }} />
-                      Filter
-                    </Button>
+                {data.facets &&
+                  data.facets.length > 0 &&
+                  data.facets.some(({ total }) => total) && (
+                    <Box position="relative">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        colorScheme="green"
+                        onClick={() => setFilterOpen(!filterOpen)}
+                      >
+                        <FaFilter style={{ marginRight: "8px" }} />
+                        Filter
+                      </Button>
 
                     {filterOpen && (
                       <>
@@ -410,6 +452,79 @@ export default function Home() {
                     )}
                   </Box>
                 )}
+              </Box>
+
+              {/* Sort and Page Size Controls */}
+              <Box display="flex" gap="3" alignItems="center" marginBottom="2">
+                <Box display="flex" alignItems="center" gap="2">
+                  <Text fontSize="sm" color="ui.textMuted">sort by:</Text>
+                  <NativeSelect.Root
+                    size="sm"
+                    width="180px"
+                    value={sortBy || ""}
+                    onChange={(e) => handleSortChange(e.currentTarget.value)}
+                  >
+                    <NativeSelect.Field>
+                      <option value="">relevance</option>
+                      <option value="decision_date_desc">newest approved</option>
+                      <option value="decision_date_asc">oldest approved</option>
+                      <option value="date_received_desc">newest submitted</option>
+                      <option value="date_received_asc">oldest submitted</option>
+                      <option value="manufacturer_asc">manufacturer a-z</option>
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
+                </Box>
+
+                <Box display="flex" alignItems="center" gap="2">
+                  <Text fontSize="sm" color="ui.textMuted">show:</Text>
+                  <NativeSelect.Root
+                    size="sm"
+                    width="80px"
+                    value={String(pageSize)}
+                    onChange={(e) => handlePageSizeChange(Number(e.currentTarget.value))}
+                  >
+                    <NativeSelect.Field>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
+                </Box>
+              </Box>
+
+              {/* Expanded Terms Display */}
+              {data?.expansion_info?.expansion_applied && (
+                <Box marginTop="2" marginBottom="2">
+                  <Text fontSize="sm" color="ui.textMuted" display="inline" marginRight="2">
+                    also searching for:
+                  </Text>
+                  {[
+                    ...(data.expansion_info.prf_terms || []),
+                    ...(data.expansion_info.embedding_terms || []),
+                  ].map((termInfo, idx) => (
+                    <Box
+                      key={idx}
+                      as="button"
+                      display="inline-flex"
+                      alignItems="center"
+                      padding="4px 8px"
+                      marginRight="2"
+                      marginBottom="2"
+                      backgroundColor="brand.greenBg"
+                      color="brand.primary"
+                      borderRadius="12px"
+                      fontSize="sm"
+                      cursor="pointer"
+                      _hover={{ backgroundColor: "brand.accent", color: "white" }}
+                      onClick={() => router.push(`/?q=${encodeURIComponent(termInfo.term)}`)}
+                    >
+                      {termInfo.term}
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </Box>
 
             {/* Active filter chips */}
@@ -519,17 +634,15 @@ export default function Home() {
             ) : (
               <>
                 <Stack>
-                  {results
-                    .slice((page - 1) * resultsPerPage, page * resultsPerPage)
-                    .map((device) => (
-                      <DeviceSummaryCard
-                        key={device.id}
-                        device={device}
-                        selectedDevices={selectedDevicesForRender}
-                        onToggle={handleToggle}
-                        searchQuery={query}
-                      />
-                    ))}
+                  {results.map((device) => (
+                    <DeviceSummaryCard
+                      key={device.id}
+                      device={device}
+                      selectedDevices={selectedDevicesForRender}
+                      onToggle={handleToggle}
+                      searchQuery={query}
+                    />
+                  ))}
                 </Stack>
 
                 {/* Pagination */}
