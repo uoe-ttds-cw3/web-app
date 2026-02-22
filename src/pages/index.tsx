@@ -461,10 +461,11 @@ export default function Home() {
                   <NativeSelect.Root
                     size="sm"
                     width="180px"
-                    value={sortBy || ""}
-                    onChange={(e) => handleSortChange(e.currentTarget.value)}
                   >
-                    <NativeSelect.Field>
+                    <NativeSelect.Field
+                      value={sortBy || ""}
+                      onChange={(e) => handleSortChange(e.currentTarget.value)}
+                    >
                       <option value="">relevance</option>
                       <option value="decision_date_desc">newest approved</option>
                       <option value="decision_date_asc">oldest approved</option>
@@ -481,10 +482,11 @@ export default function Home() {
                   <NativeSelect.Root
                     size="sm"
                     width="80px"
-                    value={String(pageSize)}
-                    onChange={(e) => handlePageSizeChange(Number(e.currentTarget.value))}
                   >
-                    <NativeSelect.Field>
+                    <NativeSelect.Field
+                      value={String(pageSize)}
+                      onChange={(e) => handlePageSizeChange(Number(e.currentTarget.value))}
+                    >
                       <option value="10">10</option>
                       <option value="20">20</option>
                       <option value="50">50</option>

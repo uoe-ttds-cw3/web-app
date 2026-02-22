@@ -94,7 +94,6 @@ const OptionPill = ({
       showArrow={false}
       openDelay={300}
       interactive
-      color="white"
       contentProps={{
         bg: "ui.background",
         color: "ui.text",

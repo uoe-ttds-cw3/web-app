@@ -989,7 +989,7 @@ export const DeviceDetailed = ({
                       fontWeight="bold"
                       color="brand.primary"
                       marginBottom="8px"
-                      noOfLines={2}
+                      lineClamp={2}
                       lineHeight="1.3"
                       minHeight="36px"
                     >
@@ -1060,7 +1060,7 @@ export const DeviceDetailed = ({
                       fontWeight="bold"
                       color="brand.primary"
                       marginBottom="8px"
-                      noOfLines={2}
+                      lineClamp={2}
                       lineHeight="1.3"
                       minHeight="36px"
                     >
