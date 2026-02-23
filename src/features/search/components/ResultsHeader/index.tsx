@@ -22,7 +22,7 @@ export const ResultsHeader = ({ numResults = 0 }: ResultsHeaderProps) => {
           color="var(--chakra-colors-brand-accent)"
           style={{ marginRight: "8px" }}
         />
-        Found {numResults == 0 ? "no" : numResults} device
+        Found {numResults == 0 ? "no" : numResults >= 500 ? "500+" : numResults} device
         {numResults == 1 ? "" : "s"}...
       </Text>
       {/* This doesn't work right now so am just going to comment it out */}

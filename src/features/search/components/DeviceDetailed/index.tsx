@@ -120,10 +120,10 @@ export const DeviceDetailed = ({
     { limit: 6 }
   );
 
-  // fetch similar devices with same product code
+  // fetch similar devices with same product code using filter, not free-text
   const { data: similarDevices, isLoading: isLoadingSimilar } = useSearch(
-    device.product_code || "",
-    { limit: 6 }
+    device.device_name || "",
+    { limit: 6, product_code: device.product_code || undefined }
   );
 
   // filter out current device from manufacturer results
@@ -268,6 +268,21 @@ export const DeviceDetailed = ({
   // format large numbers with commas
   const formatNumber = (num: number): string => {
     return num.toLocaleString();
+  };
+
+  // format iso date to readable string
+  const formatDate = (isoDate: string | null): string => {
+    if (!isoDate) return "N/A";
+    try {
+      const d = new Date(isoDate + "T00:00:00");
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return isoDate;
+    }
   };
 
   let yearpart = "";
@@ -435,12 +450,28 @@ export const DeviceDetailed = ({
             </Text>
             <Text color="black">{device.decision || "N/A"}</Text>
           </Box>
+          {device.device_class && (
+            <Box>
+              <Text color="brand.primary" fontWeight="bold">
+                Device Class:
+              </Text>
+              <Text color="black">{device.device_class}</Text>
+            </Box>
+          )}
           <Box>
             <Text color="brand.primary" fontWeight="bold">
               Decision Date:
             </Text>
-            <Text color="black">{device.decision_date || "N/A"}</Text>
+            <Text color="black">{formatDate(device.decision_date)}</Text>
           </Box>
+          {device.date_received && (
+            <Box>
+              <Text color="brand.primary" fontWeight="bold">
+                Date Received:
+              </Text>
+              <Text color="black">{formatDate(device.date_received)}</Text>
+            </Box>
+          )}
         </Grid>
       </Box>
 
@@ -517,7 +548,7 @@ export const DeviceDetailed = ({
                   textDecoration="underline"
                   onClick={() => setShowFullIfu(!showFullIfu)}
                 >
-                  {showFullIfu ? "show less" : "show more"}
+                  {showFullIfu ? "Show less" : "Show more"}
                 </Text>
               )}
             </Box>
@@ -553,7 +584,7 @@ export const DeviceDetailed = ({
                   textDecoration="underline"
                   onClick={() => setShowFullDescription(!showFullDescription)}
                 >
-                  {showFullDescription ? "show less" : "show more"}
+                  {showFullDescription ? "Show less" : "Show more"}
                 </Text>
               )}
             </Box>
@@ -661,7 +692,7 @@ export const DeviceDetailed = ({
                   textDecoration="underline"
                   onClick={() => setShowFullSummary(!showFullSummary)}
                 >
-                  {showFullSummary ? "show less" : "show more"}
+                  {showFullSummary ? "Show less" : "Show more"}
                 </Text>
               )}
             </Box>
@@ -778,10 +809,21 @@ export const DeviceDetailed = ({
             {lineage.pagerank !== null && (
               <Box marginTop="12px">
                 <Text color="brand.primary" fontWeight="bold">
-                  PageRank Score:
+                  Citation Influence:
                 </Text>
-                <Text color="black" fontFamily="monospace">
-                  {lineage.pagerank.toFixed(7)}
+                <Text color="black">
+                  {lineage.pagerank > 0.001
+                    ? "Very High"
+                    : lineage.pagerank > 0.0001
+                      ? "High"
+                      : lineage.pagerank > 0.00001
+                        ? "Moderate"
+                        : lineage.pagerank > 0.000001
+                          ? "Low"
+                          : "Minimal"}
+                </Text>
+                <Text fontSize="xs" color="ui.textMuted">
+                  Based on how often this device is cited as a predicate ({lineage.pagerank.toExponential(2)})
                 </Text>
               </Box>
             )}
@@ -926,19 +968,54 @@ export const DeviceDetailed = ({
                 <Text color="black" marginBottom="4px">{safety.most_recent_recall_date}</Text>
               </Box>
             )}
-            {safety.recall_count > 0 && (
-              <Box marginTop="8px">
-                {/* Link doesn't work */}
-                {/* <ChakraLink
-                  href="https://www.accessdata.fda.gov/scripts/cdrh/cfRes/res.cfm"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  color="brand.primary"
-                  fontSize="sm"
-                  textDecoration="underline"
-                >
-                  Search FDA Recall Database ↗
-                </ChakraLink> */}
+            {safety.recent_recalls && safety.recent_recalls.length > 0 && (
+              <Box marginTop="12px">
+                <Text color="brand.primary" fontWeight="bold" marginBottom="8px">
+                  Recent Recalls:
+                </Text>
+                {safety.recent_recalls.slice(0, 5).map((recall) => (
+                  <Box
+                    key={recall.event_number}
+                    padding="8px 12px"
+                    marginBottom="8px"
+                    borderRadius="6px"
+                    borderWidth="1px"
+                    borderColor="ui.border"
+                    backgroundColor="ui.surface"
+                  >
+                    <HStack justifyContent="space-between" marginBottom="4px">
+                      <Text fontSize="sm" fontWeight="bold" color="black">
+                        {recall.event_number}
+                      </Text>
+                      {recall.status && (
+                        <Badge
+                          colorPalette={
+                            recall.status.toLowerCase().includes("completed")
+                              ? "green"
+                              : recall.status.toLowerCase().includes("terminated")
+                                ? "gray"
+                                : "yellow"
+                          }
+                          variant="subtle"
+                          fontSize="xs"
+                        >
+                          {recall.status}
+                        </Badge>
+                      )}
+                    </HStack>
+                    {recall.reason && (
+                      <Text fontSize="sm" color="ui.textMuted" lineClamp={2}>
+                        {recall.reason}
+                      </Text>
+                    )}
+                    {recall.firm && (
+                      <Text fontSize="xs" color="ui.textMuted" marginTop="4px">
+                        {recall.firm}
+                        {recall.date_initiated ? ` · ${formatDate(recall.date_initiated)}` : ""}
+                      </Text>
+                    )}
+                  </Box>
+                ))}
               </Box>
             )}
           </Box>
@@ -1004,7 +1081,7 @@ export const DeviceDetailed = ({
                     </Text>
                     {relatedDevice.decision_date && (
                       <Text fontSize="xs" color="ui.textMuted">
-                        {relatedDevice.decision_date}
+                        {formatDate(relatedDevice.decision_date)}
                       </Text>
                     )}
                   </Box>
@@ -1081,7 +1158,7 @@ export const DeviceDetailed = ({
                     </Text>
                     {relatedDevice.decision_date && (
                       <Text fontSize="xs" color="ui.textMuted">
-                        {relatedDevice.decision_date}
+                        {formatDate(relatedDevice.decision_date)}
                       </Text>
                     )}
                   </Box>

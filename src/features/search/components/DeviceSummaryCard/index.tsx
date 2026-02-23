@@ -53,11 +53,11 @@ export const DeviceSummaryCard = ({
   return (
     <Box
       backgroundColor="ui.surface"
-      padding="4"
+      padding={{ base: "3", md: "4" }}
       borderRadius="12px"
       border="1px solid"
       borderColor="ui.borderLight"
-      marginBottom="4"
+      marginBottom="3"
     >
       <HStack alignItems="center" marginBottom="2">
         <Box
@@ -67,6 +67,7 @@ export const DeviceSummaryCard = ({
           _hover={{ textDecoration: "underline" }}
           display="block"
           flex="1"
+          lineClamp={2}
         >
           <Link href={`/devices/${device.id}`} legacyBehavior>
             {searchQuery ? (
@@ -96,7 +97,7 @@ export const DeviceSummaryCard = ({
         )}
       </HStack>
 
-      <HStack fontSize="sm" color="ui.textMuted" gap="3" flexWrap="wrap" mb="2">
+      <HStack fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted" gap={{ base: "2", md: "3" }} flexWrap="wrap" mb="2">
         {device.manufacturer && (
           <Text>
             Manufacturer:{" "}
@@ -228,7 +229,20 @@ export const DeviceSummaryCard = ({
       </Link>
 
       {device.snippet && (
-        <Box fontSize="sm" color="ui.textMuted">
+        <Box
+          fontSize="sm"
+          color="ui.textMuted"
+          userSelect="text"
+          cursor="text"
+          onDoubleClick={(e) => {
+            // re-search selected text on double-click
+            const selection = window.getSelection()?.toString().trim();
+            if (selection && selection.length >= 3) {
+              e.preventDefault();
+              router.push({ pathname: "/", query: { q: selection } });
+            }
+          }}
+        >
           {searchQuery ? (
             <Highlighter
               searchWords={searchQuery.split(/\s+/)}

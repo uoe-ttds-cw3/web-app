@@ -102,7 +102,7 @@ export const NavBar = ({
         </Text>
       )}
 
-      <Flex gap="4px" wrap="wrap">
+      <Flex gap="6px" wrap="wrap">
         {isFetching ? (
           <>
             <HStack>
@@ -122,7 +122,7 @@ export const NavBar = ({
                 selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
               }
               color="brand.primary"
-              padding="12px 24px"
+              padding="8px 16px"
               borderRadius="8px"
               _hover={{
                 backgroundColor:

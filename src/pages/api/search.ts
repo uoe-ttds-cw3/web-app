@@ -101,7 +101,10 @@ export default async function handler(
         has_biocompatibility: result.has_biocompatibility ?? false,
         has_software: result.has_software ?? false,
         has_electrical_safety: result.has_electrical_safety ?? false,
+        recall_count: result.recall_count ?? null,
+        adverse_event_count: result.adverse_event_count ?? null,
       })),
+      did_you_mean: data.did_you_mean ?? null,
     };
 
     return res.status(200).json(transformedData);

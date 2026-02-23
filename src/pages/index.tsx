@@ -307,7 +307,7 @@ export default function Home() {
 
   return (
     <div>
-      <Box pr="40px" margin="0 auto" maxW="900px">
+      <Box margin="0 auto" maxW="1000px" px="4">
         <NavBar
           selectedCategory={panel}
           onCategorySelect={handleCategorySelect}
@@ -459,7 +459,7 @@ export default function Home() {
               {/* Sort and Page Size Controls */}
               <Box display="flex" gap="3" alignItems="center" marginBottom="2">
                 <Box display="flex" alignItems="center" gap="2">
-                  <Text fontSize="sm" color="ui.textMuted">sort by:</Text>
+                  <Text fontSize="sm" color="ui.textMuted">Sort by:</Text>
                   <NativeSelect.Root
                     size="sm"
                     width="180px"
@@ -468,19 +468,19 @@ export default function Home() {
                       value={sortBy || ""}
                       onChange={(e) => handleSortChange(e.currentTarget.value)}
                     >
-                      <option value="">relevance</option>
-                      <option value="decision_date_desc">newest approved</option>
-                      <option value="decision_date_asc">oldest approved</option>
-                      <option value="date_received_desc">newest submitted</option>
-                      <option value="date_received_asc">oldest submitted</option>
-                      <option value="manufacturer_asc">manufacturer a-z</option>
+                      <option value="">Relevance</option>
+                      <option value="decision_date_desc">Newest Approved</option>
+                      <option value="decision_date_asc">Oldest Approved</option>
+                      <option value="date_received_desc">Newest Submitted</option>
+                      <option value="date_received_asc">Oldest Submitted</option>
+                      <option value="manufacturer_asc">Manufacturer A-Z</option>
                     </NativeSelect.Field>
                     <NativeSelect.Indicator />
                   </NativeSelect.Root>
                 </Box>
 
                 <Box display="flex" alignItems="center" gap="2">
-                  <Text fontSize="sm" color="ui.textMuted">show:</Text>
+                  <Text fontSize="sm" color="ui.textMuted">Show:</Text>
                   <NativeSelect.Root
                     size="sm"
                     width="80px"
@@ -497,6 +497,41 @@ export default function Home() {
                   </NativeSelect.Root>
                 </Box>
               </Box>
+
+              {/* did you mean suggestion from spelling corrector */}
+              {data?.did_you_mean && (
+                <Box marginBottom="3">
+                  <Text fontSize="sm" color="ui.textMuted" display="inline">
+                    Did you mean{" "}
+                  </Text>
+                  <Box
+                    as="button"
+                    display="inline"
+                    color="brand.primary"
+                    fontWeight="semibold"
+                    fontSize="sm"
+                    textDecoration="underline"
+                    cursor="pointer"
+                    _hover={{ opacity: 0.8 }}
+                    onClick={() => {
+                      posthog.capture("did_you_mean_clicked", {
+                        original_query: query,
+                        suggested_query: data.did_you_mean,
+                      });
+                      router.push(
+                        { pathname: "/", query: { ...router.query, q: data.did_you_mean } },
+                        undefined,
+                        { shallow: true },
+                      );
+                    }}
+                  >
+                    {data.did_you_mean}
+                  </Box>
+                  <Text fontSize="sm" color="ui.textMuted" display="inline">
+                    ?
+                  </Text>
+                </Box>
+              )}
 
               {/* Expanded Terms Display */}
               {data?.expansion_info?.expansion_applied && (

@@ -15,6 +15,8 @@ export const DateBox = () => {
     const handleDateChange = useCallback((nextValue: string) => {
         const rest: Record<string, string | string[] | undefined> = { ...router.query };
         delete rest.page;
+        // don't carry over dynamic route params from other pages (e.g. /devices/[id])
+        delete rest.id;
 
         if (!nextValue) {
             const remaining = { ...rest };
@@ -45,6 +47,8 @@ export const DateBox = () => {
 
     useEffect(() => {
         if (!router.isReady) return;
+        // only auto-restore snapshot date on the search page, not device detail etc.
+        if (router.pathname !== "/") return;
 
         if (value) {
             localStorage.setItem(DATEBOX_STORAGE_KEY, value);
@@ -60,7 +64,7 @@ export const DateBox = () => {
         }
 
         handleDateChange(storedDate);
-    }, [router.isReady, value, today, handleDateChange]);
+    }, [router.isReady, router.pathname, value, today, handleDateChange]);
 
     return (
         <Tooltip
