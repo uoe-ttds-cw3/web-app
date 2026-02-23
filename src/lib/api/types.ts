@@ -243,6 +243,21 @@ export interface Device {
   sponsor: string;
 }
 
+// format iso date string to readable format like "may 15, 2023"
+function formatDate(isoDate: string | null): string {
+  if (!isoDate) return "";
+  try {
+    const d = new Date(isoDate + "T00:00:00");
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return isoDate;
+  }
+}
+
 /**
  * Transform backend SearchResultItem to frontend Device type
  */
@@ -251,7 +266,7 @@ export function transformSearchResult(item: SearchResultItem): Device {
     id: item.submission_number,
     name: item.device_name,
     manufacturer: item.sponsor,
-    date: item.decision_date || "",
+    date: formatDate(item.decision_date),
     panel: item.panel || "",
     pCode: item.product_code || "",
     recalls: 0, // populated later from safety data

@@ -270,6 +270,21 @@ export const DeviceDetailed = ({
     return num.toLocaleString();
   };
 
+  // format iso date to readable string
+  const formatDate = (isoDate: string | null): string => {
+    if (!isoDate) return "N/A";
+    try {
+      const d = new Date(isoDate + "T00:00:00");
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return isoDate;
+    }
+  };
+
   let yearpart = "";
 
   if (device.date_received) {
@@ -439,7 +454,7 @@ export const DeviceDetailed = ({
             <Text color="brand.primary" fontWeight="bold">
               Decision Date:
             </Text>
-            <Text color="black">{device.decision_date || "N/A"}</Text>
+            <Text color="black">{formatDate(device.decision_date)}</Text>
           </Box>
         </Grid>
       </Box>
@@ -1004,7 +1019,7 @@ export const DeviceDetailed = ({
                     </Text>
                     {relatedDevice.decision_date && (
                       <Text fontSize="xs" color="ui.textMuted">
-                        {relatedDevice.decision_date}
+                        {formatDate(relatedDevice.decision_date)}
                       </Text>
                     )}
                   </Box>
@@ -1081,7 +1096,7 @@ export const DeviceDetailed = ({
                     </Text>
                     {relatedDevice.decision_date && (
                       <Text fontSize="xs" color="ui.textMuted">
-                        {relatedDevice.decision_date}
+                        {formatDate(relatedDevice.decision_date)}
                       </Text>
                     )}
                   </Box>
