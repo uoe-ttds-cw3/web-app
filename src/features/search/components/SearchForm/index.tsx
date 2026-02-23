@@ -51,7 +51,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
 
   // group suggestions by source type
   const deviceSuggestions = suggestions.filter(
-    (s) => s.source === "device_name" || s.source === "product_code",
+    (s) => s.source === "device_name" || s.source === "product_code" || s.source === "device_term",
   );
   const manufacturerSuggestions = suggestions.filter(
     (s) => s.source === "manufacturer",
@@ -117,7 +117,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         <Box
           position="fixed"
           inset="0"
-          zIndex={19}
+          zIndex={99}
           onClick={() => setAdvancedPanelOpen(false)}
         />
       )}
@@ -274,7 +274,9 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
                     <Text fontSize="xs" color="ui.textSubtle">
                       {suggestion.source === "product_code"
                         ? "product code"
-                        : "device name"}
+                        : suggestion.source === "device_term"
+                          ? "device type"
+                          : "device name"}
                     </Text>
                   </Link>
                 ))}
