@@ -30,6 +30,10 @@ export interface SearchResultItem {
   has_biocompatibility: boolean;
   has_software: boolean;
   has_electrical_safety: boolean;
+
+  // safety indicators from precomputed cache
+  recall_count: number | null;
+  adverse_event_count: number | null;
 }
 
 export interface QueryDebugInfo {
@@ -83,6 +87,7 @@ export interface SearchResponse {
   facets: FacetField[] | null;
   expansion_info: ExpansionInfo | null;
   debug_info: QueryDebugInfo | null;
+  did_you_mean: string | null;
   error_code?: string | null;
   error_message?: string | null;
 }
@@ -272,7 +277,7 @@ export function transformSearchResult(item: SearchResultItem): Device {
     date: formatDate(item.decision_date),
     panel: item.panel || "",
     pCode: item.product_code || "",
-    recalls: 0, // populated later from safety data
+    recalls: item.recall_count ?? 0,
     availability: true,
     snippet:
       item.indications_for_use &&
