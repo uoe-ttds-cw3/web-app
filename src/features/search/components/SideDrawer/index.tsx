@@ -166,6 +166,24 @@ export const SideDrawer = () => {
                 </Drawer.CloseTrigger>
               </Box>
               <Drawer.Body overflow="auto">
+                {selectedDevicesForRender.length > 0 && (
+                  <Box display="flex" justifyContent="flex-end" mb="3">
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      color="red.500"
+                      onClick={() => {
+                        posthog.capture("comparison_cleared_all", {
+                          device_count: selectedDevicesForRender.length,
+                        });
+                        setSelectedDevices([]);
+                      }}
+                    >
+                      <MdClose />
+                      Clear all
+                    </Button>
+                  </Box>
+                )}
                 <Table.ScrollArea borderWidth="1px">
                   <Table.Root size="sm" interactive>
                     <Table.Header>
