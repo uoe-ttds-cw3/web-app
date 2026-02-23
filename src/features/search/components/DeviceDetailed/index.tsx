@@ -450,6 +450,14 @@ export const DeviceDetailed = ({
             </Text>
             <Text color="black">{device.decision || "N/A"}</Text>
           </Box>
+          {device.device_class && (
+            <Box>
+              <Text color="brand.primary" fontWeight="bold">
+                Device Class:
+              </Text>
+              <Text color="black">{device.device_class}</Text>
+            </Box>
+          )}
           <Box>
             <Text color="brand.primary" fontWeight="bold">
               Decision Date:

@@ -143,9 +143,12 @@ export interface DeviceLookupResponse {
   sponsor: string;
   product_code: string | null;
   panel: string | null;
+  panel_code: string | null;
   decision: string | null;
+  decision_code: string | null;
   decision_date: string | null;
   date_received: string | null;
+  device_class: string | null;
   summary_text: string | null;
 
   // structured extraction fields
