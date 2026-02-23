@@ -307,7 +307,7 @@ export default function Home() {
 
   return (
     <div>
-      <Box pr="40px" margin="0 auto" maxW="900px">
+      <Box margin="0 auto" maxW="1000px" px="4">
         <NavBar
           selectedCategory={panel}
           onCategorySelect={handleCategorySelect}
