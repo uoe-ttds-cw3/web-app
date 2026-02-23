@@ -2,6 +2,7 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { Box, Flex, HStack, Link, Text } from "@chakra-ui/react";
 import { SearchForm } from "@/features/search/components/SearchForm";
+import { DateBox } from "@/features/search/components/DateBox";
 import type { BackendOptions } from "@/lib/api/types";
 
 export function Header() {
@@ -11,6 +12,7 @@ export function Header() {
   const productCode = (router.query.product_code as string) || undefined;
   const dateBefore = (router.query.date_to as string) || undefined;
   const dateAfter = (router.query.date_from as string) || undefined;
+  const snapshotCutoff = (router.query.snapshot_cutoff as string) || undefined;
 
   const convertDateFormat = (ddmmyyyy: string): string => {
     const [day, month, year] = ddmmyyyy.split("/");
@@ -78,13 +80,12 @@ export function Header() {
           </Link>
         </HStack>
 
-        {/* search bar center - flexible with max width */}
-        <Box flex="1" maxW="600px" mx="auto">
-          <SearchForm onSearch={handleSearch} initialQuery={query} />
-        </Box>
-
-        {/* empty space right for balance */}
-        <Box w="120px" flexShrink={0} />
+        <Flex flex="1" maxW="780px" mx="auto" align="center" gap="12px">
+          <Box flex="1">
+            <SearchForm onSearch={handleSearch} initialQuery={query} />
+          </Box>
+          <DateBox />
+        </Flex>
       </Flex>
     </Box>
   );
