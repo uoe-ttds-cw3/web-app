@@ -793,10 +793,21 @@ export const DeviceDetailed = ({
             {lineage.pagerank !== null && (
               <Box marginTop="12px">
                 <Text color="brand.primary" fontWeight="bold">
-                  PageRank Score:
+                  Citation Influence:
                 </Text>
-                <Text color="black" fontFamily="monospace">
-                  {lineage.pagerank.toFixed(7)}
+                <Text color="black">
+                  {lineage.pagerank > 0.001
+                    ? "very high"
+                    : lineage.pagerank > 0.0001
+                      ? "high"
+                      : lineage.pagerank > 0.00001
+                        ? "moderate"
+                        : lineage.pagerank > 0.000001
+                          ? "low"
+                          : "minimal"}
+                </Text>
+                <Text fontSize="xs" color="ui.textMuted">
+                  based on how often this device is cited as a predicate ({lineage.pagerank.toExponential(2)})
                 </Text>
               </Box>
             )}
