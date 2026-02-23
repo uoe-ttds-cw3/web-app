@@ -15,6 +15,8 @@ export const DateBox = () => {
     const handleDateChange = useCallback((nextValue: string) => {
         const rest: Record<string, string | string[] | undefined> = { ...router.query };
         delete rest.page;
+        // don't carry over dynamic route params from other pages (e.g. /devices/[id])
+        delete rest.id;
 
         if (!nextValue) {
             const remaining = { ...rest };
