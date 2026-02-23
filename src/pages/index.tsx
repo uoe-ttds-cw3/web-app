@@ -147,6 +147,15 @@ export default function Home() {
       use_hybrid: backendOptions?.use_hybrid ?? true,
     });
 
+    // check for submission number filter - navigate directly to device page
+    const submissionTag = tags?.find(
+      (tag) => tag.type === "Submission No." && tag.value,
+    );
+    if (submissionTag) {
+      router.push(`/devices/${submissionTag.value.toUpperCase()}`);
+      return;
+    }
+
     const queryParams: Record<string, string> = { q: newQuery };
 
     if (tags) {
@@ -337,7 +346,7 @@ export default function Home() {
 
       {data && (
         <Box margin="0 auto" maxW="1000px" px="4">
-          <Box minH="100vh" p="4">
+          <Box minH="100vh" p={{ base: "2", md: "4" }}>
             {/* Header + Controls */}
             <Box marginBottom="4">
               <Box
@@ -371,17 +380,19 @@ export default function Home() {
                           onClick={() => setFilterOpen(false)}
                         />
                         <Box
-                          position="absolute"
-                          top="100%"
-                          right="0"
-                          marginTop="2"
-                          width="300px"
-                          maxHeight="400px"
+                          position={{ base: "fixed", md: "absolute" }}
+                          top={{ base: "auto", md: "100%" }}
+                          bottom={{ base: "0", md: "auto" }}
+                          left={{ base: "0", md: "auto" }}
+                          right={{ base: "0", md: "0" }}
+                          marginTop={{ base: "0", md: "2" }}
+                          width={{ base: "100%", md: "300px" }}
+                          maxHeight={{ base: "70vh", md: "400px" }}
                           overflowY="auto"
                           backgroundColor="ui.surface"
                           border="1px solid"
                           borderColor="ui.borderLight"
-                          borderRadius="8px"
+                          borderRadius={{ base: "12px 12px 0 0", md: "8px" }}
                           boxShadow="lg"
                           zIndex={10}
                           padding="4"
@@ -456,13 +467,13 @@ export default function Home() {
                 )}
               </Box>
 
-              {/* Sort and Page Size Controls */}
-              <Box display="flex" gap="3" alignItems="center" marginBottom="2">
-                <Box display="flex" alignItems="center" gap="2">
-                  <Text fontSize="sm" color="ui.textMuted">Sort by:</Text>
+              {/* sort and page size controls */}
+              <Box display="flex" gap="3" alignItems="center" marginBottom="2" flexWrap="wrap">
+                <Box display="flex" alignItems="center" gap="2" flex={{ base: "1 1 auto", md: "0 0 auto" }}>
+                  <Text fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">Sort:</Text>
                   <NativeSelect.Root
                     size="sm"
-                    width="180px"
+                    width={{ base: "100%", md: "180px" }}
                   >
                     <NativeSelect.Field
                       value={sortBy || ""}
@@ -480,7 +491,7 @@ export default function Home() {
                 </Box>
 
                 <Box display="flex" alignItems="center" gap="2">
-                  <Text fontSize="sm" color="ui.textMuted">Show:</Text>
+                  <Text fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">Show:</Text>
                   <NativeSelect.Root
                     size="sm"
                     width="80px"

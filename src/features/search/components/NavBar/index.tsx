@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { PiMedalDuotone } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 type Category = {
   id: string;
@@ -68,6 +69,7 @@ export const NavBar = ({
     enabled: !categoriesProp,
   });
 
+  const [showAllPills, setShowAllPills] = useState(false);
   const allCategories = categoriesProp || fetchedCategories || [];
 
   // when search facets are provided, only show panels that appear in the results
@@ -82,10 +84,14 @@ export const NavBar = ({
         .sort((a, b) => b.deviceCount - a.deviceCount)
     : allCategories;
 
+  // on mobile, show first 4 categories unless expanded
+  const mobileLimit = 4;
+  const hasMore = categories.length > mobileLimit;
+
   return (
-    <Box padding="24px 0">
+    <Box padding="16px 0">
       <Text
-        fontSize="xl"
+        fontSize={{ base: "md", md: "xl" }}
         fontWeight="semibold"
         marginBottom="0.5rem"
         color="#266429"
@@ -110,29 +116,74 @@ export const NavBar = ({
             </HStack>
           </>
         ) : (
-          categories.map((category, index) => (
-            <Button
-              key={category.id}
-              onClick={() =>
-                onCategorySelect?.(
-                  selectedCategory === category.id ? "" : category.id,
-                )
-              }
-              backgroundColor={
-                selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
-              }
-              color="brand.primary"
-              padding="8px 16px"
-              borderRadius="8px"
-              _hover={{
-                backgroundColor:
-                  selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
-              }}
-            >
-              <Text>{category.name}</Text>
-              <Text fontSize="12px">({category.deviceCount})</Text>
-            </Button>
-          ))
+          <>
+            {/* mobile: limited pills */}
+            <Box display={{ base: "contents", md: "none" }}>
+              {(showAllPills ? categories : categories.slice(0, mobileLimit)).map((category) => (
+                <Button
+                  key={category.id}
+                  onClick={() =>
+                    onCategorySelect?.(
+                      selectedCategory === category.id ? "" : category.id,
+                    )
+                  }
+                  backgroundColor={
+                    selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
+                  }
+                  color="brand.primary"
+                  padding="6px 12px"
+                  borderRadius="8px"
+                  size="sm"
+                  _hover={{
+                    backgroundColor:
+                      selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
+                  }}
+                >
+                  <Text fontSize="sm">{category.name}</Text>
+                  <Text fontSize="11px">({category.deviceCount})</Text>
+                </Button>
+              ))}
+              {hasMore && (
+                <Button
+                  onClick={() => setShowAllPills(!showAllPills)}
+                  variant="ghost"
+                  size="sm"
+                  color="brand.primary"
+                  padding="6px 12px"
+                  fontSize="sm"
+                >
+                  {showAllPills ? "Show less" : `+${categories.length - mobileLimit} more`}
+                </Button>
+              )}
+            </Box>
+
+            {/* desktop: all pills */}
+            <Box display={{ base: "none", md: "contents" }}>
+              {categories.map((category) => (
+                <Button
+                  key={category.id}
+                  onClick={() =>
+                    onCategorySelect?.(
+                      selectedCategory === category.id ? "" : category.id,
+                    )
+                  }
+                  backgroundColor={
+                    selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
+                  }
+                  color="brand.primary"
+                  padding="8px 16px"
+                  borderRadius="8px"
+                  _hover={{
+                    backgroundColor:
+                      selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
+                  }}
+                >
+                  <Text>{category.name}</Text>
+                  <Text fontSize="12px">({category.deviceCount})</Text>
+                </Button>
+              ))}
+            </Box>
+          </>
         )}
       </Flex>
     </Box>

@@ -198,13 +198,14 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         </Box>
       </Box>
 
-      <Box position="absolute" right="0" top="100%">
+      <Box position="absolute" right="0" top="100%" marginTop="4px">
         <Box
           as="button"
           fontSize="xs"
           color="brand.primary"
           textDecoration="underline"
           cursor="pointer"
+          padding="8px 4px"
           onClick={() => {
             setAdvancedPanelOpen(true);
             setFilterFocused(false);

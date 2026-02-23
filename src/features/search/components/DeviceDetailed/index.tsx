@@ -339,7 +339,7 @@ export const DeviceDetailed = ({
   return (
     <Card.Root
       backgroundColor="white"
-      padding="24px"
+      padding={{ base: "16px", md: "24px" }}
       borderRadius="12px"
       maxWidth="1200px"
       borderWidth="1px"
@@ -347,7 +347,7 @@ export const DeviceDetailed = ({
     >
       {/* header */}
       <Box marginBottom="24px">
-        <Heading size="xl" color="brand.primary" marginBottom="8px">
+        <Heading size={{ base: "lg", md: "xl" }} color="brand.primary" marginBottom="8px">
           {device.device_name}
         </Heading>
         <Box display="flex" alignItems="center" gap="8px" marginBottom="8px" flexWrap="wrap">

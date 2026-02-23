@@ -53,21 +53,21 @@ export const DeviceSummaryCard = ({
   return (
     <Box
       backgroundColor="ui.surface"
-      padding={{ base: "3", md: "4" }}
+      padding={{ base: "4", md: "5" }}
       borderRadius="12px"
       border="1px solid"
       borderColor="ui.borderLight"
-      marginBottom="3"
+      marginBottom={{ base: "3", md: "4" }}
     >
-      <HStack alignItems="center" marginBottom="2">
+      <HStack alignItems="flex-start" marginBottom="3">
         <Box
           fontWeight="bold"
-          fontSize="lg"
+          fontSize={{ base: "md", md: "lg" }}
           color="brand.primary"
           _hover={{ textDecoration: "underline" }}
           display="block"
           flex="1"
-          lineClamp={2}
+          lineClamp={{ base: 3, md: 2 }}
         >
           <Link href={`/devices/${device.id}`} legacyBehavior>
             {searchQuery ? (
@@ -97,66 +97,38 @@ export const DeviceSummaryCard = ({
         )}
       </HStack>
 
-      <HStack fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted" gap={{ base: "2", md: "3" }} flexWrap="wrap" mb="2">
-        {device.manufacturer && (
-          <Text>
-            Manufacturer:{" "}
-            <Box
-              as="span"
-              color="brand.primary"
-              cursor="pointer"
-              _hover={{ textDecoration: "underline" }}
-              onClick={() => router.push({ pathname: "/", query: { q: device.manufacturer } })}
-            >
-              {device.manufacturer}
-            </Box>
-          </Text>
-        )}
-
-        {device.date && <Text>|</Text>}
-        {device.date && (
-          <Text>
-            Date:{" "}
-            <Box as="span" color="ui.text">
-              {device.date}
-            </Box>
-          </Text>
-        )}
-
-        {device.panel && <Text>|</Text>}
-        {device.panel && (
-          <Text>
-            Panel:{" "}
-            <Box as="span" color="ui.text">
-              {device.panel}
-            </Box>
-          </Text>
-        )}
-
-        {device.deviceClass && <Text>|</Text>}
-        {device.deviceClass && (
-          <Text>
-            Class:{" "}
-            <Box as="span" color="ui.text">
-              {device.deviceClass}
-            </Box>
-          </Text>
-        )}
-
-        {device.pCode && <Text>|</Text>}
-        {device.pCode && (
-          <Text>
-            Product Code:{" "}
-            <Box as="span" color="ui.text">
-              {device.pCode}
-            </Box>
-          </Text>
-        )}
-
-        {/* fda 510(k) link */}
-        {device.id && (
-          <>
-            <Text>|</Text>
+      <Box fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted" mb="3">
+        {/* stacked on mobile, inline with pipes on desktop */}
+        <Box display={{ base: "flex", md: "none" }} flexDirection="column" gap="1">
+          {device.manufacturer && (
+            <Text>
+              Manufacturer:{" "}
+              <Box
+                as="span"
+                color="brand.primary"
+                cursor="pointer"
+                _hover={{ textDecoration: "underline" }}
+                onClick={() => router.push({ pathname: "/", query: { q: device.manufacturer } })}
+              >
+                {device.manufacturer}
+              </Box>
+            </Text>
+          )}
+          {device.date && (
+            <Text>Date: <Box as="span" color="ui.text">{device.date}</Box></Text>
+          )}
+          <HStack gap="3" flexWrap="wrap">
+            {device.panel && (
+              <Text>Panel: <Box as="span" color="ui.text">{device.panel}</Box></Text>
+            )}
+            {device.deviceClass && (
+              <Text>Class: <Box as="span" color="ui.text">{device.deviceClass}</Box></Text>
+            )}
+            {device.pCode && (
+              <Text>Code: <Box as="span" color="ui.text">{device.pCode}</Box></Text>
+            )}
+          </HStack>
+          {device.id && (
             <ChakraLink
               href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${device.id}`}
               target="_blank"
@@ -168,9 +140,59 @@ export const DeviceSummaryCard = ({
             >
               View on FDA ↗
             </ChakraLink>
-          </>
-        )}
-      </HStack>
+          )}
+        </Box>
+
+        {/* desktop: inline with pipe separators */}
+        <HStack display={{ base: "none", md: "flex" }} gap="3" flexWrap="wrap">
+          {device.manufacturer && (
+            <Text>
+              Manufacturer:{" "}
+              <Box
+                as="span"
+                color="brand.primary"
+                cursor="pointer"
+                _hover={{ textDecoration: "underline" }}
+                onClick={() => router.push({ pathname: "/", query: { q: device.manufacturer } })}
+              >
+                {device.manufacturer}
+              </Box>
+            </Text>
+          )}
+          {device.date && <Text>|</Text>}
+          {device.date && (
+            <Text>Date: <Box as="span" color="ui.text">{device.date}</Box></Text>
+          )}
+          {device.panel && <Text>|</Text>}
+          {device.panel && (
+            <Text>Panel: <Box as="span" color="ui.text">{device.panel}</Box></Text>
+          )}
+          {device.deviceClass && <Text>|</Text>}
+          {device.deviceClass && (
+            <Text>Class: <Box as="span" color="ui.text">{device.deviceClass}</Box></Text>
+          )}
+          {device.pCode && <Text>|</Text>}
+          {device.pCode && (
+            <Text>Product Code: <Box as="span" color="ui.text">{device.pCode}</Box></Text>
+          )}
+          {device.id && (
+            <>
+              <Text>|</Text>
+              <ChakraLink
+                href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${device.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                color="brand.primary"
+                fontSize="xs"
+                textDecoration="underline"
+                _hover={{ opacity: 0.8 }}
+              >
+                View on FDA ↗
+              </ChakraLink>
+            </>
+          )}
+        </HStack>
+      </Box>
 
       {/* feature badges - only show flags that are true */}
       {(device.hasClinicalData ||
@@ -178,7 +200,7 @@ export const DeviceSummaryCard = ({
         device.hasBiocompatibility ||
         device.hasSoftware ||
         device.hasElectricalSafety) && (
-        <HStack gap="2" flexWrap="wrap" mb="2">
+        <HStack gap="2" flexWrap="wrap" mb="3">
           {device.hasClinicalData && (
             <Badge variant="subtle" colorPalette="gray" fontSize="xs">
               clinical data
@@ -209,7 +231,8 @@ export const DeviceSummaryCard = ({
 
       {/* materials */}
       {device.materials.length > 0 && (
-        <Text fontSize="sm" color="ui.textMuted" mb="2">
+        <Text fontSize="sm" color="ui.textMuted" mb="3">
+          <Box as="span" fontWeight="medium">Materials:</Box>{" "}
           {device.materials.join(" · ")}
         </Text>
       )}
@@ -221,7 +244,7 @@ export const DeviceSummaryCard = ({
           color="brand.primary"
           cursor="pointer"
           _hover={{ textDecoration: "underline" }}
-          mb="2"
+          mb="3"
           display="block"
         >
           View safety data &rarr;
