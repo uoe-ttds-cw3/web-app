@@ -120,10 +120,10 @@ export const DeviceDetailed = ({
     { limit: 6 }
   );
 
-  // fetch similar devices with same product code
+  // fetch similar devices with same product code using filter, not free-text
   const { data: similarDevices, isLoading: isLoadingSimilar } = useSearch(
-    device.product_code || "",
-    { limit: 6 }
+    device.device_name || "",
+    { limit: 6, product_code: device.product_code || undefined }
   );
 
   // filter out current device from manufacturer results
