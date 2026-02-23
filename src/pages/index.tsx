@@ -498,6 +498,41 @@ export default function Home() {
                 </Box>
               </Box>
 
+              {/* did you mean suggestion from spelling corrector */}
+              {data?.did_you_mean && (
+                <Box marginBottom="3">
+                  <Text fontSize="sm" color="ui.textMuted" display="inline">
+                    Did you mean{" "}
+                  </Text>
+                  <Box
+                    as="button"
+                    display="inline"
+                    color="brand.primary"
+                    fontWeight="semibold"
+                    fontSize="sm"
+                    textDecoration="underline"
+                    cursor="pointer"
+                    _hover={{ opacity: 0.8 }}
+                    onClick={() => {
+                      posthog.capture("did_you_mean_clicked", {
+                        original_query: query,
+                        suggested_query: data.did_you_mean,
+                      });
+                      router.push(
+                        { pathname: "/", query: { ...router.query, q: data.did_you_mean } },
+                        undefined,
+                        { shallow: true },
+                      );
+                    }}
+                  >
+                    {data.did_you_mean}
+                  </Box>
+                  <Text fontSize="sm" color="ui.textMuted" display="inline">
+                    ?
+                  </Text>
+                </Box>
+              )}
+
               {/* Expanded Terms Display */}
               {data?.expansion_info?.expansion_applied && (
                 <Box marginTop="2" marginBottom="2">
