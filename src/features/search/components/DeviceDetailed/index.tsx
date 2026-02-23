@@ -456,6 +456,14 @@ export const DeviceDetailed = ({
             </Text>
             <Text color="black">{formatDate(device.decision_date)}</Text>
           </Box>
+          {device.date_received && (
+            <Box>
+              <Text color="brand.primary" fontWeight="bold">
+                Date Received:
+              </Text>
+              <Text color="black">{formatDate(device.date_received)}</Text>
+            </Box>
+          )}
         </Grid>
       </Box>
 
