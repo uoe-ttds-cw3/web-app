@@ -1,16 +1,35 @@
-import { Box, Button, Flex, Text, Icon, Skeleton } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Text,
+  Icon,
+  Skeleton,
+  HStack,
+  SkeletonText,
+  Grid,
+  Badge,
+} from "@chakra-ui/react";
 import { PiMedalDuotone } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 
 type Category = {
   id: string;
   name: string;
+  deviceCount: number;
+};
+
+type SearchFacetValue = {
+  value: string;
+  count: number;
+  label: string | null;
 };
 
 type NavBarProps = {
   categories?: Category[];
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
+  searchFacets?: SearchFacetValue[];
 };
 
 type PanelsResponse = {
@@ -24,16 +43,20 @@ const fetchPanels = async (): Promise<Category[]> => {
     throw new Error("Failed to fetch panels");
   }
   const data: PanelsResponse = await response.json();
-  return data.panels.map((panel) => ({
-    id: panel.code,
-    name: panel.name,
-  }));
+  return data.panels
+    .map((panel) => ({
+      id: panel.code,
+      name: panel.name,
+      deviceCount: panel.device_count,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 };
 
 export const NavBar = ({
   categories: categoriesProp,
   onCategorySelect,
   selectedCategory,
+  searchFacets,
 }: NavBarProps) => {
   const {
     data: fetchedCategories,
@@ -45,7 +68,19 @@ export const NavBar = ({
     enabled: !categoriesProp,
   });
 
-  const categories = categoriesProp || fetchedCategories || [];
+  const allCategories = categoriesProp || fetchedCategories || [];
+
+  // when search facets are provided, only show panels that appear in the results
+  // and use the search-scoped counts instead of total index counts
+  const categories = searchFacets
+    ? allCategories
+        .filter((cat) => searchFacets.some((f) => f.value === cat.id))
+        .map((cat) => {
+          const facet = searchFacets.find((f) => f.value === cat.id);
+          return { ...cat, deviceCount: facet?.count ?? cat.deviceCount };
+        })
+        .sort((a, b) => b.deviceCount - a.deviceCount)
+    : allCategories;
 
   return (
     <Box padding="24px 0">
@@ -56,7 +91,7 @@ export const NavBar = ({
         color="#266429"
       >
         <Icon as={PiMedalDuotone} marginRight="8px" />
-        Search by Category
+        Filter by Category
       </Text>
 
       {/* error state */}
@@ -67,18 +102,12 @@ export const NavBar = ({
         </Text>
       )}
 
-      <Flex overflowX="auto">
+      <Flex gap="4px" wrap="wrap">
         {isFetching ? (
           <>
-            <Skeleton
-              height="40px"
-              width="100rem"
-              variant="shine"
-              css={{
-                "--start-color": "#4CAF5052",
-                "--end-color": "#4CAF5029",
-              }}
-            />
+            <HStack>
+              <SkeletonText noOfLines={1} />
+            </HStack>
           </>
         ) : (
           categories.map((category, index) => (
@@ -94,19 +123,14 @@ export const NavBar = ({
               }
               color="brand.primary"
               padding="12px 24px"
-              borderRadius={
-                index === 0
-                  ? "8px 0 0 8px"
-                  : index === categories.length - 1
-                    ? "0 8px 8px 0"
-                    : "0"
-              }
+              borderRadius="8px"
               _hover={{
                 backgroundColor:
                   selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
               }}
             >
-              {category.name}
+              <Text>{category.name}</Text>
+              <Text fontSize="12px">({category.deviceCount})</Text>
             </Button>
           ))
         )}

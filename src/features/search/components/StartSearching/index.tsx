@@ -1,5 +1,6 @@
 import { Center, Icon, VStack, Text, Box } from "@chakra-ui/react";
 import { PiStethoscopeDuotone } from "react-icons/pi";
+import posthog from "posthog-js";
 
 interface StartSearchingProps {
   onSuggest?: (query: string) => void;
@@ -21,7 +22,13 @@ export const StartSearching = ({ onSuggest }: StartSearchingProps) => {
             <Box
               key={suggestion}
               as="button"
-              onClick={() => onSuggest?.(suggestion)}
+              onClick={() => {
+                // track suggestion click
+                posthog.capture("search_suggestion_clicked", {
+                  suggestion: suggestion,
+                });
+                onSuggest?.(suggestion);
+              }}
               marginTop="10px"
               padding="6px 16px"
               borderRadius="20px"

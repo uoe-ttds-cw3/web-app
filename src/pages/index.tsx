@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import posthog from "posthog-js";
 import {
   DeviceSummaryCard,
   Device,
@@ -7,7 +8,6 @@ import {
 import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { NavBar } from "@/features/search/components/NavBar";
 import { StartSearching } from "@/features/search/components/StartSearching";
-import { LeftDrawer } from "@/features/search/components/LeftDrawer";
 import {
   Stack,
   Text,
@@ -15,15 +15,18 @@ import {
   Spinner,
   Button,
   Collapsible,
-  Flex,
+  Alert,
 } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
 import type { BackendOptions } from "@/lib/api/types";
 import { toaster } from "@/components/ui/Toaster";
 import { SideDrawer } from "@/features/search/components/SideDrawer";
-import { FullBleed } from "@/components/ui/FullBleed";
 import { FaFilter, FaTimes } from "react-icons/fa";
+import useLocalStorage from "use-local-storage";
+import { LANGUAGE_NOT_SUPPORTED } from "@/constants/error-codes";
+
+const subscribe = () => () => {};
 
 export default function Home() {
   const router = useRouter();
@@ -41,39 +44,49 @@ export default function Home() {
   const useStemming = router.query.use_stemming !== "false"; // default true
   const useHybrid = router.query.use_hybrid !== "false"; // default true
 
-  const page = Number(router.query.page) || 1;
-  const limit = 20;
+  let page = Number(router.query.page) || 1;
+  const limit = 100;
   const offset = (page - 1) * limit;
 
   const [filterOpen, setFilterOpen] = useState(false);
-  const [selectedDevices, setSelectedDevices] = useState<Device[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("selectedDevices");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error("Failed to parse saved devices:", e);
-        }
-      }
-    }
-    return [];
-  });
+  const isHydrated = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 
-  useEffect(() => {
-    localStorage.setItem("selectedDevices", JSON.stringify(selectedDevices));
-  }, [selectedDevices]);
+  const [selectedDevices, setSelectedDevices] = useLocalStorage<Device[]>(
+    "selectedDevices",
+    [],
+  );
+
+  const selectedDevicesForRender = isHydrated ? selectedDevices : [];
 
   const handleToggle = (device: Device) => {
-    setSelectedDevices((prev) => {
+    setSelectedDevices((prev = []) => {
       const exists = prev.some((d) => d.id === device.id);
+      // track device comparison toggle
+      if (exists) {
+        posthog.capture("device_removed_from_comparison", {
+          device_id: device.id,
+          device_name: device.name,
+          product_code: device.pCode,
+        });
+      } else {
+        posthog.capture("device_added_to_comparison", {
+          device_id: device.id,
+          device_name: device.name,
+          product_code: device.pCode,
+          comparison_count: prev.length + 1,
+        });
+      }
       return exists
         ? prev.filter((d) => d.id !== device.id)
         : [...prev, device];
     });
   };
 
-  const { data, isFetching, isLoading, error } = useSearch(query, {
+  const { data, isLoading, error } = useSearch(query, {
     panel,
     product_code: productCode,
     date_from: dateAfter,
@@ -88,8 +101,11 @@ export default function Home() {
     use_stemming: useStemming ? undefined : false,
     use_hybrid: useHybrid ? undefined : false,
   });
+
   const results = data?.results.map(transformSearchResult) ?? [];
-  const totalPages = data ? Math.ceil(data.total_results / limit) : 0;
+  const resultsPerPage = 10;
+  const totalPages = data ? Math.ceil(data.total_results / resultsPerPage) : 0;
+  page = Math.max(Math.min(page, totalPages), 1);
 
   useEffect(() => {
     if (error) {
@@ -115,6 +131,18 @@ export default function Home() {
     tags?: Array<{ id: string; type: string; value: string }>,
     backendOptions?: BackendOptions,
   ) => {
+    // track search performed
+    posthog.capture("search_performed", {
+      query: newQuery,
+      has_filters: !!tags && tags.length > 0,
+      filter_count: tags?.length ?? 0,
+      panel_filter: panel,
+      use_expansion: backendOptions?.use_expansion ?? false,
+      use_pagerank_boost: backendOptions?.use_pagerank_boost ?? false,
+      use_stemming: backendOptions?.use_stemming ?? true,
+      use_hybrid: backendOptions?.use_hybrid ?? true,
+    });
+
     const queryParams: Record<string, string> = { q: newQuery };
 
     if (tags) {
@@ -156,6 +184,13 @@ export default function Home() {
   };
 
   const handleCategorySelect = (panelCode?: string) => {
+    // track category selection
+    posthog.capture("category_selected", {
+      panel_code: panelCode || null,
+      action: panelCode ? "selected" : "deselected",
+      current_query: query,
+    });
+
     if (panelCode) {
       const { page: _removedPage, ...rest } = router.query;
       router.push(
@@ -174,6 +209,14 @@ export default function Home() {
   };
 
   const handlePageChange = (newPage: number) => {
+    // track pagination
+    posthog.capture("pagination_changed", {
+      from_page: page,
+      to_page: newPage,
+      total_pages: totalPages,
+      query: query,
+    });
+
     router.push(
       { pathname: "/", query: { ...router.query, page: String(newPage) } },
       undefined,
@@ -182,6 +225,13 @@ export default function Home() {
   };
 
   const handleFacetFilter = (field: string, value: string) => {
+    // track filter applied
+    posthog.capture("filter_applied", {
+      filter_type: field,
+      filter_value: value,
+      current_query: query,
+    });
+
     const fieldMap: Record<string, string> = {
       panel_code: "panel",
       decision_code: "decision",
@@ -197,6 +247,12 @@ export default function Home() {
   };
 
   const handleRemoveFacetFilter = (field: string) => {
+    // track filter removed
+    posthog.capture("filter_removed", {
+      filter_type: field,
+      current_query: query,
+    });
+
     const fieldMap: Record<string, string> = {
       panel_code: "panel",
       decision_code: "decision",
@@ -212,6 +268,9 @@ export default function Home() {
         <NavBar
           selectedCategory={panel}
           onCategorySelect={handleCategorySelect}
+          searchFacets={
+            data?.facets?.find((f) => f.field === "panel_code")?.values
+          }
         />
       </Box>
       {!query && results.length === 0 && (
@@ -245,104 +304,112 @@ export default function Home() {
             >
               <ResultsHeader numResults={data.total_results} />
 
-              {data.facets && data.facets.length > 0 && (
-                <Box position="relative">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    colorScheme="green"
-                    onClick={() => setFilterOpen(!filterOpen)}
-                  >
-                    <FaFilter style={{ marginRight: "8px" }} />
-                    Filter
-                  </Button>
+              {data.facets &&
+                data.facets.length > 0 &&
+                data.facets.some(({ total }) => total) && (
+                  <Box position="relative">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorScheme="green"
+                      onClick={() => setFilterOpen(!filterOpen)}
+                    >
+                      <FaFilter style={{ marginRight: "8px" }} />
+                      Filter
+                    </Button>
 
-                  {filterOpen && (
-                    <>
-                      <Box
-                        position="fixed"
-                        inset="0"
-                        zIndex={9}
-                        onClick={() => setFilterOpen(false)}
-                      />
-                      <Box
-                        position="absolute"
-                        top="100%"
-                        right="0"
-                        marginTop="2"
-                        width="300px"
-                        maxHeight="400px"
-                        overflowY="auto"
-                        backgroundColor="ui.surface"
-                        border="1px solid"
-                        borderColor="ui.borderLight"
-                        borderRadius="8px"
-                        boxShadow="lg"
-                        zIndex={10}
-                        padding="4"
-                      >
-                        {data.facets.map((facet) => (
-                          <Box key={facet.field} marginBottom="4">
-                            <Collapsible.Root defaultOpen>
-                              <Collapsible.Trigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  width="100%"
-                                  justifyContent="space-between"
-                                  fontSize="sm"
-                                  fontWeight="semibold"
-                                  color="brand.primary"
-                                  paddingY="2"
-                                >
-                                  {facet.field === "device_class"
-                                    ? "Device Class"
-                                    : facet.field === "panel_code"
-                                      ? "Panel"
-                                      : facet.field === "decision_code"
-                                        ? "Decision"
-                                        : facet.field}
-                                </Button>
-                              </Collapsible.Trigger>
-                              <Collapsible.Content>
-                                <Stack gap="1" marginTop="2">
-                                  {facet.values.slice(0, 10).map((fv) => (
-                                    <Box
-                                      key={fv.value}
-                                      as="button"
-                                      onClick={() =>
-                                        handleFacetFilter(facet.field, fv.value)
-                                      }
-                                      display="flex"
-                                      justifyContent="space-between"
-                                      alignItems="center"
-                                      padding="2"
-                                      borderRadius="4px"
-                                      fontSize="sm"
-                                      _hover={{
-                                        backgroundColor: "ui.background",
-                                      }}
-                                      cursor="pointer"
-                                      width="100%"
-                                      textAlign="left"
-                                    >
-                                      <Text color="ui.text">
-                                        {fv.label || fv.value}
-                                      </Text>
-                                      <Text color="ui.textMuted" fontSize="xs">
-                                        ({fv.count})
-                                      </Text>
-                                    </Box>
-                                  ))}
-                                </Stack>
-                              </Collapsible.Content>
-                            </Collapsible.Root>
-                          </Box>
-                        ))}
-                      </Box>
-                    </>
-                  )}
-                </Box>
-              )}
+                    {filterOpen && (
+                      <>
+                        <Box
+                          position="fixed"
+                          inset="0"
+                          zIndex={9}
+                          onClick={() => setFilterOpen(false)}
+                        />
+                        <Box
+                          position="absolute"
+                          top="100%"
+                          right="0"
+                          marginTop="2"
+                          width="300px"
+                          maxHeight="400px"
+                          overflowY="auto"
+                          backgroundColor="ui.surface"
+                          border="1px solid"
+                          borderColor="ui.borderLight"
+                          borderRadius="8px"
+                          boxShadow="lg"
+                          zIndex={10}
+                          padding="4"
+                        >
+                          {data.facets.map((facet) => (
+                            <Box key={facet.field} marginBottom="4">
+                              <Collapsible.Root defaultOpen>
+                                <Collapsible.Trigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    width="100%"
+                                    justifyContent="space-between"
+                                    fontSize="sm"
+                                    fontWeight="semibold"
+                                    color="brand.primary"
+                                    paddingY="2"
+                                  >
+                                    {facet.field === "device_class"
+                                      ? "Device Class"
+                                      : facet.field === "panel_code"
+                                        ? "Panel"
+                                        : facet.field === "decision_code"
+                                          ? "Decision"
+                                          : facet.field}
+                                  </Button>
+                                </Collapsible.Trigger>
+                                <Collapsible.Content>
+                                  <Stack gap="1" marginTop="2">
+                                    {facet.values.slice(0, 10).map((fv) => (
+                                      <Box
+                                        key={fv.value}
+                                        as="button"
+                                        onClick={() =>
+                                          handleFacetFilter(
+                                            facet.field,
+                                            fv.value,
+                                          )
+                                        }
+                                        display="flex"
+                                        justifyContent="space-between"
+                                        alignItems="center"
+                                        padding="2"
+                                        borderRadius="4px"
+                                        fontSize="sm"
+                                        _hover={{
+                                          backgroundColor: "ui.background",
+                                        }}
+                                        cursor="pointer"
+                                        width="100%"
+                                        textAlign="left"
+                                      >
+                                        <Text color="ui.text">
+                                          {fv.label || fv.value}
+                                        </Text>
+                                        <Text
+                                          color="ui.textMuted"
+                                          fontSize="xs"
+                                        >
+                                          ({fv.count})
+                                        </Text>
+                                      </Box>
+                                    ))}
+                                  </Stack>
+                                </Collapsible.Content>
+                              </Collapsible.Root>
+                            </Box>
+                          ))}
+                        </Box>
+                      </>
+                    )}
+                  </Box>
+                )}
             </Box>
 
             {/* Active filter chips */}
@@ -443,91 +510,112 @@ export default function Home() {
               </Box>
             )}
 
-            <Stack>
-              {results.map((device) => (
-                <DeviceSummaryCard
-                  key={device.id}
-                  device={device}
-                  selectedDevices={selectedDevices}
-                  onToggle={handleToggle}
-                />
-              ))}
-            </Stack>
+            {data?.error_code === LANGUAGE_NOT_SUPPORTED &&
+            data?.error_message ? (
+              <Alert.Root status="warning" title={data.error_message}>
+                <Alert.Indicator />
+                <Alert.Title>{data.error_message}</Alert.Title>
+              </Alert.Root>
+            ) : (
+              <>
+                <Stack>
+                  {results
+                    .slice((page - 1) * resultsPerPage, page * resultsPerPage)
+                    .map((device) => (
+                      <DeviceSummaryCard
+                        key={device.id}
+                        device={device}
+                        selectedDevices={selectedDevicesForRender}
+                        onToggle={handleToggle}
+                        searchQuery={query}
+                      />
+                    ))}
+                </Stack>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                gap="2"
-                paddingY="6"
-                marginTop="6"
-              >
-                <Button
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={page <= 1}
-                  size="sm"
-                  variant="outline"
-                  colorScheme="green"
-                >
-                  Previous
-                </Button>
-                <Box display="flex" gap="1" alignItems="center">
-                  {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
-                    const pageNum = i + 1;
-                    const showPage =
-                      pageNum <= 3 ||
-                      pageNum >= totalPages - 2 ||
-                      Math.abs(pageNum - page) <= 2;
-                    if (!showPage) {
-                      if (
-                        (pageNum === 4 && page > 6) ||
-                        (pageNum === totalPages - 3 && page < totalPages - 5)
-                      ) {
-                        return (
-                          <Text key={pageNum} color="ui.textMuted" px="1">
-                            ...
-                          </Text>
-                        );
-                      }
-                      return null;
-                    }
-                    return (
-                      <Button
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        size="sm"
-                        variant={pageNum === page ? "solid" : "ghost"}
-                        colorScheme="green"
-                        bg={pageNum === page ? "brand.primary" : undefined}
-                        color={pageNum === page ? "white" : "brand.primary"}
-                        minW="8"
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
-                </Box>
-                <Button
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={page >= totalPages}
-                  size="sm"
-                  variant="outline"
-                  colorScheme="green"
-                >
-                  Next
-                </Button>
-                <Text color="ui.textMuted" fontSize="sm" ml="4">
-                  Page {page} of {totalPages}
-                </Text>
-              </Box>
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap="2"
+                    paddingY="6"
+                    marginTop="6"
+                  >
+                    <Button
+                      onClick={() => handlePageChange(page - 1)}
+                      disabled={page <= 1}
+                      size="sm"
+                      variant="outline"
+                      colorScheme="green"
+                    >
+                      Previous
+                    </Button>
+                    <Box display="flex" gap="1" alignItems="center">
+                      {Array.from(
+                        { length: Math.min(totalPages, 10) },
+                        (_, i) => {
+                          const pageNum = i + 1;
+                          const showPage =
+                            pageNum <= 3 ||
+                            pageNum >= totalPages - 2 ||
+                            Math.abs(pageNum - page) <= 2;
+                          if (!showPage) {
+                            if (
+                              (pageNum === 4 && page > 6) ||
+                              (pageNum === totalPages - 3 &&
+                                page < totalPages - 5)
+                            ) {
+                              return (
+                                <Text key={pageNum} color="ui.textMuted" px="1">
+                                  ...
+                                </Text>
+                              );
+                            }
+                            return null;
+                          }
+                          return (
+                            <Button
+                              key={pageNum}
+                              onClick={() => handlePageChange(pageNum)}
+                              size="sm"
+                              variant={pageNum === page ? "solid" : "ghost"}
+                              colorScheme="green"
+                              bg={
+                                pageNum === page ? "brand.primary" : undefined
+                              }
+                              color={
+                                pageNum === page ? "white" : "brand.primary"
+                              }
+                              minW="8"
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        },
+                      )}
+                    </Box>
+                    <Button
+                      onClick={() => handlePageChange(page + 1)}
+                      disabled={page >= totalPages}
+                      size="sm"
+                      variant="outline"
+                      colorScheme="green"
+                    >
+                      Next
+                    </Button>
+                    <Text color="ui.textMuted" fontSize="sm" ml="4">
+                      Page {page} of {totalPages}
+                    </Text>
+                  </Box>
+                )}
+              </>
             )}
           </Box>
         </Box>
       )}
 
-      <SideDrawer selectedDeviceIds={selectedDevices.map((d) => d.id)} />
+      <SideDrawer />
     </div>
   );
 }

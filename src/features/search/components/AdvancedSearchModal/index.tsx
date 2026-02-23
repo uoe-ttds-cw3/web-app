@@ -1,6 +1,7 @@
 import { Box, Input, Text, NativeSelect } from "@chakra-ui/react";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { FaPlus, FaTimes, FaSearch } from "react-icons/fa";
+import posthog from "posthog-js";
 import type { BackendOptions } from "@/lib/api/types";
 import { defaultBackendOptions } from "@/lib/api/types";
 
@@ -160,6 +161,16 @@ export const AdvancedSearchPanel = ({
 
   const handleSearch = () => {
     if (!queryPreview) return;
+    // track advanced search usage
+    posthog.capture("advanced_search_used", {
+      query: queryPreview,
+      condition_count: rows.length,
+      operators_used: rows.map((r) => r.operator),
+      use_expansion: options.use_expansion,
+      use_pagerank_boost: options.use_pagerank_boost,
+      use_stemming: options.use_stemming,
+      use_hybrid: options.use_hybrid,
+    });
     onSearch(queryPreview, options);
     onClose();
   };
@@ -288,8 +299,6 @@ export const AdvancedSearchPanel = ({
                 paddingLeft="8px"
               >
                 <option value="contains">contains</option>
-                <option value="AND">AND</option>
-                <option value="OR">OR</option>
                 <option value="NOT">NOT</option>
                 <option value="phrase">phrase</option>
                 <option value="proximity">proximity</option>

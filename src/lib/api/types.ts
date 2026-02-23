@@ -83,6 +83,8 @@ export interface SearchResponse {
   facets: FacetField[] | null;
   expansion_info: ExpansionInfo | null;
   debug_info: QueryDebugInfo | null;
+  error_code?: string | null;
+  error_message?: string | null;
 }
 
 // backend search options controlled by the advanced search panel
@@ -235,6 +237,7 @@ export interface Device {
   hasBiocompatibility: boolean;
   hasSoftware: boolean;
   hasElectricalSafety: boolean;
+  sponsor: string;
 }
 
 /**
@@ -245,14 +248,16 @@ export function transformSearchResult(item: SearchResultItem): Device {
     id: item.submission_number,
     name: item.device_name,
     manufacturer: item.sponsor,
-    date: item.decision_date || '',
-    panel: item.panel || '',
-    pCode: item.product_code || '',
+    date: item.decision_date || "",
+    panel: item.panel || "",
+    pCode: item.product_code || "",
     recalls: 0, // populated later from safety data
     availability: true,
-    snippet: item.indications_for_use && item.indications_for_use.length > (item.snippet?.length || 0)
-      ? item.indications_for_use
-      : (item.snippet || ''),
+    snippet:
+      item.indications_for_use &&
+      item.indications_for_use.length > (item.snippet?.length || 0)
+        ? item.indications_for_use
+        : item.snippet || "",
     relevanceScore: item.relevance_score,
     deviceClass: item.device_class,
     pagerankScore: item.pagerank_score,
@@ -263,5 +268,6 @@ export function transformSearchResult(item: SearchResultItem): Device {
     hasBiocompatibility: item.has_biocompatibility,
     hasSoftware: item.has_software,
     hasElectricalSafety: item.has_electrical_safety,
+    sponsor: item.sponsor,
   };
 }

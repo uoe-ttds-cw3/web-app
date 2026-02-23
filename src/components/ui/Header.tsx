@@ -67,14 +67,14 @@ export function Header() {
         maxW={{ base: "100%", md: "1200px" }}
         mx="auto"
         px={{ base: 4, md: 6, lg: 8 }}
-        h="64px"
+        h="96px"
         align="center"
         gap="4"
       >
         {/* logo left */}
         <HStack flexShrink={0}>
           <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
-            <Text fontWeight="semibold">Medical Device Search</Text>
+            <Text fontWeight="semibold">searchFDA</Text>
           </Link>
         </HStack>
 
