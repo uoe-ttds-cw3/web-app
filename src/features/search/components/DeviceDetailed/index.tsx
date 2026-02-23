@@ -548,7 +548,7 @@ export const DeviceDetailed = ({
                   textDecoration="underline"
                   onClick={() => setShowFullIfu(!showFullIfu)}
                 >
-                  {showFullIfu ? "show less" : "show more"}
+                  {showFullIfu ? "Show less" : "Show more"}
                 </Text>
               )}
             </Box>
@@ -584,7 +584,7 @@ export const DeviceDetailed = ({
                   textDecoration="underline"
                   onClick={() => setShowFullDescription(!showFullDescription)}
                 >
-                  {showFullDescription ? "show less" : "show more"}
+                  {showFullDescription ? "Show less" : "Show more"}
                 </Text>
               )}
             </Box>
@@ -692,7 +692,7 @@ export const DeviceDetailed = ({
                   textDecoration="underline"
                   onClick={() => setShowFullSummary(!showFullSummary)}
                 >
-                  {showFullSummary ? "show less" : "show more"}
+                  {showFullSummary ? "Show less" : "Show more"}
                 </Text>
               )}
             </Box>
@@ -813,17 +813,17 @@ export const DeviceDetailed = ({
                 </Text>
                 <Text color="black">
                   {lineage.pagerank > 0.001
-                    ? "very high"
+                    ? "Very High"
                     : lineage.pagerank > 0.0001
-                      ? "high"
+                      ? "High"
                       : lineage.pagerank > 0.00001
-                        ? "moderate"
+                        ? "Moderate"
                         : lineage.pagerank > 0.000001
-                          ? "low"
-                          : "minimal"}
+                          ? "Low"
+                          : "Minimal"}
                 </Text>
                 <Text fontSize="xs" color="ui.textMuted">
-                  based on how often this device is cited as a predicate ({lineage.pagerank.toExponential(2)})
+                  Based on how often this device is cited as a predicate ({lineage.pagerank.toExponential(2)})
                 </Text>
               </Box>
             )}

@@ -459,7 +459,7 @@ export default function Home() {
               {/* Sort and Page Size Controls */}
               <Box display="flex" gap="3" alignItems="center" marginBottom="2">
                 <Box display="flex" alignItems="center" gap="2">
-                  <Text fontSize="sm" color="ui.textMuted">sort by:</Text>
+                  <Text fontSize="sm" color="ui.textMuted">Sort by:</Text>
                   <NativeSelect.Root
                     size="sm"
                     width="180px"
@@ -468,19 +468,19 @@ export default function Home() {
                       value={sortBy || ""}
                       onChange={(e) => handleSortChange(e.currentTarget.value)}
                     >
-                      <option value="">relevance</option>
-                      <option value="decision_date_desc">newest approved</option>
-                      <option value="decision_date_asc">oldest approved</option>
-                      <option value="date_received_desc">newest submitted</option>
-                      <option value="date_received_asc">oldest submitted</option>
-                      <option value="manufacturer_asc">manufacturer a-z</option>
+                      <option value="">Relevance</option>
+                      <option value="decision_date_desc">Newest Approved</option>
+                      <option value="decision_date_asc">Oldest Approved</option>
+                      <option value="date_received_desc">Newest Submitted</option>
+                      <option value="date_received_asc">Oldest Submitted</option>
+                      <option value="manufacturer_asc">Manufacturer A-Z</option>
                     </NativeSelect.Field>
                     <NativeSelect.Indicator />
                   </NativeSelect.Root>
                 </Box>
 
                 <Box display="flex" alignItems="center" gap="2">
-                  <Text fontSize="sm" color="ui.textMuted">show:</Text>
+                  <Text fontSize="sm" color="ui.textMuted">Show:</Text>
                   <NativeSelect.Root
                     size="sm"
                     width="80px"
