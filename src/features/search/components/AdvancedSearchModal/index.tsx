@@ -94,7 +94,6 @@ const OptionPill = ({
       content={tooltip}
       showArrow={false}
       interactive
-      color="white"
       contentProps={{
         bg: "ui.background",
         color: "ui.text",

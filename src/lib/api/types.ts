@@ -120,6 +120,7 @@ export interface SearchFilters {
   date_to?: string;
   sort_by?: string;
   page_size?: number;
+  snapshot_cutoff?: string;
 }
 
 // Autocomplete types

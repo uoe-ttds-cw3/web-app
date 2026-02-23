@@ -49,6 +49,7 @@ export default function Home() {
   const pageSize = Number(router.query.page_size) || 10;
   const offset = (page - 1) * pageSize;
   const sortBy = (router.query.sort_by as string) || undefined;
+  const snapshotCutoff = (router.query.snapshot_cutoff as string) || undefined;
 
   const [filterOpen, setFilterOpen] = useState(false);
   const isHydrated = useSyncExternalStore(
@@ -103,6 +104,7 @@ export default function Home() {
     use_stemming: useStemming ? undefined : false,
     use_hybrid: useHybrid ? undefined : false,
     sort_by: sortBy,
+    snapshot_cutoff: snapshotCutoff,
   });
 
   const results = data?.results.map(transformSearchResult) ?? [];
