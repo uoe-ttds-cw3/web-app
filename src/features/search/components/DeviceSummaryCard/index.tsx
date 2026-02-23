@@ -67,6 +67,7 @@ export const DeviceSummaryCard = ({
           _hover={{ textDecoration: "underline" }}
           display="block"
           flex="1"
+          lineClamp={2}
         >
           <Link href={`/devices/${device.id}`} legacyBehavior>
             {searchQuery ? (
