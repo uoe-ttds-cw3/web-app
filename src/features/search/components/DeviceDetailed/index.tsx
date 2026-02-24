@@ -973,6 +973,74 @@ export const DeviceDetailed = ({
               );
             })()}
 
+            {/* reported device problems */}
+            {deviceSafety.problem_codes && Object.keys(deviceSafety.problem_codes).length > 0 && (
+              <Box marginTop="12px">
+                <Text color="brand.primary" fontWeight="bold" marginBottom="8px">
+                  Reported Device Problems:
+                </Text>
+                {Object.entries(deviceSafety.problem_codes)
+                  .sort(([, a], [, b]) => b - a)
+                  .slice(0, 10)
+                  .map(([problem, count]) => {
+                    const total = deviceSafety.event_count || 1;
+                    const pct = ((count / total) * 100).toFixed(1);
+                    return (
+                      <HStack
+                        key={problem}
+                        justifyContent="space-between"
+                        paddingY="4px"
+                        borderBottomWidth="1px"
+                        borderColor="ui.borderLight"
+                      >
+                        <Text fontSize="sm" color="ui.text">
+                          {problem}
+                        </Text>
+                        <Text fontSize="sm" color="ui.textMuted" flexShrink={0}>
+                          {count.toLocaleString()} ({pct}%)
+                        </Text>
+                      </HStack>
+                    );
+                  })}
+              </Box>
+            )}
+
+            {/* patient outcomes */}
+            {deviceSafety.patient_outcomes && Object.keys(deviceSafety.patient_outcomes).length > 0 && (
+              <Box marginTop="12px">
+                <Text color="brand.primary" fontWeight="bold" marginBottom="8px">
+                  Patient Outcomes:
+                </Text>
+                {Object.entries(deviceSafety.patient_outcomes)
+                  .sort(([, a], [, b]) => b - a)
+                  .map(([outcome, count]) => (
+                    <HStack
+                      key={outcome}
+                      justifyContent="space-between"
+                      paddingY="4px"
+                      borderBottomWidth="1px"
+                      borderColor="ui.borderLight"
+                    >
+                      <Text
+                        fontSize="sm"
+                        color={
+                          outcome === "Death"
+                            ? "status.danger"
+                            : outcome === "Life Threatening"
+                              ? "status.warning"
+                              : "ui.text"
+                        }
+                      >
+                        {outcome}
+                      </Text>
+                      <Text fontSize="sm" color="ui.textMuted" flexShrink={0}>
+                        {count.toLocaleString()}
+                      </Text>
+                    </HStack>
+                  ))}
+              </Box>
+            )}
+
             {/* recent adverse events */}
             {deviceSafety.recent_events.length > 0 && (
               <Box marginTop="12px">

@@ -259,6 +259,9 @@ export interface DeviceSafetyData {
   submission_number: string;
   event_count: number;
   breakdown: Record<string, number>;
+  problem_codes: Record<string, number>;
+  patient_outcomes: Record<string, number>;
+  brand_names: string[];
   recent_events: DeviceSafetyEvent[];
   recall_count: number;
   recent_recalls: DeviceSafetyRecall[];
