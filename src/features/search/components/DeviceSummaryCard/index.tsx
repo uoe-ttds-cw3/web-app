@@ -1,7 +1,9 @@
-import { Box, HStack, Text, Checkbox, Badge } from "@chakra-ui/react";
+import { Box, HStack, Text, Checkbox, Badge, Link as ChakraLink } from "@chakra-ui/react";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 export type Device = {
   id: string;
@@ -39,6 +41,7 @@ export const DeviceSummaryCard = ({
   searchQuery = "",
 }: DeviceSummaryCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const router = useRouter();
 
   const isSelected = selectedDevices.some((d) => d.id === device.id);
 
@@ -50,42 +53,61 @@ export const DeviceSummaryCard = ({
   return (
     <Box
       backgroundColor="ui.surface"
-      padding="4"
+      padding={{ base: "3", md: "4" }}
       borderRadius="12px"
       border="1px solid"
       borderColor="ui.borderLight"
-      marginBottom="4"
+      marginBottom="3"
     >
-      <Box
-        fontWeight="bold"
-        fontSize="lg"
-        color="brand.primary"
-        _hover={{ textDecoration: "underline" }}
-        display="block"
-        marginBottom="2"
-      >
-        <Link href={`/devices/${device.id}`} legacyBehavior>
-          {searchQuery ? (
-            <Highlighter
-              searchWords={searchQuery.split(/\s+/)}
-              autoEscape
-              textToHighlight={device.name}
-              highlightStyle={{
-                fontWeight: "bold",
-                backgroundColor: "#FFEB3B80",
-              }}
-            />
-          ) : (
-            device.name
-          )}
-        </Link>
-      </Box>
+      <HStack alignItems="center" marginBottom="2">
+        <Box
+          fontWeight="bold"
+          fontSize="lg"
+          color="brand.primary"
+          _hover={{ textDecoration: "underline" }}
+          display="block"
+          flex="1"
+          lineClamp={2}
+        >
+          <Link href={`/devices/${device.id}`} legacyBehavior>
+            {searchQuery ? (
+              <Highlighter
+                searchWords={searchQuery.split(/\s+/)}
+                autoEscape
+                textToHighlight={device.name}
+                highlightStyle={{
+                  fontWeight: "bold",
+                  backgroundColor: "#FFEB3B80",
+                }}
+              />
+            ) : (
+              device.name
+            )}
+          </Link>
+        </Box>
+        {/* recall badge - renders when recall count available in search results */}
+        {device.recalls !== undefined && device.recalls > 0 && (
+          <Badge
+            colorPalette={device.recalls >= 4 ? "red" : "yellow"}
+            variant="solid"
+            fontSize="xs"
+          >
+            {device.recalls} recall{device.recalls !== 1 ? "s" : ""}
+          </Badge>
+        )}
+      </HStack>
 
-      <HStack fontSize="sm" color="ui.textMuted" gap="3" flexWrap="wrap" mb="2">
+      <HStack fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted" gap={{ base: "2", md: "3" }} flexWrap="wrap" mb="2">
         {device.manufacturer && (
           <Text>
             Manufacturer:{" "}
-            <Box as="span" color="ui.text">
+            <Box
+              as="span"
+              color="brand.primary"
+              cursor="pointer"
+              _hover={{ textDecoration: "underline" }}
+              onClick={() => router.push({ pathname: "/", query: { q: device.manufacturer } })}
+            >
               {device.manufacturer}
             </Box>
           </Text>
@@ -129,6 +151,24 @@ export const DeviceSummaryCard = ({
               {device.pCode}
             </Box>
           </Text>
+        )}
+
+        {/* fda 510(k) link */}
+        {device.id && (
+          <>
+            <Text>|</Text>
+            <ChakraLink
+              href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${device.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              color="brand.primary"
+              fontSize="xs"
+              textDecoration="underline"
+              _hover={{ opacity: 0.8 }}
+            >
+              View on FDA ↗
+            </ChakraLink>
+          </>
         )}
       </HStack>
 
@@ -184,12 +224,25 @@ export const DeviceSummaryCard = ({
           mb="2"
           display="block"
         >
-          view safety data &rarr;
+          View safety data &rarr;
         </Box>
       </Link>
 
       {device.snippet && (
-        <Box fontSize="sm" color="ui.textMuted">
+        <Box
+          fontSize="sm"
+          color="ui.textMuted"
+          userSelect="text"
+          cursor="text"
+          onDoubleClick={(e) => {
+            // re-search selected text on double-click
+            const selection = window.getSelection()?.toString().trim();
+            if (selection && selection.length >= 3) {
+              e.preventDefault();
+              router.push({ pathname: "/", query: { q: selection } });
+            }
+          }}
+        >
           {searchQuery ? (
             <Highlighter
               searchWords={searchQuery.split(/\s+/)}

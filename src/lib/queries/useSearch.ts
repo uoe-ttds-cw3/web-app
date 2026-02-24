@@ -23,6 +23,8 @@ export const searchQueryOptions = (query: string, filters?: SearchFilters) =>
       if (filters?.remove_stopwords === false) params.set('remove_stopwords', 'false');
       if (filters?.pagerank_weight !== undefined) params.set('pagerank_weight', String(filters.pagerank_weight));
       if (filters?.include_facets) params.set('include_facets', 'true');
+      if (filters?.sort_by) params.set('sort_by', filters.sort_by);
+      if (filters?.snapshot_cutoff) params.set('snapshot_cutoff', filters.snapshot_cutoff);
 
       return apiFetch<SearchResponse>(`/api/search?${params}`, { signal });
     },

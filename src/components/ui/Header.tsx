@@ -2,6 +2,7 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { Box, Flex, HStack, Link, Text } from "@chakra-ui/react";
 import { SearchForm } from "@/features/search/components/SearchForm";
+import { DateBox } from "@/features/search/components/DateBox";
 import type { BackendOptions } from "@/lib/api/types";
 
 export function Header() {
@@ -11,6 +12,7 @@ export function Header() {
   const productCode = (router.query.product_code as string) || undefined;
   const dateBefore = (router.query.date_to as string) || undefined;
   const dateAfter = (router.query.date_from as string) || undefined;
+  const snapshotCutoff = (router.query.snapshot_cutoff as string) || undefined;
 
   const convertDateFormat = (ddmmyyyy: string): string => {
     const [day, month, year] = ddmmyyyy.split("/");
@@ -66,25 +68,28 @@ export function Header() {
       <Flex
         maxW={{ base: "100%", md: "1200px" }}
         mx="auto"
-        px={{ base: 4, md: 6, lg: 8 }}
-        h="96px"
+        px={{ base: 3, md: 6, lg: 8 }}
+        py={{ base: 3, md: 0 }}
+        minH={{ base: "auto", md: "96px" }}
         align="center"
-        gap="4"
+        gap={{ base: 2, md: 4 }}
+        direction={{ base: "column", md: "row" }}
       >
-        {/* logo left */}
-        <HStack flexShrink={0}>
+        {/* logo - hidden on mobile to save space */}
+        <HStack flexShrink={0} display={{ base: "none", md: "flex" }}>
           <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
             <Text fontWeight="semibold">searchFDA</Text>
           </Link>
         </HStack>
 
-        {/* search bar center - flexible with max width */}
-        <Box flex="1" maxW="600px" mx="auto">
-          <SearchForm onSearch={handleSearch} initialQuery={query} />
-        </Box>
-
-        {/* empty space right for balance */}
-        <Box w="120px" flexShrink={0} />
+        <Flex flex="1" maxW="780px" w="100%" mx="auto" align="center" gap="12px">
+          <Box flex="1">
+            <SearchForm onSearch={handleSearch} initialQuery={query} />
+          </Box>
+          <Box display={{ base: "none", md: "block" }}>
+            <DateBox />
+          </Box>
+        </Flex>
       </Flex>
     </Box>
   );

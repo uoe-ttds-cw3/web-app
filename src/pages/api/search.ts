@@ -23,7 +23,9 @@ export default async function handler(
     use_hybrid,
     remove_stopwords,
     pagerank_weight,
-    include_facets
+    include_facets,
+    sort_by,
+    snapshot_cutoff
   } = req.query;
 
   if (!q || typeof q !== "string") {
@@ -61,6 +63,10 @@ export default async function handler(
     params.append("pagerank_weight", pagerank_weight);
   if (include_facets === "true")
     params.append("include_facets", "true");
+  if (sort_by && typeof sort_by === "string")
+    params.append("sort_by", sort_by);
+  if (snapshot_cutoff && typeof snapshot_cutoff === "string")
+    params.append("snapshot_cutoff", snapshot_cutoff);
 
   try {
     const response = await fetch(`${API_BASE}/api/search?${params.toString()}`);
@@ -95,7 +101,10 @@ export default async function handler(
         has_biocompatibility: result.has_biocompatibility ?? false,
         has_software: result.has_software ?? false,
         has_electrical_safety: result.has_electrical_safety ?? false,
+        recall_count: result.recall_count ?? null,
+        adverse_event_count: result.adverse_event_count ?? null,
       })),
+      did_you_mean: data.did_you_mean ?? null,
     };
 
     return res.status(200).json(transformedData);
