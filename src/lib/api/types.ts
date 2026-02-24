@@ -16,17 +16,24 @@ export interface SearchResultItem {
   decision: string | null;
   decision_code: string | null;
   decision_date: string | null;
+  date_received: string | null;
   device_class: string | null;
   pagerank_score: number | null;
-  indications_for_use?: string | null;
-  device_description?: string | null;
-  materials?: string[];
-  standards_referenced?: string[];
-  has_clinical_data?: boolean;
-  has_sterilization?: boolean;
-  has_biocompatibility?: boolean;
-  has_software?: boolean;
-  has_electrical_safety?: boolean;
+
+  // structured extraction fields
+  indications_for_use: string | null;
+  device_description: string | null;
+  materials: string[];
+  standards_referenced: string[];
+  has_clinical_data: boolean;
+  has_sterilization: boolean;
+  has_biocompatibility: boolean;
+  has_software: boolean;
+  has_electrical_safety: boolean;
+
+  // safety indicators from precomputed cache
+  recall_count: number | null;
+  adverse_event_count: number | null;
 }
 
 export interface QueryDebugInfo {
@@ -81,9 +88,24 @@ export interface SearchResponse {
   expansion_info: ExpansionInfo | null;
   debug_info: QueryDebugInfo | null;
   did_you_mean: string | null;
-  error_code: string | null;
-  error_message: string | null;
+  error_code?: string | null;
+  error_message?: string | null;
 }
+
+// backend search options controlled by the advanced search panel
+export interface BackendOptions {
+  use_expansion: boolean;
+  use_pagerank_boost: boolean;
+  use_stemming: boolean;
+  use_hybrid: boolean;
+}
+
+export const defaultBackendOptions: BackendOptions = {
+  use_expansion: false,
+  use_pagerank_boost: false,
+  use_stemming: true,
+  use_hybrid: true,
+};
 
 export interface SearchFilters {
   panel?: string;
@@ -92,8 +114,6 @@ export interface SearchFilters {
   device_class?: string;
   limit?: number;
   offset?: number;
-  sort_by?: string;
-  snapshot_cutoff?: string;
   use_expansion?: boolean;
   use_pagerank_boost?: boolean;
   include_facets?: boolean;
@@ -103,6 +123,9 @@ export interface SearchFilters {
   pagerank_weight?: number;
   date_from?: string;
   date_to?: string;
+  sort_by?: string;
+  page_size?: number;
+  snapshot_cutoff?: string;
 }
 
 // Autocomplete types
@@ -125,11 +148,15 @@ export interface DeviceLookupResponse {
   sponsor: string;
   product_code: string | null;
   panel: string | null;
+  panel_code: string | null;
   decision: string | null;
+  decision_code: string | null;
   decision_date: string | null;
   date_received: string | null;
   device_class: string | null;
   summary_text: string | null;
+
+  // structured extraction fields
   indications_for_use: string | null;
   device_description: string | null;
   materials: string[];
@@ -221,21 +248,23 @@ export interface Device {
   hasBiocompatibility: boolean;
   hasSoftware: boolean;
   hasElectricalSafety: boolean;
+  sponsor: string;
 }
 
-export interface BackendOptions {
-  use_expansion: boolean;
-  use_pagerank_boost: boolean;
-  use_stemming: boolean;
-  use_hybrid: boolean;
+// format iso date string to readable format like "may 15, 2023"
+function formatDate(isoDate: string | null): string {
+  if (!isoDate) return "";
+  try {
+    const d = new Date(isoDate + "T00:00:00");
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return isoDate;
+  }
 }
-
-export const defaultBackendOptions: BackendOptions = {
-  use_expansion: false,
-  use_pagerank_boost: false,
-  use_stemming: true,
-  use_hybrid: true,
-};
 
 /**
  * Transform backend SearchResultItem to frontend Device type
@@ -245,21 +274,26 @@ export function transformSearchResult(item: SearchResultItem): Device {
     id: item.submission_number,
     name: item.device_name,
     manufacturer: item.sponsor,
-    date: item.decision_date || '',
-    panel: item.panel || '',
-    pCode: item.product_code || '',
-    recalls: 0, // populated later from safety data
+    date: formatDate(item.decision_date),
+    panel: item.panel || "",
+    pCode: item.product_code || "",
+    recalls: item.recall_count ?? 0,
     availability: true,
-    snippet: item.snippet || '',
+    snippet:
+      item.indications_for_use &&
+      item.indications_for_use.length > (item.snippet?.length || 0)
+        ? item.indications_for_use
+        : item.snippet || "",
     relevanceScore: item.relevance_score,
     deviceClass: item.device_class,
     pagerankScore: item.pagerank_score,
-    materials: item.materials ?? [],
-    indicationsForUse: item.indications_for_use ?? null,
-    hasClinicalData: item.has_clinical_data ?? false,
-    hasSterilization: item.has_sterilization ?? false,
-    hasBiocompatibility: item.has_biocompatibility ?? false,
-    hasSoftware: item.has_software ?? false,
-    hasElectricalSafety: item.has_electrical_safety ?? false,
+    materials: item.materials || [],
+    indicationsForUse: item.indications_for_use,
+    hasClinicalData: item.has_clinical_data,
+    hasSterilization: item.has_sterilization,
+    hasBiocompatibility: item.has_biocompatibility,
+    hasSoftware: item.has_software,
+    hasElectricalSafety: item.has_electrical_safety,
+    sponsor: item.sponsor,
   };
 }

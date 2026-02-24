@@ -28,6 +28,8 @@ import {
   Edge,
   Background,
   Controls,
+  Handle,
+  Position,
   useNodesState,
   useEdgesState,
   MarkerType,
@@ -65,8 +67,11 @@ const DeviceNode = ({ data }: { data: { label: string; isCurrent: boolean } }) =
       _hover={{ borderColor: "brand.primary", backgroundColor: "brand.light" }}
       minWidth="120px"
       textAlign="center"
+      position="relative"
     >
+      <Handle type="target" position={Position.Top} style={{ opacity: 0, width: 1, height: 1 }} />
       {data.label}
+      <Handle type="source" position={Position.Bottom} style={{ opacity: 0, width: 1, height: 1 }} />
     </Box>
   );
 };
