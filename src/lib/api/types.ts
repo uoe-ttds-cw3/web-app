@@ -328,11 +328,7 @@ export function transformSearchResult(item: SearchResultItem): Device {
     pCode: item.product_code || "",
     recalls: item.recall_count ?? 0,
     availability: true,
-    snippet:
-      item.indications_for_use &&
-      item.indications_for_use.length > (item.snippet?.length || 0)
-        ? item.indications_for_use
-        : item.snippet || "",
+    snippet: item.snippet || "",
     relevanceScore: item.relevance_score,
     deviceClass: item.device_class,
     pagerankScore: item.pagerank_score,
