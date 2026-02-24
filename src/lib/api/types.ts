@@ -34,6 +34,14 @@ export interface SearchResultItem {
   // safety indicators from precomputed cache
   recall_count: number | null;
   adverse_event_count: number | null;
+
+  // transparency: where the snippet and retrieval came from
+  snippet_source: string | null;
+  retrieval_source: string | null;
+
+  // explains why this result matched the query
+  match_reason: string | null;
+  match_detail: string | null;
 }
 
 export interface QueryDebugInfo {
@@ -52,6 +60,18 @@ export interface QueryDebugInfo {
   dense_candidates: number;
   filtered_by_constraints: number;
   retrieval_time_ms: number;
+
+  // filter funnel counts
+  total_before_metadata_filters: number;
+  candidates_after_date_filter: number;
+  candidates_after_panel_filter: number;
+  candidates_after_class_filter: number;
+  candidates_after_decision_filter: number;
+  candidates_after_product_code_filter: number;
+
+  // query transformation transparency
+  removed_stopwords: string[];
+  query_transformations: Array<{ original: string; stemmed: string }>;
 }
 
 export interface FacetValue {
@@ -220,6 +240,30 @@ export interface SafetyProfileResponse {
   data_quality_note: string;
 }
 
+// device-specific safety data (k-number level, from bulk maude/recall cache)
+export interface DeviceSafetyEvent {
+  date: string;
+  type: string;
+  description: string;
+}
+
+export interface DeviceSafetyRecall {
+  event_number: string;
+  reason: string;
+  classification: string;
+  date: string;
+  firm: string;
+}
+
+export interface DeviceSafetyData {
+  submission_number: string;
+  event_count: number;
+  breakdown: Record<string, number>;
+  recent_events: DeviceSafetyEvent[];
+  recall_count: number;
+  recent_recalls: DeviceSafetyRecall[];
+}
+
 export interface SafetyComparisonResponse {
   product_codes: string[];
   profiles: Record<string, SafetyProfileResponse | null>;
@@ -249,6 +293,11 @@ export interface Device {
   hasSoftware: boolean;
   hasElectricalSafety: boolean;
   sponsor: string;
+  snippetSource: string | null;
+  retrievalSource: string | null;
+  adverseEvents: number | null;
+  matchReason: string | null;
+  matchDetail: string | null;
 }
 
 // format iso date string to readable format like "may 15, 2023"
@@ -295,5 +344,10 @@ export function transformSearchResult(item: SearchResultItem): Device {
     hasSoftware: item.has_software,
     hasElectricalSafety: item.has_electrical_safety,
     sponsor: item.sponsor,
+    snippetSource: item.snippet_source ?? null,
+    retrievalSource: item.retrieval_source ?? null,
+    adverseEvents: item.adverse_event_count ?? null,
+    matchReason: item.match_reason ?? null,
+    matchDetail: item.match_detail ?? null,
   };
 }

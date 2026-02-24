@@ -1,12 +1,13 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/api/queryKeys';
 import { apiFetch } from '@/lib/api/client';
-import type { DeviceLookupResponse, LineageResponse, SafetyProfileResponse } from '@/lib/api/types';
+import type { DeviceLookupResponse, LineageResponse, SafetyProfileResponse, DeviceSafetyData } from '@/lib/api/types';
 
 type DevicePageData = {
   device: DeviceLookupResponse | null;
   lineage: LineageResponse | null;
   safety: SafetyProfileResponse | null;
+  deviceSafety: DeviceSafetyData | null;
 };
 
 export const deviceQueryOptions = (id: string) =>

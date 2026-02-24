@@ -81,6 +81,7 @@ export default function DeviceDetailsPage() {
           device={data.device}
           lineage={data.lineage}
           safety={data.safety}
+          deviceSafety={data.deviceSafety ?? null}
         />
       )}
     </Box>

@@ -12,6 +12,8 @@ import {
   Stack,
   Text,
   Box,
+  HStack,
+  Badge,
   Spinner,
   Button,
   Collapsible,
@@ -20,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
-import type { BackendOptions } from "@/lib/api/types";
+import type { BackendOptions, QueryDebugInfo } from "@/lib/api/types";
 import { toaster } from "@/components/ui/Toaster";
 import { SideDrawer } from "@/features/search/components/SideDrawer";
 import { FaFilter, FaTimes } from "react-icons/fa";
@@ -574,6 +576,145 @@ export default function Home() {
                     </Box>
                   ))}
                 </Box>
+              )}
+
+              {/* collapsible search transparency / debug info */}
+              {data?.debug_info && (
+                <Collapsible.Root>
+                  <Collapsible.Trigger asChild>
+                    <Box
+                      as="button"
+                      fontSize="xs"
+                      color="ui.textMuted"
+                      cursor="pointer"
+                      _hover={{ color: "brand.primary" }}
+                      marginTop="1"
+                      marginBottom="1"
+                    >
+                      search details
+                    </Box>
+                  </Collapsible.Trigger>
+                  <Collapsible.Content>
+                    <Box
+                      marginTop="2"
+                      padding="3"
+                      borderRadius="8px"
+                      border="1px solid"
+                      borderColor="ui.borderLight"
+                      backgroundColor="ui.surface"
+                      fontSize="xs"
+                    >
+                      {/* query processing */}
+                      <Box marginBottom="3">
+                        <Text fontWeight="semibold" color="ui.text" marginBottom="1" fontSize="xs">
+                          query processing
+                        </Text>
+                        <HStack gap="1" flexWrap="wrap" marginBottom="1">
+                          {data.debug_info.processed_terms.map((term, i) => (
+                            <Badge
+                              key={i}
+                              size="sm"
+                              variant="subtle"
+                              colorPalette="green"
+                            >
+                              {term}
+                            </Badge>
+                          ))}
+                          {data.debug_info.removed_stopwords?.length > 0 &&
+                            data.debug_info.removed_stopwords.map((sw, i) => (
+                              <Badge
+                                key={`sw-${i}`}
+                                size="sm"
+                                variant="subtle"
+                                colorPalette="gray"
+                                textDecoration="line-through"
+                              >
+                                {sw}
+                              </Badge>
+                            ))}
+                        </HStack>
+                        {data.debug_info.query_transformations?.length > 0 && (
+                          <Box color="ui.textMuted" fontSize="xs">
+                            {data.debug_info.query_transformations.map((t, i) => (
+                              <Text key={i} display="inline" marginRight="3">
+                                {t.original} → {t.stemmed}
+                              </Text>
+                            ))}
+                          </Box>
+                        )}
+                      </Box>
+
+                      {/* retrieval stats */}
+                      <Box marginBottom="3">
+                        <Text fontWeight="semibold" color="ui.text" marginBottom="1" fontSize="xs">
+                          retrieval
+                        </Text>
+                        <Text color="ui.textMuted" fontSize="xs">
+                          found {data.debug_info.bm25_candidates} keyword matches
+                          and {data.debug_info.dense_candidates} semantic matches
+                          in {Math.round(data.debug_info.retrieval_time_ms)}ms
+                        </Text>
+                      </Box>
+
+                      {/* filter funnel - only if filters caused reductions */}
+                      {(() => {
+                        const d = data.debug_info as QueryDebugInfo;
+                        const stages: Array<{ label: string; count: number }> = [];
+                        const total = d.total_before_metadata_filters;
+
+                        // only build funnel if we have a starting count
+                        if (total > 0) {
+                          stages.push({ label: "candidates", count: total });
+
+                          const filters: Array<{ label: string; count: number }> = [
+                            { label: "after panel filter", count: d.candidates_after_panel_filter },
+                            { label: "after class filter", count: d.candidates_after_class_filter },
+                            { label: "after decision filter", count: d.candidates_after_decision_filter },
+                            { label: "after product code filter", count: d.candidates_after_product_code_filter },
+                            { label: "after date filter", count: d.candidates_after_date_filter },
+                          ];
+
+                          let prev = total;
+                          for (const f of filters) {
+                            // only show stages where the count actually changed
+                            if (f.count !== undefined && f.count !== prev) {
+                              stages.push(f);
+                              prev = f.count;
+                            }
+                          }
+                        }
+
+                        // only render if filtering actually removed something
+                        if (stages.length > 1) {
+                          return (
+                            <Box>
+                              <Text fontWeight="semibold" color="ui.text" marginBottom="1" fontSize="xs">
+                                filter funnel
+                              </Text>
+                              {stages.map((s, i) => (
+                                <HStack key={i} gap="2" marginBottom="0.5">
+                                  <Text
+                                    color="ui.textMuted"
+                                    fontSize="xs"
+                                    fontFamily="mono"
+                                    minW="5ch"
+                                    textAlign="right"
+                                  >
+                                    {s.count}
+                                  </Text>
+                                  <Text color="ui.textMuted" fontSize="xs">
+                                    {s.label}
+                                  </Text>
+                                </HStack>
+                              ))}
+                            </Box>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </Box>
+                  </Collapsible.Content>
+                </Collapsible.Root>
               )}
             </Box>
 

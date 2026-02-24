@@ -4,6 +4,7 @@ import Highlighter from "react-highlight-words";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { Tooltip } from "@/components/ui/Tooltip";
 import type { Device } from "@/lib/api/types";
 export type { Device };
 
@@ -65,15 +66,67 @@ export const DeviceSummaryCard = ({
             )}
           </Link>
         </Box>
+        {/* match reason badge - tells user why this result matched */}
+        {device.matchReason && (
+          <Tooltip
+            content={device.matchDetail || device.matchReason}
+            showArrow
+            openDelay={200}
+          >
+            <Badge variant="outline" colorPalette="blue" fontSize="xs" flexShrink={0} cursor="help">
+              {device.matchReason}
+            </Badge>
+          </Tooltip>
+        )}
+        {/* retrieval source badge - shows whether result came from keyword, semantic, or both */}
+        {device.retrievalSource && (
+          <Badge
+            variant="outline"
+            colorPalette={
+              device.retrievalSource === "keyword"
+                ? "green"
+                : device.retrievalSource === "semantic"
+                  ? "purple"
+                  : "teal"
+            }
+            fontSize="xs"
+            flexShrink={0}
+          >
+            {device.retrievalSource === "keyword"
+              ? "keyword match"
+              : device.retrievalSource === "semantic"
+                ? "semantic match"
+                : "keyword + semantic"}
+          </Badge>
+        )}
         {/* recall badge - renders when recall count available in search results */}
         {device.recalls !== undefined && device.recalls > 0 && (
           <Badge
             colorPalette={device.recalls >= 4 ? "red" : "yellow"}
             variant="solid"
             fontSize="xs"
+            flexShrink={0}
           >
             {device.recalls} recall{device.recalls !== 1 ? "s" : ""}
           </Badge>
+        )}
+        {/* adverse event badge - shows count from maude database */}
+        {device.adverseEvents != null && device.adverseEvents > 0 && (
+          <Tooltip
+            content="reported adverse events from FDA MAUDE database for devices with this product code"
+            showArrow
+            openDelay={200}
+          >
+            <Badge
+              colorPalette={device.adverseEvents >= 100 ? "red" : "orange"}
+              variant="solid"
+              fontSize="xs"
+              flexShrink={0}
+              cursor="help"
+            >
+              {device.adverseEvents} adverse event{device.adverseEvents !== 1 ? "s" : ""}
+            </Badge>
+          </Tooltip>
         )}
       </HStack>
 
@@ -232,21 +285,34 @@ export const DeviceSummaryCard = ({
       </Link>
 
       {device.snippet && (
-        <Box
-          fontSize="sm"
-          color="ui.textMuted"
-          userSelect="text"
-          cursor="text"
-          onDoubleClick={(e) => {
-            // re-search selected text on double-click
-            const selection = window.getSelection()?.toString().trim();
-            if (selection && selection.length >= 3) {
-              e.preventDefault();
-              router.push({ pathname: "/", query: { q: selection } });
-            }
-          }}
-        >
-          {searchQuery ? (
+        <Box>
+          {/* snippet source label - shows which field the snippet was extracted from */}
+          {device.snippetSource && (
+            <Text fontSize="xs" color="ui.textMuted" fontStyle="italic" mb="1">
+              {device.snippetSource === "indications_for_use"
+                ? "from indications for use"
+                : device.snippetSource === "device_description"
+                  ? "from device description"
+                  : device.snippetSource === "summary_text"
+                    ? "from summary"
+                    : null}
+            </Text>
+          )}
+          <Box
+            fontSize="sm"
+            color="ui.textMuted"
+            userSelect="text"
+            cursor="text"
+            onDoubleClick={(e) => {
+              // re-search selected text on double-click
+              const selection = window.getSelection()?.toString().trim();
+              if (selection && selection.length >= 3) {
+                e.preventDefault();
+                router.push({ pathname: "/", query: { q: selection } });
+              }
+            }}
+          >
+            {searchQuery ? (
             <Highlighter
               searchWords={searchQuery.split(/\s+/)}
               autoEscape
@@ -274,6 +340,7 @@ export const DeviceSummaryCard = ({
               </Box>
             </>
           )}
+          </Box>
         </Box>
       )}
 

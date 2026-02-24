@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { DeviceLookupResponse, LineageResponse, SafetyProfileResponse } from "@/lib/api/types";
+import type { DeviceLookupResponse, LineageResponse, SafetyProfileResponse, DeviceSafetyData } from "@/lib/api/types";
 
 const API_BASE = process.env.API_BASE || "http://kotegawa.org:41592";
 
@@ -7,6 +7,7 @@ type DevicePageData = {
   device: DeviceLookupResponse | null;
   lineage: LineageResponse | null;
   safety: SafetyProfileResponse | null;
+  deviceSafety: DeviceSafetyData | null;
 };
 
 export default async function handler(
@@ -32,19 +33,24 @@ export default async function handler(
     }
     const device: DeviceLookupResponse = await deviceRes.json();
 
-    // step 2: fetch lineage and safety in parallel
-    const [lineage, safety] = await Promise.all([
+    // step 2: fetch lineage, safety, and device-specific safety in parallel
+    const [lineage, safety, deviceSafety] = await Promise.all([
       // lineage fetch (may 404 if not in citation graph)
       fetch(`${API_BASE}/api/device/${submissionNumber}/lineage`)
         .then(res => res.ok ? res.json() as Promise<LineageResponse> : null)
         .catch(() => null),
 
-      // safety fetch (may 503 if openfda down, needs product_code from device)
+      // product-code safety fetch (may 503 if openfda down, needs product_code from device)
       device.product_code
         ? fetch(`${API_BASE}/api/device/${device.product_code}/safety`)
             .then(res => res.ok ? res.json() as Promise<SafetyProfileResponse> : null)
             .catch(() => null)
         : Promise.resolve(null),
+
+      // device-specific safety from bulk maude/recall cache
+      fetch(`${API_BASE}/api/device/${submissionNumber}/device-safety`)
+        .then(res => res.ok ? res.json() as Promise<DeviceSafetyData> : null)
+        .catch(() => null),
     ]);
 
     // provide defaults for null fields in device response
@@ -71,6 +77,7 @@ export default async function handler(
       device: transformedDevice,
       lineage,
       safety,
+      deviceSafety,
     });
   } catch (error) {
     console.error("Device lookup error:", error);
