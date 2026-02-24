@@ -73,14 +73,16 @@ export const NavBar = ({
   // when search facets are provided, only show panels that appear in the results
   // and use the search-scoped counts instead of total index counts
   const categories = searchFacets
-    ? allCategories
-        .filter((cat) => searchFacets.some((f) => f.value === cat.id))
-        .map((cat) => {
-          const facet = searchFacets.find((f) => f.value === cat.id);
-          return { ...cat, deviceCount: facet?.count ?? cat.deviceCount };
-        })
-        .sort((a, b) => b.deviceCount - a.deviceCount)
-    : allCategories;
+  ? allCategories
+      .filter((cat) => searchFacets.some((f) => f.value === cat.id))
+      .map((cat) => {
+        const facet = searchFacets.find((f) => f.value === cat.id);
+        return { ...cat, deviceCount: facet?.count ?? cat.deviceCount };
+      })
+      .sort((a, b) => b.deviceCount - a.deviceCount)
+  : selectedCategory
+  ? allCategories.filter((cat) => cat.id === selectedCategory)
+  : allCategories;
 
   return (
     <Box padding="24px 0">
@@ -100,6 +102,18 @@ export const NavBar = ({
           Error:{" "}
           {error instanceof Error ? error.message : "Failed to load categories"}
         </Text>
+      )}
+
+      {selectedCategory && (!searchFacets || searchFacets.length === 0) && (
+        <Button
+          size="sm"
+          variant="ghost"
+          padding="8px 16px"
+          marginBottom="8px"
+          onClick={() => onCategorySelect?.("")}
+        >
+          Clear filter
+        </Button>
       )}
 
       <Flex gap="6px" wrap="wrap">
