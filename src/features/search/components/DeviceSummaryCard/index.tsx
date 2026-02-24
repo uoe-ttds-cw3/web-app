@@ -99,21 +99,10 @@ export const DeviceSummaryCard = ({
                 : "keyword + semantic"}
           </Badge>
         )}
-        {/* recall badge - renders when recall count available in search results */}
-        {device.recalls !== undefined && device.recalls > 0 && (
-          <Badge
-            colorPalette={device.recalls >= 4 ? "red" : "yellow"}
-            variant="solid"
-            fontSize="xs"
-            flexShrink={0}
-          >
-            {device.recalls} recall{device.recalls !== 1 ? "s" : ""}
-          </Badge>
-        )}
-        {/* adverse event badge - shows count from maude database */}
+        {/* adverse event badge - device-specific from maude k-number cache */}
         {device.adverseEvents != null && device.adverseEvents > 0 && (
           <Tooltip
-            content="reported adverse events from FDA MAUDE database for devices with this product code"
+            content={`${device.adverseEvents.toLocaleString()} reported adverse events for this device (FDA MAUDE)`}
             showArrow
             openDelay={200}
           >
@@ -124,7 +113,7 @@ export const DeviceSummaryCard = ({
               flexShrink={0}
               cursor="help"
             >
-              {device.adverseEvents} adverse event{device.adverseEvents !== 1 ? "s" : ""}
+              {device.adverseEvents.toLocaleString()} adverse events
             </Badge>
           </Tooltip>
         )}
