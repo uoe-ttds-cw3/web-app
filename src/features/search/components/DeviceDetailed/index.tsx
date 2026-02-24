@@ -319,7 +319,7 @@ export const DeviceDetailed = ({
   if (device.date_received) {
     const year = parseInt(device.date_received.slice(0, 4), 10);
 
-    if (year >= 2000) {
+    if (year >= 2002) {
       yearpart = device.date_received.slice(2, 4).replace(/^0/, "");
     }
   }
