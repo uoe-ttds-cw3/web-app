@@ -10,22 +10,13 @@ export default async function handler(
   const {
     q,
     limit = "10",
-    offset,
     panel,
     product_code,
     decision,
     device_class,
-    date_from,
-    date_to,
     use_expansion,
     use_pagerank_boost,
-    use_stemming,
-    use_hybrid,
-    remove_stopwords,
-    pagerank_weight,
-    include_facets,
-    sort_by,
-    snapshot_cutoff
+    include_facets
   } = req.query;
 
   if (!q || typeof q !== "string") {
@@ -37,14 +28,9 @@ export default async function handler(
     limit: String(limit),
   });
 
-  if (offset && typeof offset === "string") params.append("offset", offset);
   if (panel && typeof panel === "string") params.append("panel", panel);
   if (product_code && typeof product_code === "string")
     params.append("product_code", product_code);
-  if (date_from && typeof date_from === "string")
-    params.append("date_from", date_from);
-  if (date_to && typeof date_to === "string")
-    params.append("date_to", date_to);
   if (decision && typeof decision === "string")
     params.append("decision", decision);
   if (device_class && typeof device_class === "string")
@@ -53,20 +39,8 @@ export default async function handler(
     params.append("use_expansion", "true");
   if (use_pagerank_boost === "true")
     params.append("use_pagerank_boost", "true");
-  if (use_stemming === "false")
-    params.append("use_stemming", "false");
-  if (use_hybrid === "false")
-    params.append("use_hybrid", "false");
-  if (remove_stopwords === "false")
-    params.append("remove_stopwords", "false");
-  if (pagerank_weight && typeof pagerank_weight === "string")
-    params.append("pagerank_weight", pagerank_weight);
   if (include_facets === "true")
     params.append("include_facets", "true");
-  if (sort_by && typeof sort_by === "string")
-    params.append("sort_by", sort_by);
-  if (snapshot_cutoff && typeof snapshot_cutoff === "string")
-    params.append("snapshot_cutoff", snapshot_cutoff);
 
   try {
     const response = await fetch(`${API_BASE}/api/search?${params.toString()}`);
@@ -79,7 +53,7 @@ export default async function handler(
 
     const data: SearchResponse = await response.json();
 
-    // transform null fields to defaults
+    // Transform null fields to defaults
     const transformedData: SearchResponse = {
       ...data,
       results: data.results.map(result => ({
@@ -92,19 +66,7 @@ export default async function handler(
         decision_code: result.decision_code ?? '',
         decision_date: result.decision_date ?? '',
         device_class: result.device_class ?? '',
-        indications_for_use: result.indications_for_use ?? null,
-        device_description: result.device_description ?? null,
-        materials: result.materials ?? [],
-        standards_referenced: result.standards_referenced ?? [],
-        has_clinical_data: result.has_clinical_data ?? false,
-        has_sterilization: result.has_sterilization ?? false,
-        has_biocompatibility: result.has_biocompatibility ?? false,
-        has_software: result.has_software ?? false,
-        has_electrical_safety: result.has_electrical_safety ?? false,
-        recall_count: result.recall_count ?? null,
-        adverse_event_count: result.adverse_event_count ?? null,
       })),
-      did_you_mean: data.did_you_mean ?? null,
     };
 
     return res.status(200).json(transformedData);

@@ -30,6 +30,7 @@ import {
   Controls,
   useNodesState,
   useEdgesState,
+  MarkerType,
   type NodeTypes,
 } from "@xyflow/react";
 import dagre from "dagre";
@@ -176,8 +177,10 @@ export const DeviceDetailed = ({
         id: `${predicate}-${device.submission_number}`,
         source: predicate,
         target: device.submission_number,
+        type: "smoothstep",
         animated: false,
-        style: { stroke: "var(--chakra-colors-brand-primary)" },
+        style: { stroke: "#1a5632", strokeWidth: 2 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: "#1a5632", width: 20, height: 20 },
       });
     });
 
@@ -194,8 +197,10 @@ export const DeviceDetailed = ({
         id: `more-predicates-${device.submission_number}`,
         source: "more-predicates",
         target: device.submission_number,
+        type: "smoothstep",
         animated: false,
-        style: { stroke: "#9CA3AF", strokeDasharray: "5,5" },
+        style: { stroke: "#9CA3AF", strokeWidth: 2, strokeDasharray: "5,5" },
+        markerEnd: { type: MarkerType.ArrowClosed, color: "#9CA3AF", width: 20, height: 20 },
       });
     }
 
@@ -216,8 +221,10 @@ export const DeviceDetailed = ({
         id: `${device.submission_number}-${citation}`,
         source: device.submission_number,
         target: citation,
+        type: "smoothstep",
         animated: false,
-        style: { stroke: "var(--chakra-colors-brand-primary)" },
+        style: { stroke: "#1a5632", strokeWidth: 2 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: "#1a5632", width: 20, height: 20 },
       });
     });
 
@@ -234,8 +241,10 @@ export const DeviceDetailed = ({
         id: `${device.submission_number}-more-citations`,
         source: device.submission_number,
         target: "more-citations",
+        type: "smoothstep",
         animated: false,
-        style: { stroke: "#9CA3AF", strokeDasharray: "5,5" },
+        style: { stroke: "#9CA3AF", strokeWidth: 2, strokeDasharray: "5,5" },
+        markerEnd: { type: MarkerType.ArrowClosed, color: "#9CA3AF", width: 20, height: 20 },
       });
     }
 
@@ -244,6 +253,18 @@ export const DeviceDetailed = ({
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // compute pan bounds so users can't scroll into the void
+  const translateExtent = useMemo((): [[number, number], [number, number]] => {
+    if (initialNodes.length === 0) return [[-200, -200], [200, 200]];
+    const pad = 200;
+    const xs = initialNodes.map((n) => n.position.x);
+    const ys = initialNodes.map((n) => n.position.y);
+    return [
+      [Math.min(...xs) - pad, Math.min(...ys) - pad],
+      [Math.max(...xs) + 300 + pad, Math.max(...ys) + 100 + pad],
+    ];
+  }, [initialNodes]);
 
   // handle node click to navigate to device detail page
   const onNodeClick = useCallback(
@@ -791,6 +812,8 @@ export const DeviceDetailed = ({
                     fitView
                     minZoom={0.5}
                     maxZoom={1.5}
+                    translateExtent={translateExtent}
+                    nodesDraggable={false}
                     proOptions={{ hideAttribution: true }}
                   >
                     <Background />

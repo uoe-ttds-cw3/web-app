@@ -230,7 +230,7 @@ export const SideDrawer = () => {
                               {selectedDevice.pCode}
                             </Table.Cell>
                             <Table.Cell p={4}>
-                              {selectedDevice.sponsor}
+                              {selectedDevice.manufacturer}
                             </Table.Cell>
                             <Table.Cell p={4}>{selectedDevice.date}</Table.Cell>
                             <Table.Cell p={4} textAlign="end">

@@ -4,28 +4,8 @@ import Highlighter from "react-highlight-words";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-
-export type Device = {
-  id: string;
-  name: string;
-  manufacturer: string;
-  date: string;
-  panel: string;
-  pCode: string;
-  recalls: number;
-  availability: boolean;
-  snippet: string;
-  relevanceScore: number;
-  deviceClass: string | null;
-  pagerankScore: number | null;
-  materials: string[];
-  indicationsForUse: string | null;
-  hasClinicalData: boolean;
-  hasSterilization: boolean;
-  hasBiocompatibility: boolean;
-  hasSoftware: boolean;
-  hasElectricalSafety: boolean;
-};
+import type { Device } from "@/lib/api/types";
+export type { Device };
 
 type DeviceSummaryCardProps = {
   device: Device;

@@ -20,6 +20,15 @@ export function Header() {
   };
 
   const handleSearch = (newQuery: string, tags?: Array<{ id: string; type: string; value: string }>, backendOptions?: BackendOptions) => {
+    // check for submission number filter - navigate directly to device page
+    const submissionTag = tags?.find(
+      (tag) => tag.type === "Submission No." && tag.value,
+    );
+    if (submissionTag) {
+      router.push(`/devices/${submissionTag.value.toUpperCase()}`);
+      return;
+    }
+
     const queryParams: Record<string, string> = { q: newQuery };
 
     if (tags) {
