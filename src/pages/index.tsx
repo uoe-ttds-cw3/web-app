@@ -317,7 +317,7 @@ export default function Home() {
         />
       </Box>
       {!query && results.length === 0 && (
-        <StartSearching onSuggest={handleSearch} />
+      <StartSearching onSuggest={handleSearch} selectedCategory={panel} />
       )}
 
       {isLoading && (
