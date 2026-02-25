@@ -53,14 +53,20 @@ export const DeviceSummaryCard = ({
       borderColor="ui.borderLight"
       marginBottom={{ base: "3", md: "4" }}
     >
-      <HStack alignItems="flex-start" marginBottom="3">
+      <HStack
+        alignItems="flex-start"
+        marginBottom="3"
+        flexWrap={{ base: "wrap", md: "nowrap" }}
+        gap="2"
+        width="100%"
+      >
         <Box
           fontWeight="bold"
           fontSize={{ base: "md", md: "lg" }}
           color="brand.primary"
           _hover={{ textDecoration: "underline" }}
           display="block"
-          flex="1"
+          flex={{ base: "1 1 100%", md: "1" }}
           lineClamp={{ base: 3, md: 2 }}
         >
           <Link href={`/devices/${device.id}`} legacyBehavior>
