@@ -1,31 +1,19 @@
-import { Box, HStack, Text, Checkbox, Badge, Link as ChakraLink } from "@chakra-ui/react";
+import {
+  Box,
+  HStack,
+  Text,
+  Checkbox,
+  Badge,
+  Link as ChakraLink,
+} from "@chakra-ui/react";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-
-export type Device = {
-  id: string;
-  name: string;
-  manufacturer: string;
-  date: string;
-  panel: string;
-  pCode: string;
-  recalls: number;
-  availability: boolean;
-  snippet: string;
-  relevanceScore: number;
-  deviceClass: string | null;
-  pagerankScore: number | null;
-  materials: string[];
-  indicationsForUse: string | null;
-  hasClinicalData: boolean;
-  hasSterilization: boolean;
-  hasBiocompatibility: boolean;
-  hasSoftware: boolean;
-  hasElectricalSafety: boolean;
-};
+import { Tooltip } from "@/components/ui/Tooltip";
+import type { Device } from "@/lib/api/types";
+export type { Device };
 
 type DeviceSummaryCardProps = {
   device: Device;
@@ -42,7 +30,13 @@ export const DeviceSummaryCard = ({
 }: DeviceSummaryCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const router = useRouter();
-
+  const tooltipProps = {
+    bg: "ui.background",
+    color: "ui.text",
+    px: 2,
+    py: 1,
+    borderRadius: "md",
+  };
   const isSelected = selectedDevices.some((d) => d.id === device.id);
 
   const shouldTruncate = device.snippet && device.snippet.length > 200;
@@ -53,16 +47,22 @@ export const DeviceSummaryCard = ({
   return (
     <Box
       backgroundColor="ui.surface"
-      padding={{ base: "3", md: "4" }}
+      padding={{ base: "4", md: "5" }}
       borderRadius="12px"
       border="1px solid"
       borderColor="ui.borderLight"
-      marginBottom="3"
+      marginBottom={{ base: "3", md: "4" }}
     >
-      <HStack alignItems="center" marginBottom="2">
+      <HStack
+        alignItems="flex-start"
+        marginBottom="3"
+        flexWrap={{ base: "wrap", md: "nowrap" }}
+        gap="2"
+        width="100%"
+      >
         <Box
           fontWeight="bold"
-          fontSize="lg"
+          fontSize={{ base: "md", md: "lg" }}
           color="brand.primary"
           _hover={{ textDecoration: "underline" }}
           display="block"
@@ -86,78 +86,131 @@ export const DeviceSummaryCard = ({
             )}
           </Link>
         </Box>
-        {/* recall badge - renders when recall count available in search results */}
-        {device.recalls !== undefined && device.recalls > 0 && (
-          <Badge
-            colorPalette={device.recalls >= 4 ? "red" : "yellow"}
-            variant="solid"
-            fontSize="xs"
+        {/* match reason badge - tells user why this result matched */}
+        {device.matchReason && (
+          <Tooltip
+            content={device.matchDetail || device.matchReason}
+            showArrow
+            openDelay={200}
+            contentProps={tooltipProps}
           >
-            {device.recalls} recall{device.recalls !== 1 ? "s" : ""}
+            <Badge
+              variant="outline"
+              colorPalette="blue"
+              fontSize="xs"
+              flexShrink={0}
+              padding="0 0.25rem"
+              cursor="help"
+            >
+              {device.matchReason}
+            </Badge>
+          </Tooltip>
+        )}
+        {/* retrieval source badge - shows whether result came from keyword, semantic, or both */}
+        {device.retrievalSource && (
+          <Badge
+            variant="outline"
+            colorPalette={
+              device.retrievalSource === "keyword"
+                ? "green"
+                : device.retrievalSource === "semantic"
+                  ? "purple"
+                  : "teal"
+            }
+            fontSize="xs"
+            flexShrink={0}
+            padding="0 0.25rem"
+          >
+            {device.retrievalSource === "keyword"
+              ? "Keyword match"
+              : device.retrievalSource === "semantic"
+                ? "Semantic match"
+                : "Keyword & semantic match"}
           </Badge>
+        )}
+        {/* adverse event badge - device-specific from maude k-number cache */}
+        {device.adverseEvents != null && device.adverseEvents > 0 && (
+          <Tooltip
+            content={`${device.adverseEvents.toLocaleString()} reported adverse events for this device (FDA MAUDE)`}
+            showArrow
+            openDelay={200}
+            contentProps={tooltipProps}
+          >
+            <Badge
+              colorPalette={device.adverseEvents >= 100 ? "red" : "orange"}
+              variant="solid"
+              fontSize="xs"
+              flexShrink={0}
+              padding="0 0.25rem"
+              cursor="help"
+            >
+              {device.adverseEvents.toLocaleString()} Adverse Events
+            </Badge>
+          </Tooltip>
         )}
       </HStack>
 
-      <HStack fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted" gap={{ base: "2", md: "3" }} flexWrap="wrap" mb="2">
-        {device.manufacturer && (
-          <Text>
-            Manufacturer:{" "}
-            <Box
-              as="span"
-              color="brand.primary"
-              cursor="pointer"
-              _hover={{ textDecoration: "underline" }}
-              onClick={() => router.push({ pathname: "/", query: { q: device.manufacturer } })}
-            >
-              {device.manufacturer}
-            </Box>
-          </Text>
-        )}
-
-        {device.date && <Text>|</Text>}
-        {device.date && (
-          <Text>
-            Date:{" "}
-            <Box as="span" color="ui.text">
-              {device.date}
-            </Box>
-          </Text>
-        )}
-
-        {device.panel && <Text>|</Text>}
-        {device.panel && (
-          <Text>
-            Panel:{" "}
-            <Box as="span" color="ui.text">
-              {device.panel}
-            </Box>
-          </Text>
-        )}
-
-        {device.deviceClass && <Text>|</Text>}
-        {device.deviceClass && (
-          <Text>
-            Class:{" "}
-            <Box as="span" color="ui.text">
-              {device.deviceClass}
-            </Box>
-          </Text>
-        )}
-
-        {device.pCode && <Text>|</Text>}
-        {device.pCode && (
-          <Text>
-            Product Code:{" "}
-            <Box as="span" color="ui.text">
-              {device.pCode}
-            </Box>
-          </Text>
-        )}
-
-        {/* fda 510(k) link */}
-        {device.id && (
-          <>
-            <Text>|</Text>
+      <Box fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted" mb="3">
+        {/* stacked on mobile, inline with pipes on desktop */}
+        <Box
+          display={{ base: "flex", md: "none" }}
+          flexDirection="column"
+          gap="1"
+        >
+          {device.manufacturer && (
+            <Text>
+              Manufacturer:{" "}
+              <Box
+                as="span"
+                color="brand.primary"
+                cursor="pointer"
+                _hover={{ textDecoration: "underline" }}
+                onClick={() =>
+                  router.push({
+                    pathname: "/",
+                    query: { q: device.manufacturer },
+                  })
+                }
+              >
+                {device.manufacturer}
+              </Box>
+            </Text>
+          )}
+          {device.date && (
+            <Text>
+              Date:{" "}
+              <Box as="span" color="ui.text">
+                {device.date}
+              </Box>
+            </Text>
+          )}
+          <HStack gap="3" flexWrap="wrap">
+            {device.panel && (
+              <Text>
+                Panel:{" "}
+                <Box as="span" color="ui.text">
+                  {device.panel}
+                </Box>
+              </Text>
+            )}
+            {device.deviceClass && (
+              <Text>
+                Class:{" "}
+                <Box as="span" color="ui.text">
+                  {device.deviceClass}
+                </Box>
+              </Text>
+            )}
+            {device.pCode && (
+              <Text>
+                Code:{" "}
+                <Box as="span" color="ui.text">
+                  {device.pCode}
+                </Box>
+              </Text>
+            )}
+          </HStack>
+          {device.id && (
             <ChakraLink
               href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${device.id}`}
               target="_blank"
@@ -169,9 +222,84 @@ export const DeviceSummaryCard = ({
             >
               View on FDA ↗
             </ChakraLink>
-          </>
-        )}
-      </HStack>
+          )}
+        </Box>
+
+        {/* desktop: inline with pipe separators */}
+        <HStack display={{ base: "none", md: "flex" }} gap="3" flexWrap="wrap">
+          {device.manufacturer && (
+            <Text>
+              Manufacturer:{" "}
+              <Box
+                as="span"
+                color="brand.primary"
+                cursor="pointer"
+                _hover={{ textDecoration: "underline" }}
+                onClick={() =>
+                  router.push({
+                    pathname: "/",
+                    query: { q: device.manufacturer },
+                  })
+                }
+              >
+                {device.manufacturer}
+              </Box>
+            </Text>
+          )}
+          {device.date && <Text>|</Text>}
+          {device.date && (
+            <Text>
+              Date:{" "}
+              <Box as="span" color="ui.text">
+                {device.date}
+              </Box>
+            </Text>
+          )}
+          {device.panel && <Text>|</Text>}
+          {device.panel && (
+            <Text>
+              Panel:{" "}
+              <Box as="span" color="ui.text">
+                {device.panel}
+              </Box>
+            </Text>
+          )}
+          {device.deviceClass && <Text>|</Text>}
+          {device.deviceClass && (
+            <Text>
+              Class:{" "}
+              <Box as="span" color="ui.text">
+                {device.deviceClass}
+              </Box>
+            </Text>
+          )}
+          {device.pCode && <Text>|</Text>}
+          {device.pCode && (
+            <Text>
+              Product Code:{" "}
+              <Box as="span" color="ui.text">
+                {device.pCode}
+              </Box>
+            </Text>
+          )}
+          {device.id && (
+            <>
+              <Text>|</Text>
+              <ChakraLink
+                href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${device.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                color="brand.primary"
+                fontSize="xs"
+                textDecoration="underline"
+                _hover={{ opacity: 0.8 }}
+              >
+                View on FDA ↗
+              </ChakraLink>
+            </>
+          )}
+        </HStack>
+      </Box>
 
       {/* feature badges - only show flags that are true */}
       {(device.hasClinicalData ||
@@ -179,30 +307,30 @@ export const DeviceSummaryCard = ({
         device.hasBiocompatibility ||
         device.hasSoftware ||
         device.hasElectricalSafety) && (
-        <HStack gap="2" flexWrap="wrap" mb="2">
+        <HStack gap="2" flexWrap="wrap" mb="3">
           {device.hasClinicalData && (
             <Badge variant="subtle" colorPalette="gray" fontSize="xs">
-              clinical data
+              Clinical data
             </Badge>
           )}
           {device.hasSterilization && (
             <Badge variant="subtle" colorPalette="gray" fontSize="xs">
-              sterilization
+              Sterilization
             </Badge>
           )}
           {device.hasBiocompatibility && (
             <Badge variant="subtle" colorPalette="gray" fontSize="xs">
-              biocompatibility
+              Biocompatibility
             </Badge>
           )}
           {device.hasSoftware && (
             <Badge variant="subtle" colorPalette="gray" fontSize="xs">
-              software
+              Software
             </Badge>
           )}
           {device.hasElectricalSafety && (
             <Badge variant="subtle" colorPalette="gray" fontSize="xs">
-              electrical safety
+              Electrical safety
             </Badge>
           )}
         </HStack>
@@ -210,7 +338,10 @@ export const DeviceSummaryCard = ({
 
       {/* materials */}
       {device.materials.length > 0 && (
-        <Text fontSize="sm" color="ui.textMuted" mb="2">
+        <Text fontSize="sm" color="ui.textMuted" mb="3">
+          <Box as="span" fontWeight="medium">
+            Materials:
+          </Box>{" "}
           {device.materials.join(" · ")}
         </Text>
       )}
@@ -222,7 +353,7 @@ export const DeviceSummaryCard = ({
           color="brand.primary"
           cursor="pointer"
           _hover={{ textDecoration: "underline" }}
-          mb="2"
+          mb="3"
           display="block"
         >
           View safety data &rarr;
@@ -230,33 +361,46 @@ export const DeviceSummaryCard = ({
       </Link>
 
       {device.snippet && (
-        <Box
-          fontSize="sm"
-          color="ui.textMuted"
-          userSelect="text"
-          cursor="text"
-          onDoubleClick={(e) => {
-            // re-search selected text on double-click
-            const selection = window.getSelection()?.toString().trim();
-            if (selection && selection.length >= 3) {
-              e.preventDefault();
-              router.push({ pathname: "/", query: { q: selection } });
-            }
-          }}
-        >
-          {searchQuery ? (
-            <Highlighter
-              searchWords={searchQuery.split(/\s+/)}
-              autoEscape
-              textToHighlight={displaySnippet}
-              highlightStyle={{
-                fontWeight: "bold",
-                backgroundColor: "#FFEB3B80",
-              }}
-            />
-          ) : (
-            <Text>{displaySnippet}</Text>
+        <Box>
+          {/* snippet source label - shows which field the snippet was extracted from */}
+          {device.snippetSource && (
+            <Text fontSize="xs" color="ui.textMuted" fontStyle="italic" mb="1">
+              {device.snippetSource === "indications_for_use"
+                ? "From indications for use"
+                : device.snippetSource === "device_description"
+                  ? "From device description"
+                  : device.snippetSource === "summary_text"
+                    ? "From summary"
+                    : null}
+            </Text>
           )}
+          <Box
+            fontSize="sm"
+            color="ui.textMuted"
+            userSelect="text"
+            cursor="text"
+            onDoubleClick={(e) => {
+              // re-search selected text on double-click
+              const selection = window.getSelection()?.toString().trim();
+              if (selection && selection.length >= 3) {
+                e.preventDefault();
+                router.push({ pathname: "/", query: { q: selection } });
+              }
+            }}
+          >
+            {searchQuery ? (
+              <Highlighter
+                searchWords={searchQuery.split(/\s+/)}
+                autoEscape
+                textToHighlight={displaySnippet}
+                highlightStyle={{
+                  fontWeight: "bold",
+                  backgroundColor: "#FFEB3B80",
+                }}
+              />
+            ) : (
+              <Text>{displaySnippet}</Text>
+            )}
 
           {shouldTruncate && !expanded && (
             <>
@@ -272,6 +416,7 @@ export const DeviceSummaryCard = ({
               </Box>
             </>
           )}
+        </Box>
         </Box>
       )}
 

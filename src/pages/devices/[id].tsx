@@ -65,7 +65,7 @@ export default function DeviceDetailsPage() {
   }
 
   return (
-    <Box padding={{ base: "4px", md: "20px" }}>
+    <Box padding={{ base: "12px", md: "20px" }}>
       <Link
         color="brand.primary"
         mb="4"
@@ -81,6 +81,7 @@ export default function DeviceDetailsPage() {
           device={data.device}
           lineage={data.lineage}
           safety={data.safety}
+          deviceSafety={data.deviceSafety ?? null}
         />
       )}
     </Box>

@@ -51,7 +51,10 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
 
   // group suggestions by source type
   const deviceSuggestions = suggestions.filter(
-    (s) => s.source === "device_name" || s.source === "product_code" || s.source === "device_term",
+    (s) =>
+      s.source === "device_name" ||
+      s.source === "product_code" ||
+      s.source === "device_term",
   );
   const manufacturerSuggestions = suggestions.filter(
     (s) => s.source === "manufacturer",
@@ -198,13 +201,14 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         </Box>
       </Box>
 
-      <Box position="absolute" right="0" top="100%">
+      <Box position="absolute" right="0" top="100%" marginBottom="4px">
         <Box
           as="button"
           fontSize="xs"
           color="brand.primary"
           textDecoration="underline"
           cursor="pointer"
+          padding="8px 4px"
           onClick={() => {
             setAdvancedPanelOpen(true);
             setFilterFocused(false);

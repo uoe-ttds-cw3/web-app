@@ -28,13 +28,13 @@ const DrawerContainer = forwardRef<HTMLDivElement, StackProps>(
         position="fixed"
         bottom="20px"
         right="0"
-        w="80px"
-        h="80px"
+        w="52px"
+        h="52px"
         backgroundColor="whiteAlpha.700"
         padding="2px"
         borderLeft="1px solid"
-        borderTopLeftRadius="80px"
-        borderBottomLeftRadius="80px"
+        borderTopLeftRadius="52px"
+        borderBottomLeftRadius="52px"
         borderColor="gray.200"
         shadow="md"
         zIndex="1000"
@@ -112,13 +112,15 @@ export const SideDrawer = () => {
             <Drawer.Trigger asChild>
               <Button
                 variant="ghost"
-                size="lg"
+                size="sm"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 color="green.700"
-                fontSize="xl"
+                fontSize="md"
                 title="Open Comparison"
+                padding="0"
+                minW="auto"
                 onClick={() => {
                   // track comparison drawer opened
                   posthog.capture("comparison_drawer_opened", {
@@ -228,7 +230,7 @@ export const SideDrawer = () => {
                               {selectedDevice.pCode}
                             </Table.Cell>
                             <Table.Cell p={4}>
-                              {selectedDevice.sponsor}
+                              {selectedDevice.manufacturer}
                             </Table.Cell>
                             <Table.Cell p={4}>{selectedDevice.date}</Table.Cell>
                             <Table.Cell p={4} textAlign="end">
