@@ -68,6 +68,7 @@ export const DeviceSummaryCard = ({
           display="block"
           flex="1"
           lineClamp={2}
+          cursor="pointer"
         >
           <Link href={`/devices/${device.id}`} legacyBehavior>
             {searchQuery ? (
@@ -276,6 +277,7 @@ export const DeviceSummaryCard = ({
 
       <Box mt="4">
         <Checkbox.Root
+          cursor="pointer"
           checked={isSelected}
           onCheckedChange={() => onToggle(device)}
         >
