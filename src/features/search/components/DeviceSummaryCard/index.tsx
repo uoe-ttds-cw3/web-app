@@ -8,11 +8,10 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { Tooltip } from "@/components/ui/Tooltip";
 import type { Device } from "@/lib/api/types";
+import Link from "next/link";
 export type { Device };
 
 type DeviceSummaryCardProps = {
@@ -70,7 +69,7 @@ export const DeviceSummaryCard = ({
           lineClamp={2}
           cursor="pointer"
         >
-          <Link href={`/devices/${device.id}`} legacyBehavior>
+          <Link href={`/devices/${device.id}`}>
             {searchQuery ? (
               <Highlighter
                 searchWords={searchQuery.split(/\s+/)}
@@ -227,23 +226,18 @@ export const DeviceSummaryCard = ({
 
         {/* desktop: inline with pipe separators */}
         <HStack display={{ base: "none", md: "flex" }} gap="3" flexWrap="wrap">
-          {device.manufacturer && (
+          {device.sponsor && (
             <Text>
               Manufacturer:{" "}
-              <Box
-                as="span"
+              <ChakraLink
+                asChild
                 color="brand.primary"
-                cursor="pointer"
-                _hover={{ textDecoration: "underline" }}
-                onClick={() =>
-                  router.push({
-                    pathname: "/",
-                    query: { q: device.manufacturer },
-                  })
-                }
+                textDecoration="underline"
               >
-                {device.manufacturer}
-              </Box>
+                <Link href={`/q=${device.sponsor}`} color="brand.primary">
+                  {device.sponsor}
+                </Link>
+              </ChakraLink>
             </Text>
           )}
           {device.date && <Text>|</Text>}
@@ -346,19 +340,9 @@ export const DeviceSummaryCard = ({
         </Text>
       )}
 
-      <Link href={`/devices/${device.id}`} legacyBehavior>
-        <Box
-          as="a"
-          fontSize="sm"
-          color="brand.primary"
-          cursor="pointer"
-          _hover={{ textDecoration: "underline" }}
-          mb="3"
-          display="block"
-        >
-          View safety data &rarr;
-        </Box>
-      </Link>
+      <ChakraLink asChild color="brand.primary" mb="4">
+        <Link href={`/devices/${device.id}`}>View safety data &rarr;</Link>
+      </ChakraLink>
 
       {device.snippet && (
         <Box>
@@ -402,21 +386,21 @@ export const DeviceSummaryCard = ({
               <Text>{displaySnippet}</Text>
             )}
 
-          {shouldTruncate && !expanded && (
-            <>
-              ...{" "}
-              <Box
-                as="span"
-                color="brand.primary"
-                cursor="pointer"
-                textDecoration="underline"
-                onClick={() => setExpanded(true)}
-              >
-                Read more
-              </Box>
-            </>
-          )}
-        </Box>
+            {shouldTruncate && !expanded && (
+              <>
+                ...{" "}
+                <Box
+                  as="span"
+                  color="brand.primary"
+                  cursor="pointer"
+                  textDecoration="underline"
+                  onClick={() => setExpanded(true)}
+                >
+                  Read more
+                </Box>
+              </>
+            )}
+          </Box>
         </Box>
       )}
 
