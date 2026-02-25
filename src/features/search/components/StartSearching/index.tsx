@@ -2,6 +2,11 @@ import { Center, Icon, VStack, Text, Box } from "@chakra-ui/react";
 import { PiStethoscopeDuotone } from "react-icons/pi";
 import posthog from "posthog-js";
 
+type StartSearchingProps = {
+  onSuggest?: (suggestion: string) => void;
+  selectedCategory?: string;
+};
+
 
 // 73. Anesthesiology – Part 868
 const anesthesiologyDevices: string[] = [
