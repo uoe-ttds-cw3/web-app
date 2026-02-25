@@ -267,7 +267,7 @@ export const DeviceSummaryCard = ({
                 textDecoration="underline"
                 onClick={() => setExpanded(true)}
               >
-                read more
+                Read more
               </Box>
             </>
           )}
