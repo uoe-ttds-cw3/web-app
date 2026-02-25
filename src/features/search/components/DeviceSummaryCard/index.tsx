@@ -66,8 +66,9 @@ export const DeviceSummaryCard = ({
           color="brand.primary"
           _hover={{ textDecoration: "underline" }}
           display="block"
-          flex={{ base: "1 1 100%", md: "1" }}
-          lineClamp={{ base: 3, md: 2 }}
+          flex="1"
+          lineClamp={2}
+          cursor="pointer"
         >
           <Link href={`/devices/${device.id}`} legacyBehavior>
             {searchQuery ? (
@@ -401,26 +402,26 @@ export const DeviceSummaryCard = ({
               <Text>{displaySnippet}</Text>
             )}
 
-            {shouldTruncate && !expanded && (
-              <>
-                ...{" "}
-                <Box
-                  as="span"
-                  color="brand.primary"
-                  cursor="pointer"
-                  textDecoration="underline"
-                  onClick={() => setExpanded(true)}
-                >
-                  read more
-                </Box>
-              </>
-            )}
-          </Box>
+          {shouldTruncate && !expanded && (
+            <>
+              ...{" "}
+              <Box
+                as="span"
+                color="brand.primary"
+                cursor="pointer"
+                textDecoration="underline"
+                onClick={() => setExpanded(true)}
+              >
+                Read more
+              </Box>
+            </>
+          )}
         </Box>
       )}
 
       <Box mt="4">
         <Checkbox.Root
+          cursor="pointer"
           checked={isSelected}
           onCheckedChange={() => onToggle(device)}
         >
