@@ -417,6 +417,7 @@ export const DeviceSummaryCard = ({
             </>
           )}
         </Box>
+        </Box>
       )}
 
       <Box mt="4">
