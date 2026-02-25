@@ -166,7 +166,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
           placeholder={
             tags.length > 0
               ? ""
-              : "Search by manufacturer, material, recall event"
+              : "Search by manufacturer, material, device name"
           }
           border="none"
           _focus={{ boxShadow: "none", outline: "none" }}
