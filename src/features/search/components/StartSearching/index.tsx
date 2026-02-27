@@ -201,9 +201,6 @@ const panelDevices: Record<string, string[]> = {
 };
 
 export const StartSearching = ({ onSuggest, selectedCategory }: StartSearchingProps) => {
-  
-  console.log("selectedCategory:", selectedCategory);
-  console.log("lookup result:", panelDevices[selectedCategory]);
   // Get suggestions from the real API-loaded panels
   const suggestions =
     (selectedCategory && panelDevices[selectedCategory]) ||
