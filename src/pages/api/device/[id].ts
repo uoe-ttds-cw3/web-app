@@ -1,7 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { DeviceLookupResponse, LineageResponse, SafetyProfileResponse, DeviceSafetyData } from "@/lib/api/types";
+import type {
+  DeviceLookupResponse,
+  LineageResponse,
+  SafetyProfileResponse,
+  DeviceSafetyData,
+} from "@/lib/api/types";
 
-const API_BASE = process.env.API_BASE || "http://kotegawa.org:41592";
+const API_BASE = process.env.API_BASE || "https://fda.kotegawa.org";
 
 type DevicePageData = {
   device: DeviceLookupResponse | null;
@@ -12,7 +17,7 @@ type DevicePageData = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<DevicePageData | { error: string }>
+  res: NextApiResponse<DevicePageData | { error: string }>,
 ) {
   const { id } = req.query;
 
@@ -24,12 +29,18 @@ export default async function handler(
 
   try {
     // step 1: fetch device details (needed for product_code)
-    const deviceRes = await fetch(`${API_BASE}/api/device/${submissionNumber}?include_text=true`);
+    const deviceRes = await fetch(
+      `${API_BASE}/api/device/${submissionNumber}?include_text=true`,
+    );
     if (!deviceRes.ok) {
       if (deviceRes.status === 404) {
-        return res.status(404).json({ error: `Device ${submissionNumber} not found` });
+        return res
+          .status(404)
+          .json({ error: `Device ${submissionNumber} not found` });
       }
-      return res.status(deviceRes.status).json({ error: "Failed to fetch device" });
+      return res
+        .status(deviceRes.status)
+        .json({ error: "Failed to fetch device" });
     }
     const device: DeviceLookupResponse = await deviceRes.json();
 
@@ -37,30 +48,36 @@ export default async function handler(
     const [lineage, safety, deviceSafety] = await Promise.all([
       // lineage fetch (may 404 if not in citation graph)
       fetch(`${API_BASE}/api/device/${submissionNumber}/lineage`)
-        .then(res => res.ok ? res.json() as Promise<LineageResponse> : null)
+        .then((res) =>
+          res.ok ? (res.json() as Promise<LineageResponse>) : null,
+        )
         .catch(() => null),
 
       // product-code safety fetch (may 503 if openfda down, needs product_code from device)
       device.product_code
         ? fetch(`${API_BASE}/api/device/${device.product_code}/safety`)
-            .then(res => res.ok ? res.json() as Promise<SafetyProfileResponse> : null)
+            .then((res) =>
+              res.ok ? (res.json() as Promise<SafetyProfileResponse>) : null,
+            )
             .catch(() => null)
         : Promise.resolve(null),
 
       // device-specific safety from bulk maude/recall cache
       fetch(`${API_BASE}/api/device/${submissionNumber}/device-safety`)
-        .then(res => res.ok ? res.json() as Promise<DeviceSafetyData> : null)
+        .then((res) =>
+          res.ok ? (res.json() as Promise<DeviceSafetyData>) : null,
+        )
         .catch(() => null),
     ]);
 
     // provide defaults for null fields in device response
     const transformedDevice: DeviceLookupResponse = {
       ...device,
-      product_code: device.product_code ?? '',
-      panel: device.panel ?? '',
-      decision: device.decision ?? '',
-      decision_date: device.decision_date ?? '',
-      summary_text: device.summary_text ?? '',
+      product_code: device.product_code ?? "",
+      panel: device.panel ?? "",
+      decision: device.decision ?? "",
+      decision_date: device.decision_date ?? "",
+      summary_text: device.summary_text ?? "",
       indications_for_use: device.indications_for_use ?? null,
       device_description: device.device_description ?? null,
       materials: device.materials ?? [],
