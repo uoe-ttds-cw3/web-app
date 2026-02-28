@@ -26,6 +26,7 @@ import { LANGUAGE_NOT_SUPPORTED } from "@/constants/error-codes";
 import { useQuery } from "@tanstack/react-query";
 
 const subscribe = () => () => {};
+const SEARCH_CONTENT_MAX_W = "1120px";
 
 export default function Home() {
   const router = useRouter();
@@ -312,7 +313,11 @@ export default function Home() {
 
   return (
     <div>
-      <Box margin="0 auto" maxW="1000px" px="4">
+      <Box
+        margin="0 auto"
+        maxW={SEARCH_CONTENT_MAX_W}
+        px={{ base: "4", md: "5", lg: "6" }}
+      >
         <NavBar
           selectedCategory={panel}
           onCategorySelect={handleCategorySelect}
@@ -342,8 +347,12 @@ export default function Home() {
       )}
 
       {data && (
-        <Box margin="0 auto" maxW="1000px" px="4">
-          <Box minH="100vh" p={{ base: "2", md: "4" }}>
+        <Box
+          margin="0 auto"
+          maxW={SEARCH_CONTENT_MAX_W}
+          px={{ base: "4", md: "5", lg: "6" }}
+        >
+          <Box minH="100vh" py={{ base: "2", md: "4" }}>
             {/* Header + Controls */}
             <Box marginBottom="4">
               <Box
