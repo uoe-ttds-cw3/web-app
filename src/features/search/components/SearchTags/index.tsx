@@ -1,6 +1,5 @@
 import { Box, Input, Button } from "@chakra-ui/react";
 import { FaXmark } from "react-icons/fa6";
-import { useState } from "react";
 
 interface SearchTagsProps {
   filterType: string;

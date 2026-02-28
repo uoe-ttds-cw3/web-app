@@ -1,4 +1,4 @@
-import { Box, Text, Link } from "@chakra-ui/react";
+import { Box, Text, Link, Icon } from "@chakra-ui/react";
 import { FaBarcode, FaSearch } from "react-icons/fa";
 import { MdNumbers } from "react-icons/md";
 import { IoCalendarNumber } from "react-icons/io5";
@@ -88,7 +88,14 @@ export const FilterMenu = ({ isOpen, onClose, onFilterSelect, onAdvancedSearchTo
                         cursor="pointer"
                     >
                         <Box display="flex" alignItems="center" gap="6px">
-                            <IconComponent color="var(--chakra-colors-brand-accent)" style={{ marginRight: "6px", minWidth: "13px" }} />
+                            <Icon
+                                as={IconComponent}
+                                color="brand.primary"
+                                marginRight="6px"
+                                minWidth="13px"
+                                boxSize="3.5"
+                                flexShrink={0}
+                            />
                             <Box flex="1">
                                 <Text fontWeight="500" display="block" fontSize="sm">
                                     {option.title}
