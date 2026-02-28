@@ -16,9 +16,10 @@ export const ResultsHeader = ({
     <Box
       display="flex"
       alignItems="center"
-      justifyContent="space-between"
+      justifyContent="flex-start"
       gap="3"
       width="100%"
+      flexWrap="wrap"
     >
       <FoundResults numResults={numResults} />
       <SearchDetailsModal debugInfo={debugInfo} />

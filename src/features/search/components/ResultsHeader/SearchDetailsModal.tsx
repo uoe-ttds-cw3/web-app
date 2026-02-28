@@ -68,7 +68,7 @@ export const SearchDetailsModal = ({ debugInfo }: SearchDetailsModalProps) => {
         _hover={{ color: "brand.primary" }}
         onClick={() => setOpen(true)}
       >
-        Search details
+        View search details
       </Box>
 
       {open && (
