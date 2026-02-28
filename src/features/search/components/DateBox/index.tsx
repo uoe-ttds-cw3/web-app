@@ -68,7 +68,7 @@ export const DateBox = () => {
 
     return (
         <Tooltip
-            content="Explore the dataset from a specific date in time."
+            content="Explore a historical snapshot of the dataset up to the selected date."
             contentProps={{
                 px: "12px",
                 py: "10px",

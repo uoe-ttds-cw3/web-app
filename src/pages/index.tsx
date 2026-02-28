@@ -328,7 +328,7 @@ export default function Home() {
         />
       </Box>
       {!query && results.length === 0 && (
-        <StartSearching onSuggest={handleSearch} />
+      <StartSearching onSuggest={handleSearch} selectedCategory={panel} />
       )}
 
       {isLoading && (
@@ -591,7 +591,7 @@ export default function Home() {
                       marginTop="1"
                       marginBottom="1"
                     >
-                      search details
+                      Search details
                     </Box>
                   </Collapsible.Trigger>
                   <Collapsible.Content>
@@ -607,7 +607,7 @@ export default function Home() {
                       {/* query processing */}
                       <Box marginBottom="3">
                         <Text fontWeight="semibold" color="ui.text" marginBottom="1" fontSize="xs">
-                          query processing
+                          Query processing
                         </Text>
                         <HStack gap="1" flexWrap="wrap" marginBottom="1">
                           {data.debug_info.processed_terms.map((term, i) => (
@@ -647,12 +647,12 @@ export default function Home() {
                       {/* retrieval stats */}
                       <Box marginBottom="3">
                         <Text fontWeight="semibold" color="ui.text" marginBottom="1" fontSize="xs">
-                          retrieval
+                          Retrieval
                         </Text>
                         <Text color="ui.textMuted" fontSize="xs">
-                          found {data.debug_info.bm25_candidates} keyword matches
+                          Found {data.debug_info.bm25_candidates} keyword matches
                           and {data.debug_info.dense_candidates} semantic matches
-                          in {Math.round(data.debug_info.retrieval_time_ms)}ms
+                          in {Math.round(data.debug_info.retrieval_time_ms)}ms.
                         </Text>
                       </Box>
 
@@ -667,11 +667,11 @@ export default function Home() {
                           stages.push({ label: "candidates", count: total });
 
                           const filters: Array<{ label: string; count: number }> = [
-                            { label: "after panel filter", count: d.candidates_after_panel_filter },
-                            { label: "after class filter", count: d.candidates_after_class_filter },
-                            { label: "after decision filter", count: d.candidates_after_decision_filter },
-                            { label: "after product code filter", count: d.candidates_after_product_code_filter },
-                            { label: "after date filter", count: d.candidates_after_date_filter },
+                            { label: "After panel filter", count: d.candidates_after_panel_filter },
+                            { label: "After class filter", count: d.candidates_after_class_filter },
+                            { label: "After decision filter", count: d.candidates_after_decision_filter },
+                            { label: "After product code filter", count: d.candidates_after_product_code_filter },
+                            { label: "After date filter", count: d.candidates_after_date_filter },
                           ];
 
                           let prev = total;
