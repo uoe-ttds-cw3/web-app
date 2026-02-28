@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import posthog from "posthog-js";
 import { DeviceSummaryCard } from "@/features/search/components/DeviceSummaryCard";
+import { DidYouMeanSuggestion } from "@/features/search/components/DidYouMeanSuggestion";
 import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { ResultsControls } from "@/features/search/components/ResultsControls";
 import { NavBar } from "@/features/search/components/NavBar";
@@ -371,40 +372,23 @@ export default function Home() {
 
               {/* did you mean suggestion from spelling corrector */}
               {data?.did_you_mean && (
-                <Box marginBottom="3">
-                  <Text fontSize="sm" color="ui.textMuted" display="inline">
-                    Did you mean{" "}
-                  </Text>
-                  <Box
-                    as="button"
-                    display="inline"
-                    color="brand.primary"
-                    fontWeight="semibold"
-                    fontSize="sm"
-                    textDecoration="underline"
-                    cursor="pointer"
-                    _hover={{ opacity: 0.8 }}
-                    onClick={() => {
-                      posthog.capture("did_you_mean_clicked", {
-                        original_query: query,
-                        suggested_query: data.did_you_mean,
-                      });
-                      router.push(
-                        {
-                          pathname: "/",
-                          query: { ...router.query, q: data.did_you_mean },
-                        },
-                        undefined,
-                        { shallow: true },
-                      );
-                    }}
-                  >
-                    {data.did_you_mean}
-                  </Box>
-                  <Text fontSize="sm" color="ui.textMuted" display="inline">
-                    ?
-                  </Text>
-                </Box>
+                <DidYouMeanSuggestion
+                  suggestion={data.did_you_mean}
+                  onSelect={() => {
+                    posthog.capture("did_you_mean_clicked", {
+                      original_query: query,
+                      suggested_query: data.did_you_mean,
+                    });
+                    router.push(
+                      {
+                        pathname: "/",
+                        query: { ...router.query, q: data.did_you_mean },
+                      },
+                      undefined,
+                      { shallow: true },
+                    );
+                  }}
+                />
               )}
 
               {/* Expanded Terms Display */}
