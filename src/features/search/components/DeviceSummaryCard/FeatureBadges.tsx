@@ -69,7 +69,7 @@ export const FeatureBadges = ({ device }: FeatureBadgesProps) => {
   }
 
   return (
-    <HStack gap="2" flexWrap="wrap">
+    <HStack gap="2" flexWrap="wrap" alignItems="center">
       {FEATURE_BADGE_CONFIG.map((feature) => {
         if (!device[feature.key]) {
           return null;

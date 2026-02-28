@@ -14,7 +14,7 @@ export const MaterialsRow = ({ device }: MaterialsRowProps) => {
   const hiddenCount = device.materials.length - visibleMaterials.length;
 
   return (
-    <HStack gap="2" flexWrap="wrap">
+    <HStack gap="2" flexWrap="wrap" alignItems="center">
       {visibleMaterials.map((material) => (
         <Badge key={material} variant="subtle" colorPalette="gray" fontSize="xs">
           {material}

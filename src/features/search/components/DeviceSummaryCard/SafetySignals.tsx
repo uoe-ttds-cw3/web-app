@@ -49,8 +49,8 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
           </Box>
         </Tooltip>
       </HStack>
-      <HStack alignItems="flex-start" gap="2" flexWrap="wrap">
-        <Text fontSize="xs" color="ui.textMuted" pt="1">
+      <HStack alignItems="center" gap="2" flexWrap="wrap">
+        <Text fontSize="xs" color="ui.textMuted">
           Signals
         </Text>
         {hasAdverseEvents && (
