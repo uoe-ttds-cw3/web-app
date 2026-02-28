@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import type { Device } from "@/lib/api/types";
 import Link from "next/link";
+import { MetadataRow } from "./MetadataRow";
 import { TitleRow } from "./TitleRow";
 
 type DeviceSummaryCardProps = {
@@ -48,122 +49,7 @@ export const DeviceSummaryCard = ({
     >
       <TitleRow device={device} searchQuery={searchQuery} />
 
-      <Box fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted" mb="3">
-        {/* stacked on mobile, inline with pipes on desktop */}
-        <Box
-          display={{ base: "flex", md: "none" }}
-          flexDirection="column"
-          gap="1"
-        >
-          {device.manufacturer && (
-            <Text>
-              Manufacturer:{" "}
-              <Box
-                as="span"
-                color="brand.primary"
-                cursor="pointer"
-                _hover={{ textDecoration: "underline" }}
-                onClick={() =>
-                  router.push({
-                    pathname: "/",
-                    query: { q: device.manufacturer },
-                  })
-                }
-              >
-                {device.manufacturer}
-              </Box>
-            </Text>
-          )}
-          {device.date && (
-            <Text>
-              Date:{" "}
-              <Box as="span" color="ui.text">
-                {device.date}
-              </Box>
-            </Text>
-          )}
-          <HStack gap="3" flexWrap="wrap">
-            {device.panel && (
-              <Text>
-                Panel:{" "}
-                <Box as="span" color="ui.text">
-                  {device.panel}
-                </Box>
-              </Text>
-            )}
-            {device.deviceClass && (
-              <Text>
-                Class:{" "}
-                <Box as="span" color="ui.text">
-                  {device.deviceClass}
-                </Box>
-              </Text>
-            )}
-            {device.pCode && (
-              <Text>
-                Code:{" "}
-                <Box as="span" color="ui.text">
-                  {device.pCode}
-                </Box>
-              </Text>
-            )}
-          </HStack>
-        </Box>
-
-        {/* desktop: inline with pipe separators */}
-        <HStack display={{ base: "none", md: "flex" }} gap="3" flexWrap="wrap">
-          {device.sponsor && (
-            <Text>
-              Manufacturer:{" "}
-              <ChakraLink
-                asChild
-                color="brand.primary"
-                textDecoration="underline"
-              >
-                <Link href={`/q=${device.sponsor}`} color="brand.primary">
-                  {device.sponsor}
-                </Link>
-              </ChakraLink>
-            </Text>
-          )}
-          {device.date && <Text>|</Text>}
-          {device.date && (
-            <Text>
-              Date:{" "}
-              <Box as="span" color="ui.text">
-                {device.date}
-              </Box>
-            </Text>
-          )}
-          {device.panel && <Text>|</Text>}
-          {device.panel && (
-            <Text>
-              Panel:{" "}
-              <Box as="span" color="ui.text">
-                {device.panel}
-              </Box>
-            </Text>
-          )}
-          {device.deviceClass && <Text>|</Text>}
-          {device.deviceClass && (
-            <Text>
-              Class:{" "}
-              <Box as="span" color="ui.text">
-                {device.deviceClass}
-              </Box>
-            </Text>
-          )}
-          {device.pCode && <Text>|</Text>}
-          {device.pCode && (
-            <Text>
-              Product Code:{" "}
-              <Box as="span" color="ui.text">
-                {device.pCode}
-              </Box>
-            </Text>
-          )}
-        </HStack>
-      </Box>
+      <MetadataRow device={device} />
 
       {/* feature badges - only show flags that are true */}
       {(device.hasClinicalData ||

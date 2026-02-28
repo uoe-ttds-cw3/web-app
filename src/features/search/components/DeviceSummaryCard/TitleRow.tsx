@@ -89,7 +89,7 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
             ? "keyword match"
             : device.retrievalSource === "semantic"
               ? "semantic match"
-              : "Keyword & semantic match"}
+              : "keyword & semantic match"}
         </Badge>
       )}
       {device.adverseEvents != null && device.adverseEvents > 0 && (
