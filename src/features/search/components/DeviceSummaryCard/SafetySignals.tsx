@@ -1,4 +1,5 @@
-import { Badge, Box, HStack, Text } from "@chakra-ui/react";
+import { Badge, Box, HStack, Icon, Text } from "@chakra-ui/react";
+import { LuInfo } from "react-icons/lu";
 import { Tooltip } from "@/components/ui/Tooltip";
 import type { Device } from "@/lib/api/types";
 
@@ -12,6 +13,7 @@ const TOOLTIP_PROPS = {
   px: 2,
   py: 1,
   borderRadius: "md",
+  maxW: "320px",
 };
 
 export const SafetySignals = ({ device }: SafetySignalsProps) => {
@@ -24,15 +26,29 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
   }
 
   return (
-    <Box
-      p="4"
-      border="1px solid"
-      borderColor="gray.200"
-      borderRadius="md"
-    >
-      <Text fontSize="xs" color="ui.textMuted" textTransform="uppercase" mb="2">
-        Safety signals
-      </Text>
+    <Box p="4" border="1px solid" borderColor="gray.200" borderRadius="md">
+      <HStack gap="1" mb="2" alignItems="center">
+        <Text fontSize="xs" color="ui.textMuted" textTransform="uppercase">
+          Safety signals
+        </Text>
+        <Tooltip
+          content="These indicators come from cached FDA recall and MAUDE adverse-event data associated with this device."
+          showArrow
+          openDelay={200}
+          contentProps={TOOLTIP_PROPS}
+        >
+          <Box
+            color="ui.textMuted"
+            cursor="help"
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            aria-label="How safety signals are calculated"
+          >
+            <Icon as={LuInfo} boxSize="3.5" />
+          </Box>
+        </Tooltip>
+      </HStack>
       <HStack gap="2" flexWrap="wrap">
         {hasAdverseEvents && (
           <Tooltip
