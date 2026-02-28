@@ -3,7 +3,6 @@ import {
   HStack,
   Text,
   Checkbox,
-  Badge,
   Link as ChakraLink,
   Grid,
   GridItem,
@@ -13,6 +12,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import type { Device } from "@/lib/api/types";
 import Link from "next/link";
+import { FeatureBadges } from "./FeatureBadges";
 import { MetadataRow } from "./MetadataRow";
 import { TitleRow } from "./TitleRow";
 
@@ -51,40 +51,7 @@ export const DeviceSummaryCard = ({
 
       <MetadataRow device={device} />
 
-      {/* feature badges - only show flags that are true */}
-      {(device.hasClinicalData ||
-        device.hasSterilization ||
-        device.hasBiocompatibility ||
-        device.hasSoftware ||
-        device.hasElectricalSafety) && (
-        <HStack gap="2" flexWrap="wrap" mb="3">
-          {device.hasClinicalData && (
-            <Badge variant="subtle" colorPalette="gray" fontSize="xs">
-              Clinical data
-            </Badge>
-          )}
-          {device.hasSterilization && (
-            <Badge variant="subtle" colorPalette="gray" fontSize="xs">
-              Sterilization
-            </Badge>
-          )}
-          {device.hasBiocompatibility && (
-            <Badge variant="subtle" colorPalette="gray" fontSize="xs">
-              Biocompatibility
-            </Badge>
-          )}
-          {device.hasSoftware && (
-            <Badge variant="subtle" colorPalette="gray" fontSize="xs">
-              Software
-            </Badge>
-          )}
-          {device.hasElectricalSafety && (
-            <Badge variant="subtle" colorPalette="gray" fontSize="xs">
-              Electrical safety
-            </Badge>
-          )}
-        </HStack>
-      )}
+      <FeatureBadges device={device} />
 
       {/* materials */}
       {device.materials.length > 0 && (
