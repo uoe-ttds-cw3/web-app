@@ -537,9 +537,7 @@ export const DeviceDetailed = ({
             {device.product_code ? (
               productCodeInfo ? (
                 <Tooltip
-                  content={
-                    <Box fontWeight="semibold">{productCodeInfo.name}</Box>
-                  }
+                  content={<Box>Code meaning: {productCodeInfo.name}</Box>}
                   showArrow
                   openDelay={200}
                   contentProps={TOOLTIP_PROPS}

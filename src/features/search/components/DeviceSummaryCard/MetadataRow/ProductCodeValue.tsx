@@ -28,7 +28,7 @@ export const ProductCodeValue = ({ code }: ProductCodeValueProps) => {
 
   return (
     <Tooltip
-      content={<Box fontWeight="semibold">{productCode.name}</Box>}
+      content={<Box>Code meaning: {productCode.name}</Box>}
       showArrow
       openDelay={200}
       contentProps={TOOLTIP_PROPS}
