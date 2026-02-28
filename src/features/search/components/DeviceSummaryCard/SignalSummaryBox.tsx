@@ -33,8 +33,8 @@ export const SignalSummaryBox = ({ device }: SignalSummaryBoxProps) => {
       display="grid"
       gap={{ base: 2, md: 3 }}
     >
-      <FeatureSignalsRow device={device} />
       <MaterialsSignalsRow device={device} />
+      <FeatureSignalsRow device={device} />
       <SafetySignals device={device} />
     </Box>
   );

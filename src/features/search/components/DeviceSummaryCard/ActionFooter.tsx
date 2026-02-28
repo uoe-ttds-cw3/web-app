@@ -91,7 +91,7 @@ export const ActionFooter = ({
                 textDecoration="underline"
                 _hover={{ opacity: 0.8 }}
               >
-                View on FDA ↗
+                View on FDA.gov ↗
               </ChakraLink>
             )}
           </Flex>
