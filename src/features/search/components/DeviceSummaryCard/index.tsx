@@ -1,6 +1,5 @@
-import { Box, Link as ChakraLink } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import type { Device } from "@/lib/api/types";
-import Link from "next/link";
 import { ActionFooter } from "./ActionFooter";
 import { MetadataRow } from "./MetadataRow";
 import { SignalSummaryBox } from "./SignalSummaryBox";
@@ -40,10 +39,6 @@ export const DeviceSummaryCard = ({
       <SnippetPreview device={device} searchQuery={searchQuery} />
 
       <SignalSummaryBox device={device} />
-
-      <ChakraLink asChild color="brand.primary">
-        <Link href={`/devices/${device.id}`}>View Full Device Record &rarr;</Link>
-      </ChakraLink>
 
       <ActionFooter
         device={device}

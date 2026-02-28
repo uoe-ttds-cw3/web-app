@@ -1,10 +1,12 @@
 import {
   Box,
   Checkbox,
+  Flex,
   Grid,
   GridItem,
   Link as ChakraLink,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import type { Device } from "@/lib/api/types";
 
 export type ActionFooterProps = {
@@ -41,19 +43,44 @@ export const ActionFooter = ({
         </GridItem>
 
         <GridItem justifySelf="end">
-          {device.id && (
+          <Flex
+            direction={{ base: "column", md: "row" }}
+            gap={{ base: "2", md: "5" }}
+            align={{ base: "flex-end", md: "center" }}
+            justify={{ base: "flex-end", md: "flex-end" }}
+          >
             <ChakraLink
-              href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${device.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              asChild
               color="brand.primary"
               fontSize="xs"
-              textDecoration="underline"
-              _hover={{ opacity: 0.8 }}
+              fontWeight="semibold"
+              px="3"
+              py="1.5"
+              borderRadius="full"
+              border="1px solid"
+              borderColor="brand.primary"
+              textDecoration="none"
+              _hover={{
+                textDecoration: "none",
+                backgroundColor: "rgba(47, 94, 47, 0.08)",
+              }}
             >
-              View on FDA ↗
+              <Link href={`/devices/${device.id}`}>View Full Device Record &rarr;</Link>
             </ChakraLink>
-          )}
+            {device.id && (
+              <ChakraLink
+                href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${device.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                color="brand.primary"
+                fontSize="xs"
+                textDecoration="underline"
+                _hover={{ opacity: 0.8 }}
+              >
+                View on FDA ↗
+              </ChakraLink>
+            )}
+          </Flex>
         </GridItem>
       </Grid>
     </Box>
