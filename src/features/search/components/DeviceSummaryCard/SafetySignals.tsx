@@ -26,7 +26,6 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
   return (
     <Box
       p="4"
-      mt="4"
       border="1px solid"
       borderColor="gray.200"
       borderRadius="md"

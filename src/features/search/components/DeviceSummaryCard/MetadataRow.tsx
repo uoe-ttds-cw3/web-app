@@ -8,7 +8,7 @@ export type MetadataRowProps = {
 
 export const MetadataRow = ({ device }: MetadataRowProps) => {
   return (
-    <Box fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted" mb="3">
+    <Box fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted">
       <Box
         display={{ base: "flex", md: "none" }}
         flexDirection="column"

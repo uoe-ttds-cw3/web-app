@@ -34,7 +34,6 @@ export const DerivedInsights = ({ device }: DerivedInsightsProps) => {
   return (
     <Box
       p="2"
-      mb="4"
       border="1px solid"
       borderColor="gray.200"
       borderRadius="md"

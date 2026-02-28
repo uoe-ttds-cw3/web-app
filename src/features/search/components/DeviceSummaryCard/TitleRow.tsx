@@ -106,7 +106,6 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
   return (
     <HStack
       alignItems="flex-start"
-      marginBottom="3"
       flexWrap={{ base: "wrap", md: "nowrap" }}
       gap="2"
       width="100%"

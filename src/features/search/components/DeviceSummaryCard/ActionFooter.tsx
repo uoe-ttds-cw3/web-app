@@ -19,7 +19,7 @@ export const ActionFooter = ({
   onToggle,
 }: ActionFooterProps) => {
   return (
-    <Box mt="4">
+    <Box>
       <Grid
         templateColumns="repeat(2, 1fr)"
         gap={4}

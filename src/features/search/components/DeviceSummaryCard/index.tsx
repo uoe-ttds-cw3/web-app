@@ -25,6 +25,8 @@ export const DeviceSummaryCard = ({
 
   return (
     <Box
+      display="grid"
+      gap={{ base: "3", md: "4" }}
       backgroundColor="ui.surface"
       padding={{ base: "4", md: "5" }}
       borderRadius="12px"
@@ -36,7 +38,7 @@ export const DeviceSummaryCard = ({
 
       <MetadataRow device={device} />
 
-      <ChakraLink asChild color="brand.primary" mb="4">
+      <ChakraLink asChild color="brand.primary">
         <Link href={`/devices/${device.id}`}>View all details &rarr;</Link>
       </ChakraLink>
 
