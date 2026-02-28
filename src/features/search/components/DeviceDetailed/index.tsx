@@ -562,7 +562,7 @@ export const DeviceDetailed = ({
       <Separator marginY="16px" />
       <Box marginBottom="24px">
         <Heading size="md" color="brand.primary" marginBottom="12px">
-          Feature Flags
+          Feature Signals
         </Heading>
         <HStack gap="3" flexWrap="wrap">
           <Badge
@@ -570,35 +570,35 @@ export const DeviceDetailed = ({
             variant="subtle"
             padding="4px 8px"
           >
-            clinical data
+            Clinical evidence
           </Badge>
           <Badge
             colorPalette={device.has_sterilization ? "green" : "gray"}
             variant="subtle"
             padding="4px 8px"
           >
-            sterilization
+            Sterilization
           </Badge>
           <Badge
             colorPalette={device.has_biocompatibility ? "green" : "gray"}
             variant="subtle"
             padding="4px 8px"
           >
-            biocompatibility
+            Biocompatibility
           </Badge>
           <Badge
             colorPalette={device.has_software ? "green" : "gray"}
             variant="subtle"
             padding="4px 8px"
           >
-            software
+            Software lifecycle
           </Badge>
           <Badge
             colorPalette={device.has_electrical_safety ? "green" : "gray"}
             variant="subtle"
             padding="4px 8px"
           >
-            electrical safety
+            Electrical safety
           </Badge>
         </HStack>
       </Box>
