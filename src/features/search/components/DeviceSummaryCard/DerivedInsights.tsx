@@ -1,10 +1,21 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, HStack, Icon, Text } from "@chakra-ui/react";
+import { LuInfo } from "react-icons/lu";
+import { Tooltip } from "@/components/ui/Tooltip";
 import type { Device } from "@/lib/api/types";
 import { FeatureBadges } from "./FeatureBadges";
 import { MaterialsRow } from "./MaterialsRow";
 
 export type DerivedInsightsProps = {
   device: Device;
+};
+
+const TOOLTIP_PROPS = {
+  bg: "ui.background",
+  color: "ui.text",
+  px: 2,
+  py: 1,
+  borderRadius: "md",
+  maxW: "320px",
 };
 
 export const DerivedInsights = ({ device }: DerivedInsightsProps) => {
@@ -28,13 +39,44 @@ export const DerivedInsights = ({ device }: DerivedInsightsProps) => {
       borderColor="gray.200"
       borderRadius="md"
     >
-      <Text fontSize="xs" color="ui.textMuted" textTransform="uppercase" mb="2">
-        Derived from submission text
-      </Text>
-      <FeatureBadges device={device} />
-      <Box mt={hasDerivedFeatures && hasMaterials ? "2" : "0"}>
-        <MaterialsRow device={device} />
-      </Box>
+      <HStack gap="1" mb="2" alignItems="center">
+        <Text fontSize="xs" color="ui.textMuted" textTransform="uppercase">
+          Derived insights
+        </Text>
+        <Tooltip
+          content="Feature signals and materials are inferred from keyword and pattern matches in the submission text."
+          showArrow
+          openDelay={200}
+          contentProps={TOOLTIP_PROPS}
+        >
+          <Box
+            color="ui.textMuted"
+            cursor="help"
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            aria-label="How derived insights are detected"
+          >
+            <Icon as={LuInfo} boxSize="3.5" />
+          </Box>
+        </Tooltip>
+      </HStack>
+      {hasDerivedFeatures && (
+        <Box>
+          <Text fontSize="xs" color="ui.textMuted" mb="2">
+            Detected signals
+          </Text>
+          <FeatureBadges device={device} />
+        </Box>
+      )}
+      {hasMaterials && (
+        <Box mt={hasDerivedFeatures ? "3" : "0"}>
+          <Text fontSize="xs" color="ui.textMuted" mb="2">
+            Extracted materials
+          </Text>
+          <MaterialsRow device={device} />
+        </Box>
+      )}
     </Box>
   );
 };

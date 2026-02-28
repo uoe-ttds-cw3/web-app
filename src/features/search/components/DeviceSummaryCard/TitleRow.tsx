@@ -138,7 +138,6 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
         </Link>
       </Box>
 
-      {/* Badges */}
       <MatchReasonBadge device={device} />
       <RetrievalSourceBadge device={device} />
     </HStack>

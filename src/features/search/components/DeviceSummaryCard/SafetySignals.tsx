@@ -24,7 +24,13 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
   }
 
   return (
-    <Box mt="4">
+    <Box
+      p="4"
+      mt="4"
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="md"
+    >
       <Text fontSize="xs" color="ui.textMuted" textTransform="uppercase" mb="2">
         Safety signals
       </Text>
