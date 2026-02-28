@@ -102,57 +102,6 @@ const RetrievalSourceBadge = ({ device }: { device: Device }) => {
   );
 };
 
-const AdverseEventsBadge = ({ device }: { device: Device }) => {
-  if (device.adverseEvents == null || device.adverseEvents === 0) return null;
-
-  const isSevere = device.adverseEvents >= 100;
-  const tooltipContent = `${device.adverseEvents.toLocaleString()} reported adverse events for this device (FDA MAUDE database)`;
-
-  return (
-    <Tooltip
-      content={tooltipContent}
-      showArrow
-      openDelay={200}
-      contentProps={TOOLTIP_PROPS}
-    >
-      <Badge
-        colorPalette={isSevere ? "red" : "orange"}
-        variant="solid"
-        fontSize="xs"
-        flexShrink={0}
-        cursor="help"
-        padding="0 0.25rem"
-      >
-        ⚠️ {device.adverseEvents.toLocaleString()} Events
-      </Badge>
-    </Tooltip>
-  );
-};
-
-const RecallsBadge = ({ device }: { device: Device }) => {
-  if (device.recalls == null || device.recalls === 0) return null;
-
-  return (
-    <Tooltip
-      content={`${device.recalls} safety recall(s) on record (FDA MAUDE)`}
-      showArrow
-      openDelay={200}
-      contentProps={TOOLTIP_PROPS}
-    >
-      <Badge
-        colorPalette="red"
-        variant="solid"
-        fontSize="xs"
-        flexShrink={0}
-        cursor="help"
-        padding="0 0.25rem"
-      >
-        🔴 {device.recalls} Recall{device.recalls > 1 ? "s" : ""}
-      </Badge>
-    </Tooltip>
-  );
-};
-
 export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
   return (
     <HStack
@@ -192,8 +141,6 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
       {/* Badges */}
       <MatchReasonBadge device={device} />
       <RetrievalSourceBadge device={device} />
-      <AdverseEventsBadge device={device} />
-      <RecallsBadge device={device} />
     </HStack>
   );
 };

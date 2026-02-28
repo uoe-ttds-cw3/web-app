@@ -1,14 +1,13 @@
 import {
   Box,
   Link as ChakraLink,
-  HStack,
 } from "@chakra-ui/react";
 import type { Device } from "@/lib/api/types";
 import Link from "next/link";
 import { ActionFooter } from "./ActionFooter";
-import { FeatureBadges } from "./FeatureBadges";
-import { MaterialsRow } from "./MaterialsRow";
+import { DerivedInsights } from "./DerivedInsights";
 import { MetadataRow } from "./MetadataRow";
+import { SafetySignals } from "./SafetySignals";
 import { SnippetPreview } from "./SnippetPreview";
 import { TitleRow } from "./TitleRow";
 
@@ -40,15 +39,15 @@ export const DeviceSummaryCard = ({
 
       <MetadataRow device={device} />
 
-      <FeatureBadges device={device} />
-
-      <MaterialsRow device={device} />
+      <DerivedInsights device={device} />
 
       <ChakraLink asChild color="brand.primary" mb="4">
         <Link href={`/devices/${device.id}`}>View all details &rarr;</Link>
       </ChakraLink>
 
       <SnippetPreview device={device} searchQuery={searchQuery} />
+
+      <SafetySignals device={device} />
 
       <ActionFooter device={device} isSelected={isSelected} onToggle={onToggle} />
     </Box>

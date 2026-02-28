@@ -26,11 +26,11 @@ export const SnippetPreview = ({
 
   const snippetSourceLabel =
     device.snippetSource === "indications_for_use"
-      ? "From indications for use"
+      ? "Excerpt from indications for use"
       : device.snippetSource === "device_description"
-        ? "From device description"
+        ? "Excerpt from device description"
         : device.snippetSource === "summary_text"
-          ? "From summary"
+          ? "Excerpt from summary"
           : null;
 
   return (

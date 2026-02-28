@@ -9,11 +9,19 @@ export type MetadataRowProps = {
 export const MetadataRow = ({ device }: MetadataRowProps) => {
   return (
     <Box fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted" mb="3">
-      <Box display={{ base: "flex", md: "none" }} flexDirection="column" gap="1">
+      <Box
+        display={{ base: "flex", md: "none" }}
+        flexDirection="column"
+        gap="1"
+      >
         {device.manufacturer && (
           <Text>
             Manufacturer:{" "}
-            <ChakraLink asChild color="brand.primary" textDecoration="underline">
+            <ChakraLink
+              asChild
+              color="brand.primary"
+              textDecoration="underline"
+            >
               <Link href={{ pathname: "/", query: { q: device.manufacturer } }}>
                 {device.manufacturer}
               </Link>
@@ -60,7 +68,11 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
         {device.sponsor && (
           <Text>
             Manufacturer:{" "}
-            <ChakraLink asChild color="brand.primary" textDecoration="underline">
+            <ChakraLink
+              asChild
+              color="brand.primary"
+              textDecoration="underline"
+            >
               <Link href={`/q=${device.sponsor}`}>{device.sponsor}</Link>
             </ChakraLink>
           </Text>

@@ -11,7 +11,7 @@ export const MaterialsRow = ({ device }: MaterialsRowProps) => {
   }
 
   return (
-    <Text fontSize="sm" color="ui.textMuted" mb="3">
+    <Text fontSize="sm" color="ui.textMuted">
       <Box as="span" fontWeight="medium">
         Materials:
       </Box>{" "}
