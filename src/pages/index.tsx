@@ -16,6 +16,7 @@ import {
   Collapsible,
   Alert,
   NativeSelect,
+  Textarea,
 } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
@@ -25,6 +26,7 @@ import { SideDrawer } from "@/features/search/components/SideDrawer";
 import { FaFilter, FaTimes } from "react-icons/fa";
 import useLocalStorage from "use-local-storage";
 import { LANGUAGE_NOT_SUPPORTED } from "@/constants/error-codes";
+import { useQuery } from "@tanstack/react-query";
 
 const subscribe = () => () => {};
 
@@ -984,7 +986,6 @@ export default function Home() {
           </Box>
         </Box>
       )}
-
       <SideDrawer />
     </div>
   );
