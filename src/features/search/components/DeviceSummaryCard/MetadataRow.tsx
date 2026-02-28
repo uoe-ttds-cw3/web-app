@@ -2,6 +2,7 @@ import { Box, HStack, Icon, Link as ChakraLink, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import { LuSearch } from "react-icons/lu";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { PRODUCT_CODES } from "@/data/PRODUCT_CODES";
 import type { Device } from "@/lib/api/types";
 
 export type MetadataRowProps = {
@@ -18,6 +19,10 @@ const TOOLTIP_PROPS = {
 
 type ManufacturerSearchLinkProps = {
   label: string;
+};
+
+type ProductCodeValueProps = {
+  code: string;
 };
 
 const ManufacturerSearchLink = ({ label }: ManufacturerSearchLinkProps) => {
@@ -38,6 +43,44 @@ const ManufacturerSearchLink = ({ label }: ManufacturerSearchLinkProps) => {
           {label} <Icon as={LuSearch} boxSize="3" verticalAlign="middle" />
         </Link>
       </ChakraLink>
+    </Tooltip>
+  );
+};
+
+const ProductCodeValue = ({ code }: ProductCodeValueProps) => {
+  const productCode = PRODUCT_CODES[code.toUpperCase() as keyof typeof PRODUCT_CODES];
+
+  if (!productCode) {
+    return (
+      <Box as="span" color="ui.text">
+        {code}
+      </Box>
+    );
+  }
+
+  return (
+    <Tooltip
+      content={
+        <>
+          <Box fontWeight="semibold">{productCode.name}</Box>
+          <Box>
+            Specialty: {productCode.specialty} | Class: {productCode.class}
+          </Box>
+        </>
+      }
+      showArrow
+      openDelay={200}
+      contentProps={TOOLTIP_PROPS}
+    >
+      <Box
+        as="span"
+        color="ui.text"
+        cursor="help"
+        textDecoration="underline dotted"
+        textUnderlineOffset="2px"
+      >
+        {code}
+      </Box>
     </Tooltip>
   );
 };
@@ -84,9 +127,7 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
           {device.pCode && (
             <Text>
               Code:{" "}
-              <Box as="span" color="ui.text">
-                {device.pCode}
-              </Box>
+              <ProductCodeValue code={device.pCode} />
             </Text>
           )}
         </HStack>
@@ -130,9 +171,7 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
         {device.pCode && (
           <Text>
             Product Code:{" "}
-            <Box as="span" color="ui.text">
-              {device.pCode}
-            </Box>
+            <ProductCodeValue code={device.pCode} />
           </Text>
         )}
       </HStack>

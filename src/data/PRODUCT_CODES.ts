@@ -1,3 +1,5 @@
+// from https://api.fda.gov/device/classification.json
+
 export const PRODUCT_CODES = {
   NAJ: {
     name: "Agents, Embolic, For Treatment Of Uterine Fibroids",
