@@ -8,12 +8,12 @@ import {
   Grid,
   GridItem,
 } from "@chakra-ui/react";
-import { useState } from "react";
 import Highlighter from "react-highlight-words";
+import { useState } from "react";
 import { useRouter } from "next/router";
-import { Tooltip } from "@/components/ui/Tooltip";
 import type { Device } from "@/lib/api/types";
 import Link from "next/link";
+import { TitleRow } from "./TitleRow";
 
 type DeviceSummaryCardProps = {
   device: Device;
@@ -30,13 +30,6 @@ export const DeviceSummaryCard = ({
 }: DeviceSummaryCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const router = useRouter();
-  const tooltipProps = {
-    bg: "ui.background",
-    color: "ui.text",
-    px: 2,
-    py: 1,
-    borderRadius: "md",
-  };
   const isSelected = selectedDevices.some((d) => d.id === device.id);
 
   const shouldTruncate = device.snippet && device.snippet.length > 200;
@@ -53,102 +46,7 @@ export const DeviceSummaryCard = ({
       borderColor="ui.borderLight"
       marginBottom={{ base: "3", md: "4" }}
     >
-      <HStack
-        alignItems="flex-start"
-        marginBottom="3"
-        flexWrap={{ base: "wrap", md: "nowrap" }}
-        gap="2"
-        width="100%"
-      >
-        <Box
-          fontWeight="bold"
-          fontSize={{ base: "md", md: "lg" }}
-          color="brand.primary"
-          _hover={{ textDecoration: "underline" }}
-          display="block"
-          flex="1"
-          lineClamp={2}
-          cursor="pointer"
-        >
-          <Link href={`/devices/${device.id}`}>
-            {searchQuery ? (
-              <Highlighter
-                searchWords={searchQuery.split(/\s+/)}
-                autoEscape
-                textToHighlight={device.name}
-                highlightStyle={{
-                  fontWeight: "bold",
-                  backgroundColor: "#FFEB3B80",
-                }}
-              />
-            ) : (
-              device.name
-            )}
-          </Link>
-        </Box>
-        {/* match reason badge - tells user why this result matched */}
-        {device.matchReason && (
-          <Tooltip
-            content={device.matchDetail || device.matchReason}
-            showArrow
-            openDelay={200}
-            contentProps={tooltipProps}
-          >
-            <Badge
-              variant="outline"
-              colorPalette="blue"
-              fontSize="xs"
-              flexShrink={0}
-              padding="0 0.25rem"
-              cursor="help"
-            >
-              {device.matchReason}
-            </Badge>
-          </Tooltip>
-        )}
-        {/* retrieval source badge - shows whether result came from keyword, semantic, or both */}
-        {device.retrievalSource && (
-          <Badge
-            variant="outline"
-            colorPalette={
-              device.retrievalSource === "keyword"
-                ? "green"
-                : device.retrievalSource === "semantic"
-                  ? "purple"
-                  : "teal"
-            }
-            fontSize="xs"
-            flexShrink={0}
-            padding="0 0.25rem"
-          >
-            {device.retrievalSource === "keyword"
-              ? "Keyword match"
-              : device.retrievalSource === "semantic"
-                ? "Semantic match"
-                : "Keyword & semantic match"}
-          </Badge>
-        )}
-        {/* adverse event badge - device-specific from maude k-number cache */}
-        {device.adverseEvents != null && device.adverseEvents > 0 && (
-          <Tooltip
-            content={`${device.adverseEvents.toLocaleString()} reported adverse events for this device (FDA MAUDE)`}
-            showArrow
-            openDelay={200}
-            contentProps={tooltipProps}
-          >
-            <Badge
-              colorPalette={device.adverseEvents >= 100 ? "red" : "orange"}
-              variant="solid"
-              fontSize="xs"
-              flexShrink={0}
-              padding="0 0.25rem"
-              cursor="help"
-            >
-              {device.adverseEvents.toLocaleString()} Adverse Events
-            </Badge>
-          </Tooltip>
-        )}
-      </HStack>
+      <TitleRow device={device} searchQuery={searchQuery} />
 
       <Box fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted" mb="3">
         {/* stacked on mobile, inline with pipes on desktop */}
@@ -383,6 +281,7 @@ export const DeviceSummaryCard = ({
           p={4}
           border="1px solid"
           borderColor="gray.200"
+          borderRadius="md"
         >
           <GridItem justifySelf="start">
             <Checkbox.Root
