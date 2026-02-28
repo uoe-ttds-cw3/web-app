@@ -1,19 +1,27 @@
-import { Box, Icon, Text } from "@chakra-ui/react";
-import { FaSearch } from "react-icons/fa";
+import { Box } from "@chakra-ui/react";
+import type { QueryDebugInfo } from "@/lib/api/types";
+import { FoundResults } from "./FoundResults";
+import { SearchDetailsModal } from "./SearchDetailsModal";
 
 interface ResultsHeaderProps {
   numResults: number;
+  debugInfo?: QueryDebugInfo | null;
 }
 
-export const ResultsHeader = ({ numResults = 0 }: ResultsHeaderProps) => {
+export const ResultsHeader = ({
+  numResults = 0,
+  debugInfo,
+}: ResultsHeaderProps) => {
   return (
-    <Box color="brand.primary">
-      <Text display="inline-flex" alignItems="center">
-        <Icon as={FaSearch} color="brand.primary" marginRight="8px" boxSize="4" />
-        Found {numResults == 0 ? "no" : numResults >= 500 ? "500+" : numResults}{" "}
-        device
-        {numResults == 1 ? "" : "s"}...
-      </Text>
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      gap="3"
+      width="100%"
+    >
+      <FoundResults numResults={numResults} />
+      <SearchDetailsModal debugInfo={debugInfo} />
     </Box>
   );
 };
