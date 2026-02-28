@@ -18,7 +18,7 @@ import {
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
   Cell,
 } from "recharts";
@@ -38,6 +38,8 @@ import {
 import dagre from "dagre";
 import "@xyflow/react/dist/style.css";
 import posthog from "posthog-js";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { PRODUCT_CODES } from "@/data/PRODUCT_CODES";
 import { useSearch } from "@/lib/queries/useSearch";
 import type {
   DeviceLookupResponse,
@@ -51,6 +53,14 @@ type DeviceDetailedProps = {
   lineage: LineageResponse | null;
   safety: SafetyProfileResponse | null;
   deviceSafety: DeviceSafetyData | null;
+};
+
+const TOOLTIP_PROPS = {
+  bg: "ui.background",
+  color: "ui.text",
+  px: 2,
+  py: 1,
+  borderRadius: "md",
 };
 
 // custom node component for the lineage graph
@@ -134,6 +144,11 @@ export const DeviceDetailed = ({
   const [showFullSummary, setShowFullSummary] = useState(false);
   const [showFullIfu, setShowFullIfu] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const productCodeInfo = device.product_code
+    ? PRODUCT_CODES[
+        device.product_code.toUpperCase() as keyof typeof PRODUCT_CODES
+      ]
+    : null;
 
   // fetch related devices from same manufacturer
   const { data: manufacturerDevices, isLoading: isLoadingManufacturer } =
@@ -519,7 +534,32 @@ export const DeviceDetailed = ({
             <Text color="brand.primary" fontWeight="bold">
               Product Code:
             </Text>
-            <Text color="black">{device.product_code || "N/A"}</Text>
+            {device.product_code ? (
+              productCodeInfo ? (
+                <Tooltip
+                  content={
+                    <Box fontWeight="semibold">{productCodeInfo.name}</Box>
+                  }
+                  showArrow
+                  openDelay={200}
+                  contentProps={TOOLTIP_PROPS}
+                >
+                  <Text
+                    as="span"
+                    color="black"
+                    cursor="help"
+                    textDecoration="underline dotted"
+                    textUnderlineOffset="2px"
+                  >
+                    {device.product_code}
+                  </Text>
+                </Tooltip>
+              ) : (
+                <Text color="black">{device.product_code}</Text>
+              )
+            ) : (
+              <Text color="black">N/A</Text>
+            )}
           </Box>
           <Box>
             <Text color="brand.primary" fontWeight="bold">
@@ -1051,7 +1091,7 @@ export const DeviceDetailed = ({
                                 type="category"
                                 width={120}
                               />
-                              <Tooltip />
+                              <RechartsTooltip />
                               <Bar dataKey="count">
                                 {sortedEvents.map(({ type }) => (
                                   <Cell
@@ -1385,7 +1425,7 @@ export const DeviceDetailed = ({
                           >
                             <XAxis type="number" />
                             <YAxis dataKey="type" type="category" width={150} />
-                            <Tooltip />
+                            <RechartsTooltip />
                             <Bar dataKey="count">
                               {sortedEvents.map(({ type }) => (
                                 <Cell
