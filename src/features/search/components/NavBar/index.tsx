@@ -88,7 +88,7 @@ export const NavBar = ({
   const hasMore = categories.length > mobileLimit;
 
   return (
-    <Box padding="16px 0">
+    <Box pt={{ base: "6px", md: "8px" }} pb="16px">
       <Text
         fontSize={{ base: "md", md: "xl" }}
         fontWeight="semibold"
