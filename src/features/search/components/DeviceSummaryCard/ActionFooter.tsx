@@ -74,7 +74,7 @@ export const ActionFooter = ({
               textDecoration="none"
               _hover={{
                 textDecoration: "none",
-                backgroundColor: "rgba(47, 94, 47, 0.08)",
+                backgroundColor: "rgba(30, 90, 168, 0.08)",
               }}
             >
               <Link href={`/devices/${device.id}`}>

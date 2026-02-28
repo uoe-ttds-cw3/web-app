@@ -78,7 +78,7 @@ const OptionPill = ({
       borderRadius="12px"
       fontSize="xs"
       cursor="pointer"
-      bg={active ? "brand.greenBg" : "transparent"}
+      bg={active ? "brand.accentBg" : "transparent"}
       color={active ? "brand.primary" : "ui.textMuted"}
       border="1px solid"
       borderColor={active ? "brand.primary" : "ui.borderLight"}
@@ -263,7 +263,7 @@ export const AdvancedSearchPanel = ({
                   cursor="pointer"
                   bg={
                     joiners[index - 1] === "AND"
-                      ? "brand.greenBg"
+                      ? "brand.accentBg"
                       : "transparent"
                   }
                   color={
@@ -284,7 +284,7 @@ export const AdvancedSearchPanel = ({
                   cursor="pointer"
                   bg={
                     joiners[index - 1] === "OR"
-                      ? "brand.greenBg"
+                      ? "brand.accentBg"
                       : "transparent"
                   }
                   color={

@@ -1,4 +1,4 @@
-import { Input, Box, Text, Link } from "@chakra-ui/react";
+import { Input, Box, Text, Link, Icon } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import posthog from "posthog-js";
@@ -136,7 +136,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         border="1px solid"
         borderColor="ui.borderLight"
       >
-        <FaSearch color="var(--chakra-colors-brand-accent)" />
+        <Icon as={FaSearch} color="brand.primary" boxSize="4" flexShrink={0} />
 
         <Box
           display="flex"
@@ -197,7 +197,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
           display="flex"
           alignItems="center"
         >
-          <FaFilter color="var(--chakra-colors-brand-accent)" />
+          <Icon as={FaFilter} color="brand.primary" boxSize="4" />
         </Box>
       </Box>
 

@@ -4,11 +4,8 @@ import {
   Flex,
   Text,
   Icon,
-  Skeleton,
   HStack,
   SkeletonText,
-  Grid,
-  Badge,
 } from "@chakra-ui/react";
 import { PiMedalDuotone } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
@@ -75,16 +72,16 @@ export const NavBar = ({
   // when search facets are provided, only show panels that appear in the results
   // and use the search-scoped counts instead of total index counts
   const categories = searchFacets
-  ? allCategories
-      .filter((cat) => searchFacets.some((f) => f.value === cat.id))
-      .map((cat) => {
-        const facet = searchFacets.find((f) => f.value === cat.id);
-        return { ...cat, deviceCount: facet?.count ?? cat.deviceCount };
-      })
-      .sort((a, b) => b.deviceCount - a.deviceCount)
-  : selectedCategory
-  ? allCategories.filter((cat) => cat.id === selectedCategory)
-  : allCategories;
+    ? allCategories
+        .filter((cat) => searchFacets.some((f) => f.value === cat.id))
+        .map((cat) => {
+          const facet = searchFacets.find((f) => f.value === cat.id);
+          return { ...cat, deviceCount: facet?.count ?? cat.deviceCount };
+        })
+        .sort((a, b) => b.deviceCount - a.deviceCount)
+    : selectedCategory
+      ? allCategories.filter((cat) => cat.id === selectedCategory)
+      : allCategories;
 
   // on mobile, show first 4 categories unless expanded
   const mobileLimit = 4;
@@ -96,7 +93,7 @@ export const NavBar = ({
         fontSize={{ base: "md", md: "xl" }}
         fontWeight="semibold"
         marginBottom="0.5rem"
-        color="#266429"
+        color="brand.primary"
       >
         <Icon as={PiMedalDuotone} marginRight="8px" />
         Filter by Category
@@ -133,7 +130,10 @@ export const NavBar = ({
           <>
             {/* mobile: limited pills */}
             <Box display={{ base: "contents", md: "none" }}>
-              {(showAllPills ? categories : categories.slice(0, mobileLimit)).map((category) => (
+              {(showAllPills
+                ? categories
+                : categories.slice(0, mobileLimit)
+              ).map((category) => (
                 <Button
                   key={category.id}
                   onClick={() =>
@@ -142,7 +142,9 @@ export const NavBar = ({
                     )
                   }
                   backgroundColor={
-                    selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
+                    selectedCategory === category.id
+                      ? "brand.accentSelected"
+                      : "brand.accentBg"
                   }
                   color="brand.primary"
                   padding="6px 12px"
@@ -150,7 +152,9 @@ export const NavBar = ({
                   size="sm"
                   _hover={{
                     backgroundColor:
-                      selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
+                      selectedCategory === category.id
+                        ? "brand.accentSelected"
+                        : "brand.accentHover",
                   }}
                 >
                   <Text fontSize="sm">{category.name}</Text>
@@ -166,7 +170,9 @@ export const NavBar = ({
                   padding="6px 12px"
                   fontSize="sm"
                 >
-                  {showAllPills ? "Show less" : `+${categories.length - mobileLimit} more`}
+                  {showAllPills
+                    ? "Show less"
+                    : `+${categories.length - mobileLimit} more`}
                 </Button>
               )}
             </Box>
@@ -182,14 +188,18 @@ export const NavBar = ({
                     )
                   }
                   backgroundColor={
-                    selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
+                    selectedCategory === category.id
+                      ? "brand.accentSelected"
+                      : "brand.accentBg"
                   }
                   color="brand.primary"
                   padding="8px 16px"
                   borderRadius="8px"
                   _hover={{
                     backgroundColor:
-                      selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
+                      selectedCategory === category.id
+                        ? "brand.accentSelected"
+                        : "brand.accentHover",
                   }}
                 >
                   <Text>{category.name}</Text>

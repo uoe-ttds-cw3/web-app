@@ -212,10 +212,10 @@ export const DeviceDetailed = ({
         target: device.submission_number,
         type: "smoothstep",
         animated: false,
-        style: { stroke: "#1a5632", strokeWidth: 2 },
+        style: { stroke: "#1E5AA8", strokeWidth: 2 },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: "#1a5632",
+          color: "#1E5AA8",
           width: 20,
           height: 20,
         },
@@ -266,10 +266,10 @@ export const DeviceDetailed = ({
         target: citation,
         type: "smoothstep",
         animated: false,
-        style: { stroke: "#1a5632", strokeWidth: 2 },
+        style: { stroke: "#1E5AA8", strokeWidth: 2 },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: "#1a5632",
+          color: "#1E5AA8",
           width: 20,
           height: 20,
         },
@@ -495,24 +495,6 @@ export const DeviceDetailed = ({
             <Link href={`/?q=${device.sponsor}`}>{device.sponsor}</Link>
           </ChakraLink>
         </Box>
-        {/* brand names from maude adverse event reports */}
-        {deviceSafety &&
-          deviceSafety.brand_names &&
-          deviceSafety.brand_names.length > 0 && (
-            <Box marginTop="8px">
-              <Text fontSize="sm" color="ui.textMuted" display="inline">
-                Also known as:{" "}
-              </Text>
-              <Text
-                fontSize="sm"
-                color="black"
-                display="inline"
-                fontWeight="medium"
-              >
-                {deviceSafety.brand_names.join(", ")}
-              </Text>
-            </Box>
-          )}
       </Box>
 
       <Separator marginY="16px" />
