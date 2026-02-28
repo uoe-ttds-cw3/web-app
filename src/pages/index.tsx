@@ -314,19 +314,33 @@ export default function Home() {
 
   return (
     <div>
-      <Box
-        margin="0 auto"
-        maxW={SEARCH_CONTENT_MAX_W}
-        px={{ base: "4", md: "5", lg: "6" }}
-      >
-        <NavBar
-          selectedCategory={panel}
-          onCategorySelect={handleCategorySelect}
-          searchFacets={
-            data?.facets?.find((f) => f.field === "panel_code")?.values
-          }
-        />
-      </Box>
+      {!isLoading && (
+        <Box
+          margin="0 auto"
+          maxW={SEARCH_CONTENT_MAX_W}
+          px={{ base: "4", md: "5", lg: "6" }}
+        >
+          <NavBar
+            selectedCategory={panel}
+            onCategorySelect={handleCategorySelect}
+            searchFacets={
+              data?.facets?.find((f) => f.field === "panel_code")?.values
+            }
+            isResultsLoading={
+              isLoading &&
+              Boolean(
+                query ||
+                  panel ||
+                  productCode ||
+                  dateBefore ||
+                  dateAfter ||
+                  decision ||
+                  deviceClass,
+              )
+            }
+          />
+        </Box>
+      )}
 
       {!query && results.length === 0 && (
         <StartSearching onSuggest={handleSearch} selectedCategory={panel} />

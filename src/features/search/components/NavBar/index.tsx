@@ -28,6 +28,7 @@ type NavBarProps = {
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
   searchFacets?: SearchFacetValue[];
+  isResultsLoading?: boolean;
 };
 
 type PanelsResponse = {
@@ -55,6 +56,7 @@ export const NavBar = ({
   onCategorySelect,
   selectedCategory,
   searchFacets,
+  isResultsLoading = false,
 }: NavBarProps) => {
   const {
     data: fetchedCategories,
@@ -86,6 +88,7 @@ export const NavBar = ({
   // on mobile, show first 4 categories unless expanded
   const mobileLimit = 4;
   const hasMore = categories.length > mobileLimit;
+  const showLoadingSkeletons = isFetching || isResultsLoading;
 
   return (
     <Box pt={{ base: "6px", md: "8px" }} pb="16px">
@@ -120,12 +123,10 @@ export const NavBar = ({
       )}
 
       <Flex gap="6px" wrap="wrap">
-        {isFetching ? (
-          <>
-            <HStack>
-              <SkeletonText noOfLines={1} />
-            </HStack>
-          </>
+        {showLoadingSkeletons ? (
+          <HStack>
+            <SkeletonText noOfLines={1} />
+          </HStack>
         ) : (
           <>
             {/* mobile: limited pills */}
