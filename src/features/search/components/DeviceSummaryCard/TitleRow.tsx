@@ -9,15 +9,151 @@ export type TitleRowProps = {
   searchQuery?: string;
 };
 
-export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
-  const tooltipProps = {
-    bg: "ui.background",
-    color: "ui.text",
-    px: 2,
-    py: 1,
-    borderRadius: "md",
-  };
+const TOOLTIP_PROPS = {
+  bg: "ui.background",
+  color: "ui.text",
+  px: 2,
+  py: 1,
+  borderRadius: "md",
+};
 
+const MATCH_REASON_COLORS: Record<string, string> = {
+  "exact submission number": "green",
+  "device name match": "blue",
+  "manufacturer match": "blue",
+  "product code match": "blue",
+  "matched in summary": "gray",
+  "related device": "gray",
+};
+
+const RETRIEVAL_SOURCE_CONFIG: Record<
+  string,
+  { color: string; label: string }
+> = {
+  keyword: { color: "green", label: "keyword match" },
+  semantic: { color: "purple", label: "semantic match" },
+  both: { color: "teal", label: "keyword & semantic match" },
+};
+
+const getMatchReasonColor = (reason: string): string => {
+  return MATCH_REASON_COLORS[reason] || "gray";
+};
+
+const getRetrievalSourceConfig = (source: string) => {
+  return RETRIEVAL_SOURCE_CONFIG[source] || { color: "gray", label: source };
+};
+
+const MatchReasonBadge = ({ device }: { device: Device }) => {
+  if (!device.matchReason) return null;
+
+  return (
+    <Tooltip
+      content={device.matchDetail || device.matchReason}
+      showArrow
+      openDelay={200}
+      contentProps={TOOLTIP_PROPS}
+    >
+      <Badge
+        variant="outline"
+        colorPalette={getMatchReasonColor(device.matchReason)}
+        fontSize="xs"
+        flexShrink={0}
+        cursor="help"
+        padding="0 0.25rem"
+      >
+        {device.matchReason}
+      </Badge>
+    </Tooltip>
+  );
+};
+
+const RetrievalSourceBadge = ({ device }: { device: Device }) => {
+  if (!device.retrievalSource) return null;
+
+  const config = getRetrievalSourceConfig(device.retrievalSource);
+
+  const tooltipContent =
+    {
+      keyword:
+        "Found by keyword matching - your search terms appear in the device name or summary",
+      semantic:
+        "Found by semantic search - conceptually similar to your search meaning",
+      both: "Found by both keyword and semantic search - strongest match type",
+    }[device.retrievalSource] || "Search result";
+
+  return (
+    <Tooltip
+      content={tooltipContent}
+      showArrow
+      openDelay={200}
+      contentProps={TOOLTIP_PROPS}
+    >
+      <Badge
+        variant="outline"
+        colorPalette={config.color}
+        fontSize="xs"
+        flexShrink={0}
+        cursor="help"
+        padding="0 0.25rem"
+      >
+        {config.label}
+      </Badge>
+    </Tooltip>
+  );
+};
+
+const AdverseEventsBadge = ({ device }: { device: Device }) => {
+  if (device.adverseEvents == null || device.adverseEvents === 0) return null;
+
+  const isSevere = device.adverseEvents >= 100;
+  const tooltipContent = `${device.adverseEvents.toLocaleString()} reported adverse events for this device (FDA MAUDE database)`;
+
+  return (
+    <Tooltip
+      content={tooltipContent}
+      showArrow
+      openDelay={200}
+      contentProps={TOOLTIP_PROPS}
+    >
+      <Badge
+        colorPalette={isSevere ? "red" : "orange"}
+        variant="solid"
+        fontSize="xs"
+        flexShrink={0}
+        cursor="help"
+        padding="0 0.25rem"
+      >
+        ⚠️ {device.adverseEvents.toLocaleString()} Events
+      </Badge>
+    </Tooltip>
+  );
+};
+
+const RecallsBadge = ({ device }: { device: Device }) => {
+  if (device.recalls == null || device.recalls === 0) return null;
+
+  return (
+    <Tooltip
+      content={`${device.recalls} safety recall(s) on record (FDA MAUDE)`}
+      showArrow
+      openDelay={200}
+      contentProps={TOOLTIP_PROPS}
+    >
+      <Badge
+        colorPalette="red"
+        variant="solid"
+        fontSize="xs"
+        flexShrink={0}
+        cursor="help"
+        padding="0 0.25rem"
+      >
+        🔴 {device.recalls} Recall{device.recalls > 1 ? "s" : ""}
+      </Badge>
+    </Tooltip>
+  );
+};
+
+export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
   return (
     <HStack
       alignItems="flex-start"
@@ -52,65 +188,12 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
           )}
         </Link>
       </Box>
-      {device.matchReason && (
-        <Tooltip
-          content={device.matchDetail || device.matchReason}
-          showArrow
-          openDelay={200}
-          contentProps={tooltipProps}
-        >
-          <Badge
-            variant="outline"
-            colorPalette="blue"
-            fontSize="xs"
-            flexShrink={0}
-            padding="0 0.25rem"
-            cursor="help"
-          >
-            {device.matchReason}
-          </Badge>
-        </Tooltip>
-      )}
-      {device.retrievalSource && (
-        <Badge
-          variant="outline"
-          colorPalette={
-            device.retrievalSource === "keyword"
-              ? "green"
-              : device.retrievalSource === "semantic"
-                ? "purple"
-                : "teal"
-          }
-          fontSize="xs"
-          flexShrink={0}
-          padding="0 0.25rem"
-        >
-          {device.retrievalSource === "keyword"
-            ? "keyword match"
-            : device.retrievalSource === "semantic"
-              ? "semantic match"
-              : "keyword & semantic match"}
-        </Badge>
-      )}
-      {device.adverseEvents != null && device.adverseEvents > 0 && (
-        <Tooltip
-          content={`${device.adverseEvents.toLocaleString()} reported adverse events for this device (FDA MAUDE)`}
-          showArrow
-          openDelay={200}
-          contentProps={tooltipProps}
-        >
-          <Badge
-            colorPalette={device.adverseEvents >= 100 ? "red" : "orange"}
-            variant="solid"
-            fontSize="xs"
-            flexShrink={0}
-            padding="0 0.25rem"
-            cursor="help"
-          >
-            {device.adverseEvents.toLocaleString()} Adverse Events
-          </Badge>
-        </Tooltip>
-      )}
+
+      {/* Badges */}
+      <MatchReasonBadge device={device} />
+      <RetrievalSourceBadge device={device} />
+      <AdverseEventsBadge device={device} />
+      <RecallsBadge device={device} />
     </HStack>
   );
 };
