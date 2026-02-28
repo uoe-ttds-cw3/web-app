@@ -25,7 +25,14 @@ export const SignalSummaryBox = ({ device }: SignalSummaryBoxProps) => {
   }
 
   return (
-    <Box p="2" border="1px solid" borderColor="gray.200" borderRadius="md" display="grid" gap="3">
+    <Box
+      p={{ base: 3, md: 2 }}
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="md"
+      display="grid"
+      gap={{ base: 2, md: 3 }}
+    >
       <FeatureSignalsRow device={device} />
       <MaterialsSignalsRow device={device} />
       <SafetySignals device={device} />

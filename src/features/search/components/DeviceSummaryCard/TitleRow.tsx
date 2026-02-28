@@ -88,6 +88,8 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
           px="2"
           py="1"
           flexShrink={0}
+          flexBasis={{ base: "100%", md: "auto" }}
+          width={{ base: "100%", md: "auto" }}
         >
           <Text color="ui.textMuted">Matched by</Text>
           {device.matchReason && (

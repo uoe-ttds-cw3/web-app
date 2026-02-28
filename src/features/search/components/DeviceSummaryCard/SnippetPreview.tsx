@@ -48,7 +48,7 @@ export const SnippetPreview = ({
 
   return (
     <Box p="2" border="1px solid" borderColor="gray.200" borderRadius="md">
-      <HStack gap="1" mb="2" alignItems="center">
+      <HStack gap="1" mb="2" alignItems="center" flexWrap="wrap">
         <Text fontSize="xs" color="ui.textMuted">
           {sectionLabel}
         </Text>

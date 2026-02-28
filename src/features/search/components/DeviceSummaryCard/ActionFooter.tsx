@@ -23,14 +23,14 @@ export const ActionFooter = ({
   return (
     <Box>
       <Grid
-        templateColumns="repeat(2, 1fr)"
-        gap={4}
-        p={4}
+        templateColumns={{ base: "1fr", md: "minmax(0, 1fr) auto" }}
+        gap={{ base: 3, md: 4 }}
+        p={{ base: 3, md: 4 }}
         border="1px solid"
         borderColor="gray.200"
         borderRadius="md"
       >
-        <GridItem justifySelf="start">
+        <GridItem justifySelf={{ base: "center", md: "start" }}>
           <Checkbox.Root
             cursor="pointer"
             checked={isSelected}
@@ -42,12 +42,14 @@ export const ActionFooter = ({
           </Checkbox.Root>
         </GridItem>
 
-        <GridItem justifySelf="end">
+        <GridItem justifySelf={{ base: "center", md: "end" }} width="100%">
           <Flex
             direction={{ base: "column", md: "row" }}
             gap={{ base: "2", md: "5" }}
-            align={{ base: "flex-end", md: "center" }}
-            justify={{ base: "flex-end", md: "flex-end" }}
+            align={{ base: "center", md: "center" }}
+            justify={{ base: "center", md: "flex-end" }}
+            wrap={{ base: "nowrap", md: "wrap" }}
+            width="100%"
           >
             <ChakraLink
               asChild
