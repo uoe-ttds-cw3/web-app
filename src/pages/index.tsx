@@ -1,10 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import posthog from "posthog-js";
-import {
-  DeviceSummaryCard,
-  Device,
-} from "@/features/search/components/DeviceSummaryCard";
+import { DeviceSummaryCard } from "@/features/search/components/DeviceSummaryCard";
 import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { NavBar } from "@/features/search/components/NavBar";
 import { StartSearching } from "@/features/search/components/StartSearching";
@@ -22,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
-import type { BackendOptions, QueryDebugInfo } from "@/lib/api/types";
+import type { BackendOptions, Device, QueryDebugInfo } from "@/lib/api/types";
 import { toaster } from "@/components/ui/Toaster";
 import { SideDrawer } from "@/features/search/components/SideDrawer";
 import { FaFilter, FaTimes } from "react-icons/fa";
@@ -232,7 +229,7 @@ export default function Home() {
       query: query,
     });
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
     router.push(
       { pathname: "/", query: { ...router.query, page: String(newPage) } },
       undefined,
@@ -270,11 +267,9 @@ export default function Home() {
       );
     } else {
       const { sort_by: _removedSort, ...finalRest } = rest;
-      router.push(
-        { pathname: "/", query: finalRest },
-        undefined,
-        { shallow: true },
-      );
+      router.push({ pathname: "/", query: finalRest }, undefined, {
+        shallow: true,
+      });
     }
   };
 
@@ -328,7 +323,7 @@ export default function Home() {
         />
       </Box>
       {!query && results.length === 0 && (
-      <StartSearching onSuggest={handleSearch} selectedCategory={panel} />
+        <StartSearching onSuggest={handleSearch} selectedCategory={panel} />
       )}
 
       {isLoading && (
@@ -373,106 +368,119 @@ export default function Home() {
                         Filter
                       </Button>
 
-                    {filterOpen && (
-                      <>
-                        <Box
-                          position="fixed"
-                          inset="0"
-                          zIndex={9}
-                          onClick={() => setFilterOpen(false)}
-                        />
-                        <Box
-                          position={{ base: "fixed", md: "absolute" }}
-                          top={{ base: "auto", md: "100%" }}
-                          bottom={{ base: "0", md: "auto" }}
-                          left={{ base: "0", md: "auto" }}
-                          right={{ base: "0", md: "0" }}
-                          marginTop={{ base: "0", md: "2" }}
-                          width={{ base: "100%", md: "300px" }}
-                          maxHeight={{ base: "70vh", md: "400px" }}
-                          overflowY="auto"
-                          backgroundColor="ui.surface"
-                          border="1px solid"
-                          borderColor="ui.borderLight"
-                          borderRadius={{ base: "12px 12px 0 0", md: "8px" }}
-                          boxShadow="lg"
-                          zIndex={10}
-                          padding="4"
-                        >
-                          {data.facets.map((facet) => (
-                            <Box key={facet.field} marginBottom="4">
-                              <Collapsible.Root defaultOpen>
-                                <Collapsible.Trigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    width="100%"
-                                    justifyContent="space-between"
-                                    fontSize="sm"
-                                    fontWeight="semibold"
-                                    color="brand.primary"
-                                    paddingY="2"
-                                  >
-                                    {facet.field === "device_class"
-                                      ? "Device Class"
-                                      : facet.field === "panel_code"
-                                        ? "Panel"
-                                        : facet.field === "decision_code"
-                                          ? "Decision"
-                                          : facet.field}
-                                  </Button>
-                                </Collapsible.Trigger>
-                                <Collapsible.Content>
-                                  <Stack gap="1" marginTop="2">
-                                    {facet.values.slice(0, 10).map((fv) => (
-                                      <Box
-                                        key={fv.value}
-                                        as="button"
-                                        onClick={() =>
-                                          handleFacetFilter(
-                                            facet.field,
-                                            fv.value,
-                                          )
-                                        }
-                                        display="flex"
-                                        justifyContent="space-between"
-                                        alignItems="center"
-                                        padding="2"
-                                        borderRadius="4px"
-                                        fontSize="sm"
-                                        _hover={{
-                                          backgroundColor: "ui.background",
-                                        }}
-                                        cursor="pointer"
-                                        width="100%"
-                                        textAlign="left"
-                                      >
-                                        <Text color="ui.text">
-                                          {fv.label || fv.value}
-                                        </Text>
-                                        <Text
-                                          color="ui.textMuted"
-                                          fontSize="xs"
+                      {filterOpen && (
+                        <>
+                          <Box
+                            position="fixed"
+                            inset="0"
+                            zIndex={9}
+                            onClick={() => setFilterOpen(false)}
+                          />
+                          <Box
+                            position={{ base: "fixed", md: "absolute" }}
+                            top={{ base: "auto", md: "100%" }}
+                            bottom={{ base: "0", md: "auto" }}
+                            left={{ base: "0", md: "auto" }}
+                            right={{ base: "0", md: "0" }}
+                            marginTop={{ base: "0", md: "2" }}
+                            width={{ base: "100%", md: "300px" }}
+                            maxHeight={{ base: "70vh", md: "400px" }}
+                            overflowY="auto"
+                            backgroundColor="ui.surface"
+                            border="1px solid"
+                            borderColor="ui.borderLight"
+                            borderRadius={{ base: "12px 12px 0 0", md: "8px" }}
+                            boxShadow="lg"
+                            zIndex={10}
+                            padding="4"
+                          >
+                            {data.facets.map((facet) => (
+                              <Box key={facet.field} marginBottom="4">
+                                <Collapsible.Root defaultOpen>
+                                  <Collapsible.Trigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      width="100%"
+                                      justifyContent="space-between"
+                                      fontSize="sm"
+                                      fontWeight="semibold"
+                                      color="brand.primary"
+                                      paddingY="2"
+                                    >
+                                      {facet.field === "device_class"
+                                        ? "Device Class"
+                                        : facet.field === "panel_code"
+                                          ? "Panel"
+                                          : facet.field === "decision_code"
+                                            ? "Decision"
+                                            : facet.field}
+                                    </Button>
+                                  </Collapsible.Trigger>
+                                  <Collapsible.Content>
+                                    <Stack gap="1" marginTop="2">
+                                      {facet.values.slice(0, 10).map((fv) => (
+                                        <Box
+                                          key={fv.value}
+                                          as="button"
+                                          onClick={() =>
+                                            handleFacetFilter(
+                                              facet.field,
+                                              fv.value,
+                                            )
+                                          }
+                                          display="flex"
+                                          justifyContent="space-between"
+                                          alignItems="center"
+                                          padding="2"
+                                          borderRadius="4px"
+                                          fontSize="sm"
+                                          _hover={{
+                                            backgroundColor: "ui.background",
+                                          }}
+                                          cursor="pointer"
+                                          width="100%"
+                                          textAlign="left"
                                         >
-                                          ({fv.count})
-                                        </Text>
-                                      </Box>
-                                    ))}
-                                  </Stack>
-                                </Collapsible.Content>
-                              </Collapsible.Root>
-                            </Box>
-                          ))}
-                        </Box>
-                      </>
-                    )}
-                  </Box>
-                )}
+                                          <Text color="ui.text">
+                                            {fv.label || fv.value}
+                                          </Text>
+                                          <Text
+                                            color="ui.textMuted"
+                                            fontSize="xs"
+                                          >
+                                            ({fv.count})
+                                          </Text>
+                                        </Box>
+                                      ))}
+                                    </Stack>
+                                  </Collapsible.Content>
+                                </Collapsible.Root>
+                              </Box>
+                            ))}
+                          </Box>
+                        </>
+                      )}
+                    </Box>
+                  )}
               </Box>
 
               {/* sort and page size controls */}
-              <Box display="flex" gap="3" alignItems="center" marginBottom="2" flexWrap="wrap">
-                <Box display="flex" alignItems="center" gap="2" flex={{ base: "1 1 auto", md: "0 0 auto" }}>
-                  <Text fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">Sort:</Text>
+              <Box
+                display="flex"
+                gap="3"
+                alignItems="center"
+                marginBottom="2"
+                flexWrap="wrap"
+              >
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap="2"
+                  flex={{ base: "1 1 auto", md: "0 0 auto" }}
+                >
+                  <Text fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">
+                    Sort:
+                  </Text>
                   <NativeSelect.Root
                     size="sm"
                     width={{ base: "100%", md: "180px" }}
@@ -482,10 +490,16 @@ export default function Home() {
                       onChange={(e) => handleSortChange(e.currentTarget.value)}
                     >
                       <option value="">Relevance</option>
-                      <option value="decision_date_desc">Newest Approved</option>
+                      <option value="decision_date_desc">
+                        Newest Approved
+                      </option>
                       <option value="decision_date_asc">Oldest Approved</option>
-                      <option value="date_received_desc">Newest Submitted</option>
-                      <option value="date_received_asc">Oldest Submitted</option>
+                      <option value="date_received_desc">
+                        Newest Submitted
+                      </option>
+                      <option value="date_received_asc">
+                        Oldest Submitted
+                      </option>
                       <option value="manufacturer_asc">Manufacturer A-Z</option>
                     </NativeSelect.Field>
                     <NativeSelect.Indicator />
@@ -493,14 +507,15 @@ export default function Home() {
                 </Box>
 
                 <Box display="flex" alignItems="center" gap="2">
-                  <Text fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">Show:</Text>
-                  <NativeSelect.Root
-                    size="sm"
-                    width="80px"
-                  >
+                  <Text fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">
+                    Show:
+                  </Text>
+                  <NativeSelect.Root size="sm" width="80px">
                     <NativeSelect.Field
                       value={String(pageSize)}
-                      onChange={(e) => handlePageSizeChange(Number(e.currentTarget.value))}
+                      onChange={(e) =>
+                        handlePageSizeChange(Number(e.currentTarget.value))
+                      }
                     >
                       <option value="10">10</option>
                       <option value="20">20</option>
@@ -532,7 +547,10 @@ export default function Home() {
                         suggested_query: data.did_you_mean,
                       });
                       router.push(
-                        { pathname: "/", query: { ...router.query, q: data.did_you_mean } },
+                        {
+                          pathname: "/",
+                          query: { ...router.query, q: data.did_you_mean },
+                        },
                         undefined,
                         { shallow: true },
                       );
@@ -549,7 +567,12 @@ export default function Home() {
               {/* Expanded Terms Display */}
               {data?.expansion_info?.expansion_applied && (
                 <Box marginTop="2" marginBottom="2">
-                  <Text fontSize="sm" color="ui.textMuted" display="inline" marginRight="2">
+                  <Text
+                    fontSize="sm"
+                    color="ui.textMuted"
+                    display="inline"
+                    marginRight="2"
+                  >
                     also searching for:
                   </Text>
                   {[
@@ -569,8 +592,13 @@ export default function Home() {
                       borderRadius="12px"
                       fontSize="sm"
                       cursor="pointer"
-                      _hover={{ backgroundColor: "brand.accent", color: "white" }}
-                      onClick={() => router.push(`/?q=${encodeURIComponent(termInfo.term)}`)}
+                      _hover={{
+                        backgroundColor: "brand.accent",
+                        color: "white",
+                      }}
+                      onClick={() =>
+                        router.push(`/?q=${encodeURIComponent(termInfo.term)}`)
+                      }
                     >
                       {termInfo.term}
                     </Box>
@@ -606,7 +634,12 @@ export default function Home() {
                     >
                       {/* query processing */}
                       <Box marginBottom="3">
-                        <Text fontWeight="semibold" color="ui.text" marginBottom="1" fontSize="xs">
+                        <Text
+                          fontWeight="semibold"
+                          color="ui.text"
+                          marginBottom="1"
+                          fontSize="xs"
+                        >
                           Query processing
                         </Text>
                         <HStack gap="1" flexWrap="wrap" marginBottom="1">
@@ -635,43 +668,70 @@ export default function Home() {
                         </HStack>
                         {data.debug_info.query_transformations?.length > 0 && (
                           <Box color="ui.textMuted" fontSize="xs">
-                            {data.debug_info.query_transformations.map((t, i) => (
-                              <Text key={i} display="inline" marginRight="3">
-                                {t.original} → {t.stemmed}
-                              </Text>
-                            ))}
+                            {data.debug_info.query_transformations.map(
+                              (t, i) => (
+                                <Text key={i} display="inline" marginRight="3">
+                                  {t.original} → {t.stemmed}
+                                </Text>
+                              ),
+                            )}
                           </Box>
                         )}
                       </Box>
 
                       {/* retrieval stats */}
                       <Box marginBottom="3">
-                        <Text fontWeight="semibold" color="ui.text" marginBottom="1" fontSize="xs">
+                        <Text
+                          fontWeight="semibold"
+                          color="ui.text"
+                          marginBottom="1"
+                          fontSize="xs"
+                        >
                           Retrieval
                         </Text>
                         <Text color="ui.textMuted" fontSize="xs">
-                          Found {data.debug_info.bm25_candidates} keyword matches
-                          and {data.debug_info.dense_candidates} semantic matches
-                          in {Math.round(data.debug_info.retrieval_time_ms)}ms.
+                          Found {data.debug_info.bm25_candidates} keyword
+                          matches and {data.debug_info.dense_candidates}{" "}
+                          semantic matches in{" "}
+                          {Math.round(data.debug_info.retrieval_time_ms)}ms.
                         </Text>
                       </Box>
 
                       {/* filter funnel - only if filters caused reductions */}
                       {(() => {
                         const d = data.debug_info as QueryDebugInfo;
-                        const stages: Array<{ label: string; count: number }> = [];
+                        const stages: Array<{ label: string; count: number }> =
+                          [];
                         const total = d.total_before_metadata_filters;
 
                         // only build funnel if we have a starting count
                         if (total > 0) {
                           stages.push({ label: "candidates", count: total });
 
-                          const filters: Array<{ label: string; count: number }> = [
-                            { label: "After panel filter", count: d.candidates_after_panel_filter },
-                            { label: "After class filter", count: d.candidates_after_class_filter },
-                            { label: "After decision filter", count: d.candidates_after_decision_filter },
-                            { label: "After product code filter", count: d.candidates_after_product_code_filter },
-                            { label: "After date filter", count: d.candidates_after_date_filter },
+                          const filters: Array<{
+                            label: string;
+                            count: number;
+                          }> = [
+                            {
+                              label: "After panel filter",
+                              count: d.candidates_after_panel_filter,
+                            },
+                            {
+                              label: "After class filter",
+                              count: d.candidates_after_class_filter,
+                            },
+                            {
+                              label: "After decision filter",
+                              count: d.candidates_after_decision_filter,
+                            },
+                            {
+                              label: "After product code filter",
+                              count: d.candidates_after_product_code_filter,
+                            },
+                            {
+                              label: "After date filter",
+                              count: d.candidates_after_date_filter,
+                            },
                           ];
 
                           let prev = total;
@@ -688,7 +748,12 @@ export default function Home() {
                         if (stages.length > 1) {
                           return (
                             <Box>
-                              <Text fontWeight="semibold" color="ui.text" marginBottom="1" fontSize="xs">
+                              <Text
+                                fontWeight="semibold"
+                                color="ui.text"
+                                marginBottom="1"
+                                fontSize="xs"
+                              >
                                 filter funnel
                               </Text>
                               {stages.map((s, i) => (
