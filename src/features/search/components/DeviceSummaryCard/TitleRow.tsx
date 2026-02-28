@@ -36,7 +36,8 @@ const MATCH_CONTEXT_TOOLTIPS: Record<string, string> = {
 };
 
 export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
-  const showContext = device.matchReason || device.retrievalSource;
+  const showSourceInfo = device.matchReason || device.retrievalSource;
+
   const retrievalConfig = device.retrievalSource
     ? getRetrievalSourceConfig(device.retrievalSource)
     : null;
@@ -75,7 +76,7 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
         </Link>
       </Box>
 
-      {showContext && (
+      {showSourceInfo && (
         <HStack
           gap="1.5"
           flexWrap="wrap"
@@ -115,7 +116,8 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
           {retrievalConfig && device.retrievalSource && (
             <Tooltip
               content={
-                MATCH_CONTEXT_TOOLTIPS[device.retrievalSource] || "Search result"
+                MATCH_CONTEXT_TOOLTIPS[device.retrievalSource] ||
+                "Search result"
               }
               showArrow
               openDelay={200}

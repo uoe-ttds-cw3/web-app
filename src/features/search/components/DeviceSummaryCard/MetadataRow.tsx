@@ -61,14 +61,7 @@ const ProductCodeValue = ({ code }: ProductCodeValueProps) => {
 
   return (
     <Tooltip
-      content={
-        <>
-          <Box fontWeight="semibold">{productCode.name}</Box>
-          <Box>
-            Specialty: {productCode.specialty} | Class: {productCode.class}
-          </Box>
-        </>
-      }
+      content={<Box fontWeight="semibold">{productCode.name}</Box>}
       showArrow
       openDelay={200}
       contentProps={TOOLTIP_PROPS}
@@ -87,90 +80,61 @@ const ProductCodeValue = ({ code }: ProductCodeValueProps) => {
 };
 
 export const MetadataRow = ({ device }: MetadataRowProps) => {
+  const manufacturer = device.manufacturer;
+
+  const metadataItems = [
+    manufacturer ? (
+      <Text key="manufacturer">
+        Manufacturer: <ManufacturerSearchLink label={manufacturer} />
+      </Text>
+    ) : null,
+    device.date ? (
+      <Text key="date">
+        Decision Date:{" "}
+        <Box as="span" color="ui.text">
+          {device.date}
+        </Box>
+      </Text>
+    ) : null,
+    device.panel ? (
+      <Text key="panel">
+        Panel:{" "}
+        <Box as="span" color="ui.text">
+          {device.panel}
+        </Box>
+      </Text>
+    ) : null,
+    device.pCode ? (
+      <Text key="product-code">
+        Product Code: <ProductCodeValue code={device.pCode} />
+      </Text>
+    ) : null,
+    device.deviceClass ? (
+      <Text key="class">
+        Class:{" "}
+        <Box as="span" color="ui.text">
+          {device.deviceClass}
+        </Box>
+      </Text>
+    ) : null,
+  ].filter(Boolean);
+
   return (
     <Box fontSize={{ base: "xs", md: "sm" }} color="ui.textMuted">
-      <Box
-        display={{ base: "flex", md: "none" }}
-        flexDirection="column"
-        gap="1"
-      >
-        {device.manufacturer && (
-          <Text>
-            Manufacturer: <ManufacturerSearchLink label={device.manufacturer} />
-          </Text>
-        )}
-        {device.date && (
-          <Text>
-            Decision Date:{" "}
-            <Box as="span" color="ui.text">
-              {device.date}
-            </Box>
-          </Text>
-        )}
-        <HStack gap="3" flexWrap="wrap">
-          {device.panel && (
-            <Text>
-              Panel:{" "}
-              <Box as="span" color="ui.text">
-                {device.panel}
-              </Box>
-            </Text>
-          )}
-          {device.pCode && (
-            <Text>
-              Code: <ProductCodeValue code={device.pCode} />
-            </Text>
-          )}
-          {device.deviceClass && (
-            <Text>
-              Class:{" "}
-              <Box as="span" color="ui.text">
-                {device.deviceClass}
-              </Box>
-            </Text>
-          )}
-        </HStack>
-      </Box>
-
-      <HStack display={{ base: "none", md: "flex" }} gap="3" flexWrap="wrap">
-        {device.sponsor && (
-          <Text>
-            Manufacturer: <ManufacturerSearchLink label={device.sponsor} />
-          </Text>
-        )}
-        {device.date && <Text>|</Text>}
-        {device.date && (
-          <Text>
-            Decision Date:{" "}
-            <Box as="span" color="ui.text">
-              {device.date}
-            </Box>
-          </Text>
-        )}
-        {device.panel && <Text>|</Text>}
-        {device.panel && (
-          <Text>
-            Panel:{" "}
-            <Box as="span" color="ui.text">
-              {device.panel}
-            </Box>
-          </Text>
-        )}
-        {device.pCode && <Text>|</Text>}
-        {device.pCode && (
-          <Text>
-            Product Code: <ProductCodeValue code={device.pCode} />
-          </Text>
-        )}
-        {device.deviceClass && <Text>|</Text>}
-        {device.deviceClass && (
-          <Text>
-            Class:{" "}
-            <Box as="span" color="ui.text">
-              {device.deviceClass}
-            </Box>
-          </Text>
-        )}
+      <HStack gap={{ base: "2", md: "3" }} flexWrap="wrap" alignItems="center">
+        {metadataItems.map((item, index) => (
+          <HStack key={index} gap={{ base: "0", md: "3" }} alignItems="center">
+            {index > 0 && (
+              <Text
+                display={{ base: "none", md: "inline" }}
+                color="ui.textMuted"
+              >
+                |
+              </Text>
+            )}
+            {item}
+          </HStack>
+        ))}
       </HStack>
     </Box>
   );

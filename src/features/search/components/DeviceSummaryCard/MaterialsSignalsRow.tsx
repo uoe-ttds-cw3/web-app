@@ -28,7 +28,7 @@ export const MaterialsSignalsRow = ({ device }: MaterialsSignalsRowProps) => {
         Materials
       </Text>
       <Tooltip
-        content="Materials are extracted from the submission text and may be incomplete or phrased differently from the original filing."
+        content="Materials are extracted from the submission text and may be incomplete."
         showArrow
         openDelay={200}
         contentProps={TOOLTIP_PROPS}
