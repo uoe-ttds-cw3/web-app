@@ -495,6 +495,24 @@ export const DeviceDetailed = ({
             <Link href={`/?q=${device.sponsor}`}>{device.sponsor}</Link>
           </ChakraLink>
         </Box>
+        {/* brand names from maude adverse event reports */}
+        {deviceSafety &&
+          deviceSafety.brand_names &&
+          deviceSafety.brand_names.length > 0 && (
+            <Box marginTop="8px">
+              <Text fontSize="sm" color="ui.textMuted" display="inline">
+                Also known as:{" "}
+              </Text>
+              <Text
+                fontSize="sm"
+                color="black"
+                display="inline"
+                fontWeight="medium"
+              >
+                {deviceSafety.brand_names.join(", ")}
+              </Text>
+            </Box>
+          )}
       </Box>
 
       <Separator marginY="16px" />
