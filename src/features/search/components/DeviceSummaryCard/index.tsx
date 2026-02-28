@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import type { Device } from "@/lib/api/types";
 import Link from "next/link";
 import { FeatureBadges } from "./FeatureBadges";
+import { MaterialsRow } from "./MaterialsRow";
 import { MetadataRow } from "./MetadataRow";
 import { TitleRow } from "./TitleRow";
 
@@ -53,15 +54,7 @@ export const DeviceSummaryCard = ({
 
       <FeatureBadges device={device} />
 
-      {/* materials */}
-      {device.materials.length > 0 && (
-        <Text fontSize="sm" color="ui.textMuted" mb="3">
-          <Box as="span" fontWeight="medium">
-            Materials:
-          </Box>{" "}
-          {device.materials.join(" · ")}
-        </Text>
-      )}
+      <MaterialsRow device={device} />
 
       <ChakraLink asChild color="brand.primary" mb="4">
         <Link href={`/devices/${device.id}`}>View safety data &rarr;</Link>
