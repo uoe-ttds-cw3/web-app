@@ -1,20 +1,17 @@
 import {
   Box,
   HStack,
-  Text,
   Checkbox,
   Link as ChakraLink,
   Grid,
   GridItem,
 } from "@chakra-ui/react";
-import Highlighter from "react-highlight-words";
-import { useState } from "react";
-import { useRouter } from "next/router";
 import type { Device } from "@/lib/api/types";
 import Link from "next/link";
 import { FeatureBadges } from "./FeatureBadges";
 import { MaterialsRow } from "./MaterialsRow";
 import { MetadataRow } from "./MetadataRow";
+import { SnippetPreview } from "./SnippetPreview";
 import { TitleRow } from "./TitleRow";
 
 type DeviceSummaryCardProps = {
@@ -30,14 +27,7 @@ export const DeviceSummaryCard = ({
   onToggle,
   searchQuery = "",
 }: DeviceSummaryCardProps) => {
-  const [expanded, setExpanded] = useState(false);
-  const router = useRouter();
   const isSelected = selectedDevices.some((d) => d.id === device.id);
-
-  const shouldTruncate = device.snippet && device.snippet.length > 200;
-
-  const displaySnippet =
-    shouldTruncate && !expanded ? device.snippet.slice(0, 200) : device.snippet;
 
   return (
     <Box
@@ -57,68 +47,10 @@ export const DeviceSummaryCard = ({
       <MaterialsRow device={device} />
 
       <ChakraLink asChild color="brand.primary" mb="4">
-        <Link href={`/devices/${device.id}`}>View safety data &rarr;</Link>
+        <Link href={`/devices/${device.id}`}>View all details &rarr;</Link>
       </ChakraLink>
 
-      {device.snippet && (
-        <Box>
-          {/* snippet source label - shows which field the snippet was extracted from */}
-          {device.snippetSource && (
-            <Text fontSize="xs" color="ui.textMuted" fontStyle="italic" mb="1">
-              {device.snippetSource === "indications_for_use"
-                ? "From indications for use"
-                : device.snippetSource === "device_description"
-                  ? "From device description"
-                  : device.snippetSource === "summary_text"
-                    ? "From summary"
-                    : null}
-            </Text>
-          )}
-          <Box
-            fontSize="sm"
-            color="ui.textMuted"
-            userSelect="text"
-            cursor="text"
-            onDoubleClick={(e) => {
-              // re-search selected text on double-click
-              const selection = window.getSelection()?.toString().trim();
-              if (selection && selection.length >= 3) {
-                e.preventDefault();
-                router.push({ pathname: "/", query: { q: selection } });
-              }
-            }}
-          >
-            {searchQuery ? (
-              <Highlighter
-                searchWords={searchQuery.split(/\s+/)}
-                autoEscape
-                textToHighlight={displaySnippet}
-                highlightStyle={{
-                  fontWeight: "bold",
-                  backgroundColor: "#FFEB3B80",
-                }}
-              />
-            ) : (
-              <Text>{displaySnippet}</Text>
-            )}
-
-            {shouldTruncate && !expanded && (
-              <>
-                ...{" "}
-                <Box
-                  as="span"
-                  color="brand.primary"
-                  cursor="pointer"
-                  textDecoration="underline"
-                  onClick={() => setExpanded(true)}
-                >
-                  Read more
-                </Box>
-              </>
-            )}
-          </Box>
-        </Box>
-      )}
+      <SnippetPreview device={device} searchQuery={searchQuery} />
 
       <Box mt="4">
         <Grid
