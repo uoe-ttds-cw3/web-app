@@ -1,4 +1,4 @@
-import { Badge, Box, HStack } from "@chakra-ui/react";
+import { Box, HStack, Text } from "@chakra-ui/react";
 import Highlighter from "react-highlight-words";
 import Link from "next/link";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -17,92 +17,30 @@ const TOOLTIP_PROPS = {
   borderRadius: "md",
 };
 
-const MATCH_REASON_COLORS: Record<string, string> = {
-  "exact submission number": "green",
-  "device name match": "blue",
-  "manufacturer match": "blue",
-  "product code match": "blue",
-  "matched in summary": "gray",
-  "related device": "gray",
-};
-
-const RETRIEVAL_SOURCE_CONFIG: Record<
-  string,
-  { color: string; label: string }
-> = {
-  keyword: { color: "green", label: "keyword match" },
-  semantic: { color: "purple", label: "semantic match" },
-  both: { color: "teal", label: "keyword & semantic match" },
-};
-
-const getMatchReasonColor = (reason: string): string => {
-  return MATCH_REASON_COLORS[reason] || "gray";
-};
-
 const getRetrievalSourceConfig = (source: string) => {
-  return RETRIEVAL_SOURCE_CONFIG[source] || { color: "gray", label: source };
-};
-
-const MatchReasonBadge = ({ device }: { device: Device }) => {
-  if (!device.matchReason) return null;
-
   return (
-    <Tooltip
-      content={device.matchDetail || device.matchReason}
-      showArrow
-      openDelay={200}
-      contentProps={TOOLTIP_PROPS}
-    >
-      <Badge
-        variant="outline"
-        colorPalette={getMatchReasonColor(device.matchReason)}
-        fontSize="xs"
-        flexShrink={0}
-        cursor="help"
-        padding="0 0.25rem"
-      >
-        {device.matchReason}
-      </Badge>
-    </Tooltip>
-  );
-};
-
-const RetrievalSourceBadge = ({ device }: { device: Device }) => {
-  if (!device.retrievalSource) return null;
-
-  const config = getRetrievalSourceConfig(device.retrievalSource);
-
-  const tooltipContent =
     {
-      keyword:
-        "Found by keyword matching - your search terms appear in the device name or summary",
-      semantic:
-        "Found by semantic search - conceptually similar to your search meaning",
-      both: "Found by both keyword and semantic search - strongest match type",
-    }[device.retrievalSource] || "Search result";
-
-  return (
-    <Tooltip
-      content={tooltipContent}
-      showArrow
-      openDelay={200}
-      contentProps={TOOLTIP_PROPS}
-    >
-      <Badge
-        variant="outline"
-        colorPalette={config.color}
-        fontSize="xs"
-        flexShrink={0}
-        cursor="help"
-        padding="0 0.25rem"
-      >
-        {config.label}
-      </Badge>
-    </Tooltip>
+      keyword: { label: "keyword search" },
+      semantic: { label: "semantic search" },
+      both: { label: "keyword + semantic" },
+    }[source] || { label: source }
   );
+};
+
+const MATCH_CONTEXT_TOOLTIPS: Record<string, string> = {
+  keyword:
+    "Found by keyword matching - your search terms appear in the device name or summary",
+  semantic:
+    "Found by semantic search - conceptually similar to your search meaning",
+  both: "Found by both keyword and semantic search - strongest match type",
 };
 
 export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
+  const showContext = device.matchReason || device.retrievalSource;
+  const retrievalConfig = device.retrievalSource
+    ? getRetrievalSourceConfig(device.retrievalSource)
+    : null;
+
   return (
     <HStack
       alignItems="flex-start"
@@ -137,8 +75,62 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
         </Link>
       </Box>
 
-      <MatchReasonBadge device={device} />
-      <RetrievalSourceBadge device={device} />
+      {showContext && (
+        <HStack
+          gap="1.5"
+          flexWrap="wrap"
+          alignItems="center"
+          fontSize="xs"
+          color="ui.textMuted"
+          border="1px solid"
+          borderColor="ui.borderLight"
+          borderRadius="full"
+          px="2"
+          py="1"
+          flexShrink={0}
+        >
+          <Text color="ui.textMuted">Matched by</Text>
+          {device.matchReason && (
+            <Tooltip
+              content={device.matchDetail || device.matchReason}
+              showArrow
+              openDelay={200}
+              contentProps={TOOLTIP_PROPS}
+            >
+              <Text
+                cursor="help"
+                color="ui.text"
+                textDecoration="underline dotted"
+                textUnderlineOffset="2px"
+              >
+                {device.matchReason}
+              </Text>
+            </Tooltip>
+          )}
+          {device.matchReason && retrievalConfig && (
+            <Text color="ui.textMuted">·</Text>
+          )}
+          {retrievalConfig && device.retrievalSource && (
+            <Tooltip
+              content={
+                MATCH_CONTEXT_TOOLTIPS[device.retrievalSource] || "Search result"
+              }
+              showArrow
+              openDelay={200}
+              contentProps={TOOLTIP_PROPS}
+            >
+              <Text
+                cursor="help"
+                color="ui.text"
+                textDecoration="underline dotted"
+                textUnderlineOffset="2px"
+              >
+                {retrievalConfig.label}
+              </Text>
+            </Tooltip>
+          )}
+        </HStack>
+      )}
     </HStack>
   );
 };

@@ -116,17 +116,17 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
               </Box>
             </Text>
           )}
+          {device.pCode && (
+            <Text>
+              Code: <ProductCodeValue code={device.pCode} />
+            </Text>
+          )}
           {device.deviceClass && (
             <Text>
               Class:{" "}
               <Box as="span" color="ui.text">
                 {device.deviceClass}
               </Box>
-            </Text>
-          )}
-          {device.pCode && (
-            <Text>
-              Code: <ProductCodeValue code={device.pCode} />
             </Text>
           )}
         </HStack>
@@ -156,6 +156,12 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
             </Box>
           </Text>
         )}
+        {device.pCode && <Text>|</Text>}
+        {device.pCode && (
+          <Text>
+            Product Code: <ProductCodeValue code={device.pCode} />
+          </Text>
+        )}
         {device.deviceClass && <Text>|</Text>}
         {device.deviceClass && (
           <Text>
@@ -163,12 +169,6 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
             <Box as="span" color="ui.text">
               {device.deviceClass}
             </Box>
-          </Text>
-        )}
-        {device.pCode && <Text>|</Text>}
-        {device.pCode && (
-          <Text>
-            Product Code: <ProductCodeValue code={device.pCode} />
           </Text>
         )}
       </HStack>
