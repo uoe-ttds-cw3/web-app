@@ -25,12 +25,17 @@ export const ActionFooter = ({
       <Grid
         templateColumns={{ base: "1fr", md: "minmax(0, 1fr) auto" }}
         gap={{ base: 3, md: 4 }}
-        p={{ base: 3, md: 4 }}
+        p={{ base: 2, md: 2 }}
+        alignItems="center"
         border="1px solid"
         borderColor="gray.200"
         borderRadius="md"
       >
-        <GridItem justifySelf={{ base: "center", md: "start" }}>
+        <GridItem
+          justifySelf={{ base: "center", md: "start" }}
+          display="flex"
+          alignItems="center"
+        >
           <Checkbox.Root
             cursor="pointer"
             checked={isSelected}
@@ -42,7 +47,12 @@ export const ActionFooter = ({
           </Checkbox.Root>
         </GridItem>
 
-        <GridItem justifySelf={{ base: "center", md: "end" }} width="100%">
+        <GridItem
+          justifySelf={{ base: "center", md: "end" }}
+          width="100%"
+          display="flex"
+          alignItems="center"
+        >
           <Flex
             direction={{ base: "column", md: "row" }}
             gap={{ base: "2", md: "5" }}
@@ -67,7 +77,9 @@ export const ActionFooter = ({
                 backgroundColor: "rgba(47, 94, 47, 0.08)",
               }}
             >
-              <Link href={`/devices/${device.id}`}>View Full Device Record &rarr;</Link>
+              <Link href={`/devices/${device.id}`}>
+                View Full Device Record &rarr;
+              </Link>
             </ChakraLink>
             {device.id && (
               <ChakraLink
