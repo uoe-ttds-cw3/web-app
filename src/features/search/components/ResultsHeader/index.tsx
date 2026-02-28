@@ -17,7 +17,7 @@ export const ResultsHeader = ({
       display="flex"
       alignItems="center"
       justifyContent="flex-start"
-      gap="3"
+      gap="8"
       width="100%"
       flexWrap="wrap"
     >

@@ -62,9 +62,13 @@ export const SearchDetailsModal = ({ debugInfo }: SearchDetailsModalProps) => {
     <>
       <Box
         as="button"
+        display="inline-flex"
+        alignItems="center"
+        gap="1.5"
         fontSize="xs"
         color="ui.textMuted"
         cursor="pointer"
+        lineHeight="1"
         _hover={{ color: "brand.primary" }}
         onClick={() => setOpen(true)}
       >
