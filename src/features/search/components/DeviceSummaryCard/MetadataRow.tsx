@@ -48,7 +48,8 @@ const ManufacturerSearchLink = ({ label }: ManufacturerSearchLinkProps) => {
 };
 
 const ProductCodeValue = ({ code }: ProductCodeValueProps) => {
-  const productCode = PRODUCT_CODES[code.toUpperCase() as keyof typeof PRODUCT_CODES];
+  const productCode =
+    PRODUCT_CODES[code.toUpperCase() as keyof typeof PRODUCT_CODES];
 
   if (!productCode) {
     return (
@@ -95,13 +96,12 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
       >
         {device.manufacturer && (
           <Text>
-            Manufacturer:{" "}
-            <ManufacturerSearchLink label={device.manufacturer} />
+            Manufacturer: <ManufacturerSearchLink label={device.manufacturer} />
           </Text>
         )}
         {device.date && (
           <Text>
-            Date:{" "}
+            Decision Date:{" "}
             <Box as="span" color="ui.text">
               {device.date}
             </Box>
@@ -126,8 +126,7 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
           )}
           {device.pCode && (
             <Text>
-              Code:{" "}
-              <ProductCodeValue code={device.pCode} />
+              Code: <ProductCodeValue code={device.pCode} />
             </Text>
           )}
         </HStack>
@@ -136,14 +135,13 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
       <HStack display={{ base: "none", md: "flex" }} gap="3" flexWrap="wrap">
         {device.sponsor && (
           <Text>
-            Manufacturer:{" "}
-            <ManufacturerSearchLink label={device.sponsor} />
+            Manufacturer: <ManufacturerSearchLink label={device.sponsor} />
           </Text>
         )}
         {device.date && <Text>|</Text>}
         {device.date && (
           <Text>
-            Date:{" "}
+            Decision Date:{" "}
             <Box as="span" color="ui.text">
               {device.date}
             </Box>
@@ -170,8 +168,7 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
         {device.pCode && <Text>|</Text>}
         {device.pCode && (
           <Text>
-            Product Code:{" "}
-            <ProductCodeValue code={device.pCode} />
+            Product Code: <ProductCodeValue code={device.pCode} />
           </Text>
         )}
       </HStack>

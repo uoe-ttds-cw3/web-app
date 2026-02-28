@@ -45,7 +45,7 @@ export const DeviceSummaryCard = ({
       <SafetySignals device={device} />
 
       <ChakraLink asChild color="brand.primary">
-        <Link href={`/devices/${device.id}`}>View all details &rarr;</Link>
+        <Link href={`/devices/${device.id}`}>View Full Device Record &rarr;</Link>
       </ChakraLink>
 
       <ActionFooter

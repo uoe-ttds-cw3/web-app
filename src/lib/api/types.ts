@@ -279,6 +279,7 @@ export interface Device {
   id: string; // from submission_number
   name: string; // from device_name
   manufacturer: string; // from sponsor
+  decision: string | null; // from decision
   date: string; // from decision_date
   panel: string; // from panel
   pCode: string; // from product_code
@@ -326,6 +327,7 @@ export function transformSearchResult(item: SearchResultItem): Device {
     id: item.submission_number,
     name: item.device_name,
     manufacturer: item.sponsor,
+    decision: item.decision ?? null,
     date: formatDate(item.decision_date),
     panel: item.panel || "",
     pCode: item.product_code || "",

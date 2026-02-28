@@ -26,7 +26,7 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
   }
 
   return (
-    <Box p="4" border="1px solid" borderColor="gray.200" borderRadius="md">
+    <Box p="2" border="1px solid" borderColor="gray.200" borderRadius="md">
       <HStack gap="1" mb="2" alignItems="center">
         <Text fontSize="xs" color="ui.textMuted" textTransform="uppercase">
           Safety signals
@@ -49,7 +49,10 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
           </Box>
         </Tooltip>
       </HStack>
-      <HStack gap="2" flexWrap="wrap">
+      <HStack alignItems="flex-start" gap="2" flexWrap="wrap">
+        <Text fontSize="xs" color="ui.textMuted" pt="1">
+          Signals
+        </Text>
         {hasAdverseEvents && (
           <Tooltip
             content={`${device.adverseEvents?.toLocaleString()} reported adverse events for this device in the cached FDA MAUDE data`}

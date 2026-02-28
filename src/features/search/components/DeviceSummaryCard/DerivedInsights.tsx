@@ -32,12 +32,7 @@ export const DerivedInsights = ({ device }: DerivedInsightsProps) => {
   }
 
   return (
-    <Box
-      p="2"
-      border="1px solid"
-      borderColor="gray.200"
-      borderRadius="md"
-    >
+    <Box p="2" border="1px solid" borderColor="gray.200" borderRadius="md">
       <HStack gap="1" mb="2" alignItems="center">
         <Text fontSize="xs" color="ui.textMuted" textTransform="uppercase">
           Derived insights
@@ -61,20 +56,25 @@ export const DerivedInsights = ({ device }: DerivedInsightsProps) => {
         </Tooltip>
       </HStack>
       {hasDerivedFeatures && (
-        <Box>
-          <Text fontSize="xs" color="ui.textMuted" mb="2">
+        <HStack alignItems="flex-start" gap="2" flexWrap="wrap">
+          <Text fontSize="xs" color="ui.textMuted" pt="1">
             Detected signals
           </Text>
           <FeatureBadges device={device} />
-        </Box>
+        </HStack>
       )}
       {hasMaterials && (
-        <Box mt={hasDerivedFeatures ? "3" : "0"}>
-          <Text fontSize="xs" color="ui.textMuted" mb="2">
+        <HStack
+          mt={hasDerivedFeatures ? "3" : "0"}
+          alignItems="flex-start"
+          gap="2"
+          flexWrap="wrap"
+        >
+          <Text fontSize="xs" color="ui.textMuted" pt="1">
             Extracted materials
           </Text>
           <MaterialsRow device={device} />
-        </Box>
+        </HStack>
       )}
     </Box>
   );
