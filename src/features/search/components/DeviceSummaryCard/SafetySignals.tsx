@@ -16,6 +16,16 @@ const TOOLTIP_PROPS = {
   maxW: "320px",
 };
 
+const RED_BADGE_STYLES = {
+  color: "red.600",
+  borderColor: "red.600",
+};
+
+const ORANGE_BADGE_STYLES = {
+  color: "orange.600",
+  borderColor: "orange.600",
+};
+
 export const SafetySignals = ({ device }: SafetySignalsProps) => {
   const hasRecalls = device.recalls != null && device.recalls > 0;
   const hasAdverseEvents =
@@ -56,11 +66,12 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
         >
           <Badge
             colorPalette={device.adverseEvents! >= 100 ? "red" : "orange"}
-            variant="solid"
+            variant="outline"
             fontSize="xs"
             flexShrink={0}
             cursor="help"
             padding="0 0.25rem"
+            {...(device.adverseEvents! >= 100 ? RED_BADGE_STYLES : ORANGE_BADGE_STYLES)}
           >
             {device.adverseEvents?.toLocaleString()} adverse events
           </Badge>
@@ -75,11 +86,12 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
         >
           <Badge
             colorPalette="red"
-            variant="solid"
+            variant="outline"
             fontSize="xs"
             flexShrink={0}
             cursor="help"
             padding="0 0.25rem"
+            {...RED_BADGE_STYLES}
           >
             {device.recalls} recall{device.recalls === 1 ? "" : "s"}
           </Badge>
