@@ -1,9 +1,45 @@
-import { Box, HStack, Link as ChakraLink, Text } from "@chakra-ui/react";
+import { Box, HStack, Icon, Link as ChakraLink, Text } from "@chakra-ui/react";
 import Link from "next/link";
+import { LuSearch } from "react-icons/lu";
+import { Tooltip } from "@/components/ui/Tooltip";
 import type { Device } from "@/lib/api/types";
 
 export type MetadataRowProps = {
   device: Device;
+};
+
+const TOOLTIP_PROPS = {
+  bg: "ui.background",
+  color: "ui.text",
+  px: 2,
+  py: 1,
+  borderRadius: "md",
+};
+
+type ManufacturerSearchLinkProps = {
+  label: string;
+};
+
+const ManufacturerSearchLink = ({ label }: ManufacturerSearchLinkProps) => {
+  return (
+    <Tooltip
+      content="Search for more devices from this manufacturer"
+      showArrow
+      openDelay={200}
+      contentProps={TOOLTIP_PROPS}
+    >
+      <ChakraLink
+        asChild
+        color="brand.primary"
+        textDecoration="underline"
+        textUnderlineOffset="2px"
+      >
+        <Link href={{ pathname: "/", query: { q: label } }}>
+          {label} <Icon as={LuSearch} boxSize="3" verticalAlign="middle" />
+        </Link>
+      </ChakraLink>
+    </Tooltip>
+  );
 };
 
 export const MetadataRow = ({ device }: MetadataRowProps) => {
@@ -17,15 +53,7 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
         {device.manufacturer && (
           <Text>
             Manufacturer:{" "}
-            <ChakraLink
-              asChild
-              color="brand.primary"
-              textDecoration="underline"
-            >
-              <Link href={{ pathname: "/", query: { q: device.manufacturer } }}>
-                {device.manufacturer}
-              </Link>
-            </ChakraLink>
+            <ManufacturerSearchLink label={device.manufacturer} />
           </Text>
         )}
         {device.date && (
@@ -68,13 +96,7 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
         {device.sponsor && (
           <Text>
             Manufacturer:{" "}
-            <ChakraLink
-              asChild
-              color="brand.primary"
-              textDecoration="underline"
-            >
-              <Link href={`/q=${device.sponsor}`}>{device.sponsor}</Link>
-            </ChakraLink>
+            <ManufacturerSearchLink label={device.sponsor} />
           </Text>
         )}
         {device.date && <Text>|</Text>}

@@ -28,7 +28,7 @@ export const DeviceSummaryCard = ({
       display="grid"
       gap={{ base: "3", md: "4" }}
       backgroundColor="ui.surface"
-      padding={{ base: "4", md: "5" }}
+      padding={{ base: "3", md: "4" }}
       borderRadius="12px"
       border="1px solid"
       borderColor="ui.borderLight"
@@ -38,15 +38,15 @@ export const DeviceSummaryCard = ({
 
       <MetadataRow device={device} />
 
-      <ChakraLink asChild color="brand.primary">
-        <Link href={`/devices/${device.id}`}>View all details &rarr;</Link>
-      </ChakraLink>
-
       <SnippetPreview device={device} searchQuery={searchQuery} />
 
       <DerivedInsights device={device} />
 
       <SafetySignals device={device} />
+
+      <ChakraLink asChild color="brand.primary">
+        <Link href={`/devices/${device.id}`}>View all details &rarr;</Link>
+      </ChakraLink>
 
       <ActionFooter
         device={device}
