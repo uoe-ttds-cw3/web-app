@@ -38,8 +38,7 @@ import {
 import dagre from "dagre";
 import "@xyflow/react/dist/style.css";
 import posthog from "posthog-js";
-import { Tooltip } from "@/components/ui/Tooltip";
-import { PRODUCT_CODES } from "@/data/PRODUCT_CODES";
+import { ProductCodeValue } from "@/features/search/components/DeviceShared/ProductCodeValue";
 import { useSearch } from "@/lib/queries/useSearch";
 import type {
   DeviceLookupResponse,
@@ -53,14 +52,6 @@ type DeviceDetailedProps = {
   lineage: LineageResponse | null;
   safety: SafetyProfileResponse | null;
   deviceSafety: DeviceSafetyData | null;
-};
-
-const TOOLTIP_PROPS = {
-  bg: "ui.background",
-  color: "ui.text",
-  px: 2,
-  py: 1,
-  borderRadius: "md",
 };
 
 // custom node component for the lineage graph
@@ -144,11 +135,6 @@ export const DeviceDetailed = ({
   const [showFullSummary, setShowFullSummary] = useState(false);
   const [showFullIfu, setShowFullIfu] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
-  const productCodeInfo = device.product_code
-    ? PRODUCT_CODES[
-        device.product_code.toUpperCase() as keyof typeof PRODUCT_CODES
-      ]
-    : null;
 
   // fetch related devices from same manufacturer
   const { data: manufacturerDevices, isLoading: isLoadingManufacturer } =
@@ -535,26 +521,7 @@ export const DeviceDetailed = ({
               Product Code:
             </Text>
             {device.product_code ? (
-              productCodeInfo ? (
-                <Tooltip
-                  content={<Box>Code meaning: {productCodeInfo.name}</Box>}
-                  showArrow
-                  openDelay={200}
-                  contentProps={TOOLTIP_PROPS}
-                >
-                  <Text
-                    as="span"
-                    color="black"
-                    cursor="help"
-                    textDecoration="underline dotted"
-                    textUnderlineOffset="2px"
-                  >
-                    {device.product_code}
-                  </Text>
-                </Tooltip>
-              ) : (
-                <Text color="black">{device.product_code}</Text>
-              )
+              <ProductCodeValue code={device.product_code} color="black" />
             ) : (
               <Text color="black">N/A</Text>
             )}

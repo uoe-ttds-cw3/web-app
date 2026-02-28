@@ -1,7 +1,7 @@
 import { Box, HStack, Text } from "@chakra-ui/react";
+import { ProductCodeValue } from "@/features/search/components/DeviceShared/ProductCodeValue";
 import type { Device } from "@/lib/api/types";
 import { ManufacturerSearchLink } from "./ManufacturerSearchLink";
-import { ProductCodeValue } from "./ProductCodeValue";
 
 export type MetadataRowProps = {
   device: Device;

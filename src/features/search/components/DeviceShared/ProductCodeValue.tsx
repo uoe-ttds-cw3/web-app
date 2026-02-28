@@ -4,6 +4,7 @@ import { PRODUCT_CODES } from "@/data/PRODUCT_CODES";
 
 export type ProductCodeValueProps = {
   code: string;
+  color?: string;
 };
 
 const TOOLTIP_PROPS = {
@@ -14,13 +15,16 @@ const TOOLTIP_PROPS = {
   borderRadius: "md",
 };
 
-export const ProductCodeValue = ({ code }: ProductCodeValueProps) => {
+export const ProductCodeValue = ({
+  code,
+  color = "ui.text",
+}: ProductCodeValueProps) => {
   const productCode =
     PRODUCT_CODES[code.toUpperCase() as keyof typeof PRODUCT_CODES];
 
   if (!productCode) {
     return (
-      <Box as="span" color="ui.text">
+      <Box as="span" color={color}>
         {code}
       </Box>
     );
@@ -35,7 +39,7 @@ export const ProductCodeValue = ({ code }: ProductCodeValueProps) => {
     >
       <Box
         as="span"
-        color="ui.text"
+        color={color}
         cursor="help"
         textDecoration="underline dotted"
         textUnderlineOffset="2px"
