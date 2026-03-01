@@ -161,8 +161,9 @@ export function Header() {
           maxW="780px"
           w="100%"
           mx="auto"
-          align="center"
+          align={{ base: "stretch", md: "center" }}
           gap="12px"
+          direction={{ base: "column", md: "row" }}
         >
           <Box flex="1">
             <SearchForm
@@ -174,7 +175,7 @@ export function Header() {
               onAdvancedPanelOpenChange={setAdvancedPanelOpen}
             />
           </Box>
-          <Box display={{ base: "none", md: "block" }}>
+          <Box alignSelf={{ base: "flex-end", md: "auto" }}>
             <Box
               as="button"
               type="button"
