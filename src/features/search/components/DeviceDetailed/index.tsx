@@ -35,10 +35,10 @@ import "@xyflow/react/dist/style.css";
 import posthog from "posthog-js";
 import { DeviceDescriptionSection } from "./DeviceDescriptionSection";
 import { DeviceHeader } from "./DeviceHeader";
-import { DeviceFeatureSignals } from "./DeviceFeatureSignals";
 import { DeviceLineageSection } from "./DeviceLineageSection";
 import { DeviceMetadata } from "./DeviceMetadata";
 import { DeviceSafetyOverview } from "./DeviceSafetyOverview";
+import { DeviceSignalsSummaryBox } from "./DeviceSignalsSummaryBox";
 import { DeviceSummarySection } from "./DeviceSummarySection";
 import { IndicationsForUseSection } from "./IndicationsForUseSection";
 import { useSearch } from "@/lib/queries/useSearch";
@@ -411,9 +411,9 @@ export const DeviceDetailed = ({
 
       <DeviceMetadata device={device} formatDate={formatDate} />
 
-      {/* feature flags */}
       <Separator marginY="16px" />
-      <DeviceFeatureSignals device={device} />
+
+      <DeviceSignalsSummaryBox device={device} deviceSafety={deviceSafety} />
 
       {device.indications_for_use && (
         <>
