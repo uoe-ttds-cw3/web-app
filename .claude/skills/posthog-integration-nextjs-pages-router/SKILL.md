@@ -8,6 +8,7 @@ metadata:
 
 # PostHog integration for Next.js Pages Router
 
+
 This skill helps you add PostHog analytics to Next.js Pages Router applications.
 
 ## Workflow

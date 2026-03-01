@@ -4,7 +4,10 @@ import NextLink from "next/link";
 import { useEffect, useState } from "react";
 import posthog from "posthog-js";
 import { useDevice } from "@/lib/queries/useDevice";
-import { DeviceDetailed } from "@/features/search/components/DeviceDetailed";
+import {
+  DeviceDetailed,
+} from "@/features/search/components/DeviceDetailed";
+import { DEVICE_DETAIL_MAX_W } from "@/features/search/components/DeviceDetailed/DeviceDetailCard";
 
 export default function DeviceDetailsPage() {
   const router = useRouter();
@@ -54,36 +57,40 @@ export default function DeviceDetailsPage() {
   if (showNotFound) {
     return (
       <Box padding="20px">
-        <Text color="status.danger" mb="4">
-          {error instanceof Error ? error.message : 'Device not found'}
-        </Text>
-        <Link color="brand.primary" onClick={handleBackToSearch} cursor="pointer">
-          &larr; Back to results
-        </Link>
+        <Box maxW={DEVICE_DETAIL_MAX_W} mx="auto">
+          <Text color="status.danger" mb="4">
+            {error instanceof Error ? error.message : 'Device not found'}
+          </Text>
+          <Link color="brand.primary" onClick={handleBackToSearch} cursor="pointer">
+            &larr; Back to results
+          </Link>
+        </Box>
       </Box>
     );
   }
 
   return (
     <Box padding={{ base: "12px", md: "20px" }}>
-      <Link
-        color="brand.primary"
-        mb="4"
-        display="inline-block"
-        onClick={handleBackToSearch}
-        cursor="pointer"
-        fontWeight="medium"
-      >
-        &larr; Back to results
-      </Link>
-      {data?.device && (
-        <DeviceDetailed
-          device={data.device}
-          lineage={data.lineage}
-          safety={data.safety}
-          deviceSafety={data.deviceSafety ?? null}
-        />
-      )}
+      <Box maxW={DEVICE_DETAIL_MAX_W} mx="auto">
+        <Link
+          color="brand.primary"
+          mb="4"
+          display="inline-block"
+          onClick={handleBackToSearch}
+          cursor="pointer"
+          fontWeight="medium"
+        >
+          &larr; Back to results
+        </Link>
+        {data?.device && (
+          <DeviceDetailed
+            device={data.device}
+            lineage={data.lineage}
+            safety={data.safety}
+            deviceSafety={data.deviceSafety ?? null}
+          />
+        )}
+      </Box>
     </Box>
   );
 }

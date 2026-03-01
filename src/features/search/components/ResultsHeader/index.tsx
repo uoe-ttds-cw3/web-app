@@ -15,17 +15,13 @@ export const ResultsHeader = ({
   return (
     <Box
       display="flex"
-      alignItems="center"
+      flexDirection="column"
+      alignItems="flex-start"
       justifyContent="flex-start"
-      gap="2"
+      gap="1"
       flexWrap="wrap"
     >
       <FoundResults numResults={numResults} />
-      {debugInfo && (
-        <Text fontSize="xs" color="ui.textMuted" lineHeight="1">
-          ·
-        </Text>
-      )}
       <SearchDetailsModal debugInfo={debugInfo} />
     </Box>
   );

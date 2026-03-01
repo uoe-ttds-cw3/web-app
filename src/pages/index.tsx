@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import posthog from "posthog-js";
 import { ActiveFilterChips } from "@/features/search/components/ActiveFilterChips";
 import { DeviceSummaryCard } from "@/features/search/components/DeviceSummaryCard";
@@ -7,17 +7,10 @@ import { DidYouMeanSuggestion } from "@/features/search/components/DidYouMeanSug
 import { ExpandedTerms } from "@/features/search/components/ExpandedTerms";
 import { PaginationControls } from "@/features/search/components/PaginationControls";
 import { ResultsHeader } from "@/features/search/components/ResultsHeader";
+import { FiltersSidebar } from "@/features/search/components/ResultsControls/FiltersSidebar";
 import { ResultsControls } from "@/features/search/components/ResultsControls";
-import { NavBar } from "@/features/search/components/NavBar";
 import { StartSearching } from "@/features/search/components/StartSearching";
-import {
-  Stack,
-  Text,
-  Box,
-  Spinner,
-  Alert,
-  Textarea,
-} from "@chakra-ui/react";
+import { Stack, Text, Box, Spinner, Alert } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
 import type { BackendOptions, Device, ExpansionInfo } from "@/lib/api/types";
@@ -25,10 +18,9 @@ import { toaster } from "@/components/ui/Toaster";
 import { SideDrawer } from "@/features/search/components/SideDrawer";
 import useLocalStorage from "use-local-storage";
 import { LANGUAGE_NOT_SUPPORTED } from "@/constants/error-codes";
-import { useQuery } from "@tanstack/react-query";
 
 const subscribe = () => () => {};
-const SEARCH_CONTENT_MAX_W = "1120px";
+const SEARCH_CONTENT_MAX_W = "1000px";
 
 export default function Home() {
   const router = useRouter();
@@ -52,7 +44,6 @@ export default function Home() {
   const sortBy = (router.query.sort_by as string) || undefined;
   const snapshotCutoff = (router.query.snapshot_cutoff as string) || undefined;
 
-  const [filterOpen, setFilterOpen] = useState(false);
   const isHydrated = useSyncExternalStore(
     subscribe,
     () => true,
@@ -197,31 +188,6 @@ export default function Home() {
     );
   };
 
-  const handleCategorySelect = (panelCode?: string) => {
-    // track category selection
-    posthog.capture("category_selected", {
-      panel_code: panelCode || null,
-      action: panelCode ? "selected" : "deselected",
-      current_query: query,
-    });
-
-    if (panelCode) {
-      const { page: _removedPage, ...rest } = router.query;
-      router.push(
-        { pathname: "/", query: { ...rest, panel: panelCode } },
-        undefined,
-        { shallow: true },
-      );
-    } else {
-      const {
-        panel: _removedPanel,
-        page: _removedPage,
-        ...rest
-      } = router.query;
-      router.push({ pathname: "/", query: rest }, undefined, { shallow: true });
-    }
-  };
-
   const handlePageChange = (newPage: number) => {
     // track pagination
     posthog.capture("pagination_changed", {
@@ -294,7 +260,6 @@ export default function Home() {
       undefined,
       { shallow: true },
     );
-    setFilterOpen(false);
   };
 
   const handleRemoveFacetFilter = (field: string) => {
@@ -315,36 +280,8 @@ export default function Home() {
 
   return (
     <div>
-      {!isLoading && (
-        <Box
-          margin="0 auto"
-          maxW={SEARCH_CONTENT_MAX_W}
-          px={{ base: "4", md: "5", lg: "6" }}
-        >
-          <NavBar
-            selectedCategory={panel}
-            onCategorySelect={handleCategorySelect}
-            searchFacets={
-              data?.facets?.find((f) => f.field === "panel_code")?.values
-            }
-            isResultsLoading={
-              isLoading &&
-              Boolean(
-                query ||
-                  panel ||
-                  productCode ||
-                  dateBefore ||
-                  dateAfter ||
-                  decision ||
-                  deviceClass,
-              )
-            }
-          />
-        </Box>
-      )}
-
       {!query && results.length === 0 && (
-        <StartSearching onSuggest={handleSearch} selectedCategory={panel} />
+        <StartSearching onSuggest={handleSearch} />
       )}
 
       {isLoading && (
@@ -369,92 +306,96 @@ export default function Home() {
           px={{ base: "4", md: "5", lg: "6" }}
         >
           <Box minH="100vh" pt="0" pb={{ base: "2", md: "4" }}>
-            {/* Header + Controls */}
-            <Box marginBottom="4">
-              <Box
-                display="flex"
-                alignItems={{ base: "stretch", md: "center" }}
-                justifyContent="space-between"
-                marginBottom="3"
-                gap="3"
-                flexWrap="wrap"
-              >
-                <ResultsHeader
-                  numResults={data.total_results}
-                  debugInfo={data.debug_info}
+            <Box
+              display="grid"
+              gap="6"
+              gridTemplateColumns={{ base: "1fr", md: "minmax(0, 1fr) 240px" }}
+              alignItems="start"
+            >
+              <Box display="flex" flexDirection="column" gap="4" minW={0}>
+                <Box
+                  display="flex"
+                  alignItems={{ base: "stretch", md: "center" }}
+                  justifyContent="space-between"
+                  gap="3"
+                  flexWrap="wrap"
+                >
+                  <ResultsHeader
+                    numResults={data.total_results}
+                    debugInfo={data.debug_info}
+                  />
+
+                  <ResultsControls
+                    sortBy={sortBy}
+                    pageSize={pageSize}
+                    onSortChange={handleSortChange}
+                    onPageSizeChange={handlePageSizeChange}
+                  />
+                </Box>
+
+                {data?.did_you_mean && (
+                  <DidYouMeanSuggestion
+                    suggestion={data.did_you_mean}
+                    onSelect={() => {
+                      posthog.capture("did_you_mean_clicked", {
+                        original_query: query,
+                        suggested_query: data.did_you_mean,
+                      });
+                    }}
+                  />
+                )}
+
+                {data?.expansion_info?.expansion_applied && (
+                  <ExpandedTerms
+                    expansionInfo={data.expansion_info as ExpansionInfo}
+                    onTermClick={(term) =>
+                      router.push(`/?q=${encodeURIComponent(term)}`)
+                    }
+                  />
+                )}
+
+                <ActiveFilterChips
+                  decision={decision}
+                  deviceClass={deviceClass}
+                  panel={panel}
+                  productCode={productCode}
+                  onRemove={handleRemoveFacetFilter}
                 />
+
+                {data?.error_code === LANGUAGE_NOT_SUPPORTED &&
+                data?.error_message ? (
+                  <Alert.Root status="warning" title={data.error_message}>
+                    <Alert.Indicator />
+                    <Alert.Title>{data.error_message}</Alert.Title>
+                  </Alert.Root>
+                ) : (
+                  <>
+                    <Stack>
+                      {results.map((device) => (
+                        <DeviceSummaryCard
+                          key={device.id}
+                          device={device}
+                          selectedDevices={selectedDevicesForRender}
+                          onToggle={handleToggle}
+                          searchQuery={query}
+                        />
+                      ))}
+                    </Stack>
+
+                    <PaginationControls
+                      page={page}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
+                  </>
+                )}
               </Box>
 
-              {/* did you mean suggestion from spelling corrector */}
-              {data?.did_you_mean && (
-                <DidYouMeanSuggestion
-                  suggestion={data.did_you_mean}
-                  onSelect={() => {
-                    posthog.capture("did_you_mean_clicked", {
-                      original_query: query,
-                      suggested_query: data.did_you_mean,
-                    });
-                  }}
-                />
-              )}
-
-              {data?.expansion_info?.expansion_applied && (
-                <ExpandedTerms
-                  expansionInfo={data.expansion_info as ExpansionInfo}
-                  onTermClick={(term) =>
-                    router.push(`/?q=${encodeURIComponent(term)}`)
-                  }
-                />
-              )}
-
-              <ResultsControls
-                sortBy={sortBy}
-                pageSize={pageSize}
-                filterOpen={filterOpen}
+              <FiltersSidebar
                 facets={data.facets}
-                onSortChange={handleSortChange}
-                onPageSizeChange={handlePageSizeChange}
-                onFilterToggle={() => setFilterOpen(!filterOpen)}
-                onFilterClose={() => setFilterOpen(false)}
                 onFacetFilter={handleFacetFilter}
               />
             </Box>
-
-            <ActiveFilterChips
-              decision={decision}
-              deviceClass={deviceClass}
-              panel={panel}
-              productCode={productCode}
-              onRemove={handleRemoveFacetFilter}
-            />
-
-            {data?.error_code === LANGUAGE_NOT_SUPPORTED &&
-            data?.error_message ? (
-              <Alert.Root status="warning" title={data.error_message}>
-                <Alert.Indicator />
-                <Alert.Title>{data.error_message}</Alert.Title>
-              </Alert.Root>
-            ) : (
-              <>
-                <Stack>
-                  {results.map((device) => (
-                    <DeviceSummaryCard
-                      key={device.id}
-                      device={device}
-                      selectedDevices={selectedDevicesForRender}
-                      onToggle={handleToggle}
-                      searchQuery={query}
-                    />
-                  ))}
-                </Stack>
-
-                <PaginationControls
-                  page={page}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
-              </>
-            )}
           </Box>
         </Box>
       )}

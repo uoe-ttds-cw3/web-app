@@ -30,6 +30,7 @@ export const DeviceSummaryCard = ({
       borderRadius="12px"
       border="1px solid"
       borderColor="ui.borderLight"
+      boxShadow="sm"
       marginBottom={{ base: "3", md: "4" }}
     >
       <TitleRow device={device} searchQuery={searchQuery} />
