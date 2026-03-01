@@ -39,6 +39,7 @@ import dagre from "dagre";
 import "@xyflow/react/dist/style.css";
 import posthog from "posthog-js";
 import { Tooltip as UiTooltip } from "@/components/ui/Tooltip";
+import { DeviceHeader } from "./DeviceHeader";
 import { FEATURE_SIGNAL_CONFIG } from "@/features/search/components/DeviceShared/featureSignalConfig";
 import { ProductCodeValue } from "@/features/search/components/DeviceShared/ProductCodeValue";
 import { useSearch } from "@/lib/queries/useSearch";
@@ -363,16 +364,6 @@ export const DeviceDetailed = ({
     }
   };
 
-  let yearpart = "";
-
-  if (device.date_received) {
-    const year = parseInt(device.date_received.slice(0, 4), 10);
-
-    if (year >= 2002) {
-      yearpart = device.date_received.slice(2, 4).replace(/^0/, "");
-    }
-  }
-
   // try to find the useful section of the summary text instead of showing raw pdf header
   const extractUsefulSummary = (text: string): string => {
     // look for common section headings in fda 510(k) summaries
@@ -423,97 +414,7 @@ export const DeviceDetailed = ({
       borderWidth="1px"
       borderColor="ui.border"
     >
-      {/* header */}
-      <Box marginBottom="24px">
-        <Heading
-          size={{ base: "lg", md: "xl" }}
-          color="brand.primary"
-          marginBottom="8px"
-        >
-          {device.device_name}
-        </Heading>
-        <Box
-          display="flex"
-          alignItems="center"
-          gap="8px"
-          marginBottom="8px"
-          flexWrap="wrap"
-        >
-          <Badge
-            colorScheme="gray"
-            fontSize="md"
-            padding="4px 8px"
-            userSelect="text"
-          >
-            {device.submission_number}
-          </Badge>
-          {/* link to the official fda 510(k) pdf using date_received for the url path */}
-          {device.date_received && (
-            <ChakraLink
-              href={`https://www.accessdata.fda.gov/cdrh_docs/pdf${yearpart}/${device.submission_number}.pdf`}
-              target="_blank"
-              rel="noopener noreferrer"
-              color="brand.primary"
-              fontSize="sm"
-              textDecoration="underline"
-              onClick={() => {
-                // track fda document link click
-                posthog.capture("fda_document_link_clicked", {
-                  device_id: device.submission_number,
-                  device_name: device.device_name,
-                  product_code: device.product_code,
-                });
-              }}
-            >
-              View FDA document ↗
-            </ChakraLink>
-          )}
-          {/* fda pmn database link */}
-          <ChakraLink
-            href={`https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${device.submission_number}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            color="brand.primary"
-            fontSize="sm"
-            textDecoration="underline"
-          >
-            View on FDA ↗
-          </ChakraLink>
-        </Box>
-        <Box>
-          <Text fontSize="lg" color="black" display="inline">
-            Manufacturer:{" "}
-          </Text>
-          <ChakraLink
-            asChild
-            fontWeight="bold"
-            color="brand.primary"
-            textDecoration="underline"
-            cursor="pointer"
-            fontSize="lg"
-          >
-            <Link href={`/?q=${device.sponsor}`}>{device.sponsor}</Link>
-          </ChakraLink>
-        </Box>
-        {/* brand names from maude adverse event reports */}
-        {deviceSafety &&
-          deviceSafety.brand_names &&
-          deviceSafety.brand_names.length > 0 && (
-            <Box marginTop="8px">
-              <Text fontSize="sm" color="ui.textMuted" display="inline">
-                Also known as:{" "}
-              </Text>
-              <Text
-                fontSize="sm"
-                color="black"
-                display="inline"
-                fontWeight="medium"
-              >
-                {deviceSafety.brand_names.join(", ")}
-              </Text>
-            </Box>
-          )}
-      </Box>
+      <DeviceHeader device={device} deviceSafety={deviceSafety} />
 
       <Separator marginY="16px" />
 
