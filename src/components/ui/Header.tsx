@@ -9,14 +9,31 @@ export function Header() {
   const router = useRouter();
   const query = (router.query.q as string) || "";
   const panel = (router.query.panel as string) || undefined;
-  const productCode = (router.query.product_code as string) || undefined;
-  const dateBefore = (router.query.date_to as string) || undefined;
-  const dateAfter = (router.query.date_from as string) || undefined;
-  const snapshotCutoff = (router.query.snapshot_cutoff as string) || undefined;
+  const backendOptions: BackendOptions = {
+    use_expansion: router.query.use_expansion === "true",
+    use_pagerank_boost: router.query.use_pagerank_boost === "true",
+    use_stemming: router.query.use_stemming !== "false",
+    use_hybrid: router.query.use_hybrid !== "false",
+  };
 
   const convertDateFormat = (ddmmyyyy: string): string => {
     const [day, month, year] = ddmmyyyy.split("/");
     return `${year}-${month}-${day}`;
+  };
+
+  const applyBackendOptionsToQuery = (
+    queryParams: Record<string, string>,
+    backendOptions?: BackendOptions,
+  ) => {
+    if (!backendOptions) {
+      return;
+    }
+
+    if (backendOptions.use_expansion) queryParams.use_expansion = "true";
+    if (backendOptions.use_pagerank_boost)
+      queryParams.use_pagerank_boost = "true";
+    if (!backendOptions.use_stemming) queryParams.use_stemming = "false";
+    if (!backendOptions.use_hybrid) queryParams.use_hybrid = "false";
   };
 
   const handleSearch = (
@@ -50,13 +67,7 @@ export function Header() {
     }
 
     // serialize backend options - only send non-default values
-    if (backendOptions) {
-      if (backendOptions.use_expansion) queryParams.use_expansion = "true";
-      if (backendOptions.use_pagerank_boost)
-        queryParams.use_pagerank_boost = "true";
-      if (!backendOptions.use_stemming) queryParams.use_stemming = "false";
-      if (!backendOptions.use_hybrid) queryParams.use_hybrid = "false";
-    }
+    applyBackendOptionsToQuery(queryParams, backendOptions);
 
     // preserve panel filter if exists
     if (panel) {
@@ -67,6 +78,40 @@ export function Header() {
       {
         pathname: "/",
         query: queryParams,
+      },
+      undefined,
+      { shallow: true },
+    );
+  };
+
+  const handleBackendOptionsChange = (backendOptions: BackendOptions) => {
+    if (router.pathname !== "/") {
+      return;
+    }
+
+    const nextQuery: Record<string, string> = {};
+
+    Object.entries(router.query).forEach(([key, value]) => {
+      if (
+        key === "use_expansion" ||
+        key === "use_pagerank_boost" ||
+        key === "use_stemming" ||
+        key === "use_hybrid"
+      ) {
+        return;
+      }
+
+      if (typeof value === "string") {
+        nextQuery[key] = value;
+      }
+    });
+
+    applyBackendOptionsToQuery(nextQuery, backendOptions);
+
+    router.push(
+      {
+        pathname: "/",
+        query: nextQuery,
       },
       undefined,
       { shallow: true },
@@ -110,7 +155,12 @@ export function Header() {
           pt={{ base: 0, md: 2 }}
         >
           <Box flex="1">
-            <SearchForm onSearch={handleSearch} initialQuery={query} />
+            <SearchForm
+              onSearch={handleSearch}
+              onBackendOptionsChange={handleBackendOptionsChange}
+              backendOptions={backendOptions}
+              initialQuery={query}
+            />
           </Box>
           <Box display={{ base: "none", md: "block" }}>
             <DateBox />

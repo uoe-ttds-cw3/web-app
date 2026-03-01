@@ -3,7 +3,6 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { FaPlus, FaTimes, FaSearch } from "react-icons/fa";
 import posthog from "posthog-js";
 import type { BackendOptions } from "@/lib/api/types";
-import { defaultBackendOptions } from "@/lib/api/types";
 import { Tooltip } from "@/components/ui/Tooltip";
 
 type Operator = "contains" | "AND" | "OR" | "NOT" | "phrase" | "proximity";
@@ -20,6 +19,8 @@ interface QueryRow {
 interface AdvancedSearchPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  options: BackendOptions;
+  onOptionsChange: (options: BackendOptions) => void;
   onSearch: (query: string, backendOptions: BackendOptions) => void;
 }
 
@@ -112,13 +113,12 @@ const OptionPill = ({
 export const AdvancedSearchPanel = ({
   isOpen,
   onClose,
+  options,
+  onOptionsChange,
   onSearch,
 }: AdvancedSearchPanelProps) => {
   const [rows, setRows] = useState<QueryRow[]>([createRow()]);
   const [joiners, setJoiners] = useState<Joiner[]>([]);
-  const [options, setOptions] = useState<BackendOptions>({
-    ...defaultBackendOptions,
-  });
 
   // close on escape
   useEffect(() => {
@@ -174,7 +174,7 @@ export const AdvancedSearchPanel = ({
   };
 
   const toggleOption = (key: keyof BackendOptions) => {
-    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
+    onOptionsChange({ ...options, [key]: !options[key] });
   };
 
   const handleSearch = () => {

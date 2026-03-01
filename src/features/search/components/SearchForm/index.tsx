@@ -6,7 +6,10 @@ import { FilterMenu } from "../FilterMenu";
 import { SearchTags } from "../SearchTags";
 import { AdvancedSearchPanel } from "../AdvancedSearchModal";
 import { useAutocomplete } from "@/lib/queries/useAutocomplete";
-import type { BackendOptions } from "@/lib/api/types";
+import {
+  defaultBackendOptions,
+  type BackendOptions,
+} from "@/lib/api/types";
 
 interface SearchFormProps {
   onSearch?: (
@@ -14,6 +17,8 @@ interface SearchFormProps {
     tags?: Array<{ id: string; type: string; value: string }>,
     backendOptions?: BackendOptions,
   ) => void;
+  onBackendOptionsChange?: (backendOptions: BackendOptions) => void;
+  backendOptions?: BackendOptions;
   initialQuery?: string;
 }
 
@@ -30,9 +35,15 @@ const isLikelyGibberish = (text: string): boolean => {
   );
 };
 
-export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
+export const SearchForm = ({
+  onSearch,
+  onBackendOptionsChange,
+  backendOptions,
+  initialQuery,
+}: SearchFormProps) => {
   const [searchTerm, setSearchTerm] = useState(initialQuery ?? "");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const effectiveBackendOptions = backendOptions ?? defaultBackendOptions;
 
   useEffect(() => {
     if (initialQuery !== undefined) setSearchTerm(initialQuery);
@@ -91,6 +102,10 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
     onSearch?.(query, tags, backendOptions);
   }
 
+  function handleBackendOptionsChange(nextOptions: BackendOptions) {
+    onBackendOptionsChange?.(nextOptions);
+  }
+
   function updateTagValue(tagId: string, newValue: string) {
     setTags(
       tags.map((tag) => (tag.id === tagId ? { ...tag, value: newValue } : tag)),
@@ -100,7 +115,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
   function removeTag(tagId: string) {
     const updatedTags = tags.filter((tag) => tag.id !== tagId);
     setTags(updatedTags);
-    onSearch?.(searchTerm, updatedTags);
+    onSearch?.(searchTerm, updatedTags, effectiveBackendOptions);
   }
 
   return (
@@ -168,7 +183,9 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
                 value={tag.value}
                 onChange={(newValue) => updateTagValue(tag.id, newValue)}
                 onRemove={() => removeTag(tag.id)}
-                onEnter={() => onSearch?.(searchTerm, tags)}
+                onEnter={() =>
+                  onSearch?.(searchTerm, tags, effectiveBackendOptions)
+                }
               />
             ))}
           </Box>
@@ -196,7 +213,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                onSearch?.(searchTerm, tags);
+                onSearch?.(searchTerm, tags, effectiveBackendOptions);
                 setSearchFocused(false);
               }
             }}
@@ -256,7 +273,11 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
                           typed_query: searchTerm,
                         });
                         setSearchTerm(suggestion.text);
-                        onSearch?.(suggestion.text, tags);
+                        onSearch?.(
+                          suggestion.text,
+                          tags,
+                          effectiveBackendOptions,
+                        );
                         setSearchFocused(false);
                       }}
                       display="block"
@@ -312,7 +333,11 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
                           typed_query: searchTerm,
                         });
                         setSearchTerm(suggestion.text);
-                        onSearch?.(suggestion.text, tags);
+                        onSearch?.(
+                          suggestion.text,
+                          tags,
+                          effectiveBackendOptions,
+                        );
                         setSearchFocused(false);
                       }}
                       display="block"
@@ -369,6 +394,8 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
       <AdvancedSearchPanel
         isOpen={advancedPanelOpen}
         onClose={() => setAdvancedPanelOpen(false)}
+        options={effectiveBackendOptions}
+        onOptionsChange={handleBackendOptionsChange}
         onSearch={handleAdvancedSearch}
       />
     </Box>
