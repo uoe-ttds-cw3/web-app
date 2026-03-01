@@ -1,5 +1,5 @@
 import { Box, Heading, Badge, Separator, Card, HStack } from "@chakra-ui/react";
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/router";
 import posthog from "posthog-js";
 import { DeviceDescriptionSection } from "./DeviceDescriptionSection";
@@ -14,7 +14,7 @@ import { ProductCodeSafetySection } from "./ProductCodeSafetySection";
 import { RelatedDevicesSection } from "./RelatedDevicesSection";
 import { StandardsReferencedSection } from "./StandardsReferencedSection";
 import { SterilizationMethodsSection } from "./SterilizationMethodsSection";
-import { extractUsefulSummary, formatDate, formatNumber } from "./utils";
+import { formatDate, formatNumber } from "./utils";
 import { useSearch } from "@/lib/queries/useSearch";
 import type {
   DeviceLookupResponse,
@@ -37,9 +37,6 @@ export const DeviceDetailed = ({
   deviceSafety,
 }: DeviceDetailedProps) => {
   const router = useRouter();
-  const [showFullSummary, setShowFullSummary] = useState(false);
-  const [showFullIfu, setShowFullIfu] = useState(false);
-  const [showFullDescription, setShowFullDescription] = useState(false);
 
   // fetch related devices from same manufacturer
   const { data: manufacturerDevices, isLoading: isLoadingManufacturer } =
@@ -67,15 +64,6 @@ export const DeviceDetailed = ({
       .slice(0, 5);
   }, [similarDevices, device.submission_number]);
 
-  const usefulSummary = device.summary_text
-    ? extractUsefulSummary(device.summary_text)
-    : null;
-  const truncatedSummary =
-    usefulSummary && usefulSummary.length > 300
-      ? usefulSummary.substring(0, 300) + "..."
-      : usefulSummary;
-  const displaySummary = showFullSummary ? usefulSummary : truncatedSummary;
-
   return (
     <Card.Root
       backgroundColor="white"
@@ -95,61 +83,15 @@ export const DeviceDetailed = ({
 
       <DeviceSignalsSummaryBox device={device} deviceSafety={deviceSafety} />
 
-      {device.indications_for_use && (
-        <>
-          <Separator marginY="16px" />
-          <IndicationsForUseSection
-            indicationsForUse={device.indications_for_use}
-            showFull={showFullIfu}
-            onToggle={() => setShowFullIfu(!showFullIfu)}
-          />
-        </>
-      )}
+      <IndicationsForUseSection device={device} />
 
-      {device.device_description && (
-        <>
-          <Separator marginY="16px" />
-          <DeviceDescriptionSection
-            deviceDescription={device.device_description}
-            showFull={showFullDescription}
-            onToggle={() => setShowFullDescription(!showFullDescription)}
-          />
-        </>
-      )}
+      <DeviceDescriptionSection device={device} />
 
-      {/* standards referenced */}
-      {device.standards_referenced &&
-        device.standards_referenced.length > 0 && (
-          <>
-            <Separator marginY="16px" />
-            <StandardsReferencedSection
-              standards={device.standards_referenced}
-            />
-          </>
-        )}
+      <StandardsReferencedSection device={device} />
 
-      {/* sterilization methods */}
-      {device.sterilization_methods &&
-        device.sterilization_methods.length > 0 && (
-          <>
-            <Separator marginY="16px" />
-            <SterilizationMethodsSection
-              methods={device.sterilization_methods}
-            />
-          </>
-        )}
+      <SterilizationMethodsSection device={device} />
 
-      {usefulSummary && usefulSummary.length > 0 && (
-        <>
-          <Separator marginY="16px" />
-          <DeviceSummarySection
-            usefulSummary={usefulSummary}
-            displaySummary={displaySummary || usefulSummary}
-            showFullSummary={showFullSummary}
-            onToggle={() => setShowFullSummary(!showFullSummary)}
-          />
-        </>
-      )}
+      <DeviceSummarySection device={device} />
 
       {/* lineage section */}
       {lineage && (

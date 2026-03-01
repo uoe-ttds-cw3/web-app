@@ -1,16 +1,15 @@
-import { Box, Heading, Text } from "@chakra-ui/react";
+import { Box, Heading, Separator, Text } from "@chakra-ui/react";
+import { useState } from "react";
+import type { DeviceLookupResponse } from "@/lib/api/types";
 
 export type IndicationsForUseSectionProps = {
-  indicationsForUse: string;
-  showFull: boolean;
-  onToggle: () => void;
+  device: DeviceLookupResponse;
 };
 
-export const IndicationsForUseSection = ({
-  indicationsForUse,
-  showFull,
-  onToggle,
-}: IndicationsForUseSectionProps) => {
+export const IndicationsForUseSection = ({ device }: IndicationsForUseSectionProps) => {
+  const [showFull, setShowFull] = useState(false);
+  const indicationsForUse = device.indications_for_use;
+
   if (!indicationsForUse) {
     return null;
   }
@@ -21,32 +20,35 @@ export const IndicationsForUseSection = ({
       : `${indicationsForUse.substring(0, 300)}...`;
 
   return (
-    <Box marginBottom="24px">
-      <Heading size="md" color="brand.primary" marginBottom="12px">
-        Indications for Use
-      </Heading>
-      <Box
-        padding="12px"
-        borderRadius="4px"
-        backgroundColor="ui.surface"
-        borderWidth="1px"
-        borderColor="ui.border"
-      >
-        <Text color="black" whiteSpace="pre-wrap">
-          {displayText}
-        </Text>
-        {indicationsForUse.length > 300 && (
-          <Text
-            color="brand.primary"
-            marginTop="8px"
-            cursor="pointer"
-            textDecoration="underline"
-            onClick={onToggle}
-          >
-            {showFull ? "Show less" : "Show more"}
+    <>
+      <Separator marginY="16px" />
+      <Box marginBottom="24px">
+        <Heading size="md" color="brand.primary" marginBottom="12px">
+          Indications for Use
+        </Heading>
+        <Box
+          padding="12px"
+          borderRadius="4px"
+          backgroundColor="ui.surface"
+          borderWidth="1px"
+          borderColor="ui.border"
+        >
+          <Text color="black" whiteSpace="pre-wrap">
+            {displayText}
           </Text>
-        )}
+          {indicationsForUse.length > 300 && (
+            <Text
+              color="brand.primary"
+              marginTop="8px"
+              cursor="pointer"
+              textDecoration="underline"
+              onClick={() => setShowFull(!showFull)}
+            >
+              {showFull ? "Show less" : "Show more"}
+            </Text>
+          )}
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
