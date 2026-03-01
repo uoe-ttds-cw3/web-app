@@ -1,44 +1,257 @@
 import { Box, Grid, Heading, Link as ChakraLink, Text } from "@chakra-ui/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useMemo, type MouseEvent } from "react";
+import dagre from "dagre";
 import posthog from "posthog-js";
 import {
   Background,
   Controls,
+  Handle,
+  MarkerType,
+  Position,
   ReactFlow,
   type Edge,
   type Node,
   type NodeTypes,
-  type OnEdgesChange,
-  type OnNodesChange,
 } from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 import type { LineageResponse, DeviceLookupResponse } from "@/lib/api/types";
 
 export type DeviceLineageSectionProps = {
   lineage: LineageResponse;
   device: DeviceLookupResponse;
-  nodes: Node[];
-  edges: Edge[];
-  onNodesChange: OnNodesChange<Node>;
-  onEdgesChange: OnEdgesChange<Edge>;
-  onNodeClick: (_event: React.MouseEvent, node: Node) => void;
-  nodeTypes: NodeTypes;
-  translateExtent: [[number, number], [number, number]];
+};
+
+const DeviceNode = ({
+  data,
+}: {
+  data: { label: string; isCurrent: boolean };
+}) => {
+  return (
+    <Box
+      padding="8px 12px"
+      borderRadius="8px"
+      borderWidth="2px"
+      borderColor={data.isCurrent ? "brand.primary" : "ui.border"}
+      backgroundColor={data.isCurrent ? "brand.light" : "white"}
+      fontWeight={data.isCurrent ? "bold" : "normal"}
+      fontSize="sm"
+      color="black"
+      cursor="pointer"
+      _hover={{ borderColor: "brand.primary", backgroundColor: "brand.light" }}
+      minWidth="120px"
+      textAlign="center"
+      position="relative"
+    >
+      <Handle
+        type="target"
+        position={Position.Top}
+        style={{ opacity: 0, width: 1, height: 1 }}
+      />
+      {data.label}
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        style={{ opacity: 0, width: 1, height: 1 }}
+      />
+    </Box>
+  );
+};
+
+const nodeTypes: NodeTypes = {
+  device: DeviceNode,
+};
+
+const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  dagreGraph.setGraph({ rankdir: "TB", ranksep: 80, nodesep: 40 });
+
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: 150, height: 50 });
+  });
+
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  return {
+    nodes: nodes.map((node) => {
+      const nodeWithPosition = dagreGraph.node(node.id);
+
+      return {
+        ...node,
+        position: {
+          x: nodeWithPosition.x - 75,
+          y: nodeWithPosition.y - 25,
+        },
+      };
+    }),
+    edges,
+  };
 };
 
 export const DeviceLineageSection = ({
   lineage,
   device,
-  nodes,
-  edges,
-  onNodesChange,
-  onEdgesChange,
-  onNodeClick,
-  nodeTypes,
-  translateExtent,
 }: DeviceLineageSectionProps) => {
-  if (!lineage) {
-    return null;
-  }
+  const router = useRouter();
+
+  const { nodes, edges } = useMemo(() => {
+    if (
+      lineage.direct_predicates.length === 0 &&
+      lineage.direct_citations.length === 0
+    ) {
+      return { nodes: [], edges: [] };
+    }
+
+    const nodes: Node[] = [
+      {
+        id: device.submission_number,
+        type: "device",
+        data: { label: device.submission_number, isCurrent: true },
+        position: { x: 0, y: 0 },
+      },
+    ];
+    const edges: Edge[] = [];
+
+    const predicates = lineage.direct_predicates.slice(0, 15);
+    const hasMorePredicates = lineage.direct_predicates.length > 15;
+
+    predicates.forEach((predicate) => {
+      nodes.push({
+        id: predicate,
+        type: "device",
+        data: { label: predicate, isCurrent: false },
+        position: { x: 0, y: 0 },
+      });
+      edges.push({
+        id: `${predicate}-${device.submission_number}`,
+        source: predicate,
+        target: device.submission_number,
+        type: "smoothstep",
+        animated: false,
+        style: { stroke: "#1E5AA8", strokeWidth: 2 },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: "#1E5AA8",
+          width: 20,
+          height: 20,
+        },
+      });
+    });
+
+    if (hasMorePredicates) {
+      const moreCount = lineage.direct_predicates.length - 15;
+      nodes.push({
+        id: "more-predicates",
+        type: "device",
+        data: { label: `and ${moreCount} more...`, isCurrent: false },
+        position: { x: 0, y: 0 },
+      });
+      edges.push({
+        id: `more-predicates-${device.submission_number}`,
+        source: "more-predicates",
+        target: device.submission_number,
+        type: "smoothstep",
+        animated: false,
+        style: { stroke: "#9CA3AF", strokeWidth: 2, strokeDasharray: "5,5" },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: "#9CA3AF",
+          width: 20,
+          height: 20,
+        },
+      });
+    }
+
+    const citations = lineage.direct_citations.slice(0, 15);
+    const hasMoreCitations = lineage.direct_citations.length > 15;
+
+    citations.forEach((citation) => {
+      nodes.push({
+        id: citation,
+        type: "device",
+        data: { label: citation, isCurrent: false },
+        position: { x: 0, y: 0 },
+      });
+      edges.push({
+        id: `${device.submission_number}-${citation}`,
+        source: device.submission_number,
+        target: citation,
+        type: "smoothstep",
+        animated: false,
+        style: { stroke: "#1E5AA8", strokeWidth: 2 },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: "#1E5AA8",
+          width: 20,
+          height: 20,
+        },
+      });
+    });
+
+    if (hasMoreCitations) {
+      const moreCount = lineage.direct_citations.length - 15;
+      nodes.push({
+        id: "more-citations",
+        type: "device",
+        data: { label: `and ${moreCount} more...`, isCurrent: false },
+        position: { x: 0, y: 0 },
+      });
+      edges.push({
+        id: `${device.submission_number}-more-citations`,
+        source: device.submission_number,
+        target: "more-citations",
+        type: "smoothstep",
+        animated: false,
+        style: { stroke: "#9CA3AF", strokeWidth: 2, strokeDasharray: "5,5" },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: "#9CA3AF",
+          width: 20,
+          height: 20,
+        },
+      });
+    }
+
+    return getLayoutedElements(nodes, edges);
+  }, [device.submission_number, lineage]);
+
+  const translateExtent = useMemo((): [[number, number], [number, number]] => {
+    if (nodes.length === 0) {
+      return [
+        [-200, -200],
+        [200, 200],
+      ];
+    }
+
+    const pad = 200;
+    const xs = nodes.map((node) => node.position.x);
+    const ys = nodes.map((node) => node.position.y);
+
+    return [
+      [Math.min(...xs) - pad, Math.min(...ys) - pad],
+      [Math.max(...xs) + 300 + pad, Math.max(...ys) + 100 + pad],
+    ];
+  }, [nodes]);
+
+  const onNodeClick = (_event: MouseEvent, node: Node) => {
+    if (node.id.startsWith("more-")) {
+      return;
+    }
+
+    posthog.capture("lineage_graph_node_clicked", {
+      from_device_id: device.submission_number,
+      from_device_name: device.device_name,
+      clicked_device_id: node.id,
+    });
+
+    router.push(`/devices/${node.id}`);
+  };
 
   return (
     <Box marginBottom="24px">
@@ -120,8 +333,6 @@ export const DeviceLineageSection = ({
             <ReactFlow
               nodes={nodes}
               edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
               onNodeClick={onNodeClick}
               nodeTypes={nodeTypes}
               fitView
