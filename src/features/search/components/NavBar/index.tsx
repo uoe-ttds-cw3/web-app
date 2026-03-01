@@ -142,20 +142,24 @@ export const NavBar = ({
                       selectedCategory === category.id ? "" : category.id,
                     )
                   }
+                  variant={
+                    selectedCategory === category.id ? "solid" : "outline"
+                  }
                   backgroundColor={
                     selectedCategory === category.id
                       ? "brand.accentSelected"
-                      : "brand.accentBg"
+                      : "transparent"
                   }
                   color="brand.primary"
                   padding="6px 12px"
                   borderRadius="8px"
                   size="sm"
+                  colorPalette="blue"
                   _hover={{
                     backgroundColor:
                       selectedCategory === category.id
                         ? "brand.accentSelected"
-                        : "brand.accentHover",
+                        : "brand.accentBg",
                   }}
                 >
                   <Text fontSize="sm">{category.name}</Text>
@@ -188,19 +192,23 @@ export const NavBar = ({
                       selectedCategory === category.id ? "" : category.id,
                     )
                   }
+                  variant={
+                    selectedCategory === category.id ? "solid" : "outline"
+                  }
                   backgroundColor={
                     selectedCategory === category.id
                       ? "brand.accentSelected"
-                      : "brand.accentBg"
+                      : "transparent"
                   }
                   color="brand.primary"
                   padding="8px 16px"
                   borderRadius="8px"
+                  colorPalette="blue"
                   _hover={{
                     backgroundColor:
                       selectedCategory === category.id
                         ? "brand.accentSelected"
-                        : "brand.accentHover",
+                        : "brand.accentBg",
                   }}
                 >
                   <Text>{category.name}</Text>
