@@ -1,12 +1,23 @@
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { Box, Flex, HStack, Link, Text } from "@chakra-ui/react";
+import { useState } from "react";
+import {
+  Box,
+  Flex,
+  HStack,
+  Icon,
+  Link,
+  Text,
+} from "@chakra-ui/react";
+import { FaSlidersH } from "react-icons/fa";
 import { SearchForm } from "@/features/search/components/SearchForm";
-import { DateBox } from "@/features/search/components/DateBox";
 import type { BackendOptions } from "@/lib/api/types";
+
+const HEADER_CONTROL_HEIGHT = "48px";
 
 export function Header() {
   const router = useRouter();
+  const [advancedPanelOpen, setAdvancedPanelOpen] = useState(false);
   const query = (router.query.q as string) || "";
   const panel = (router.query.panel as string) || undefined;
   const backendOptions: BackendOptions = {
@@ -134,16 +145,12 @@ export function Header() {
         px={{ base: 3, md: 6, lg: 8 }}
         py={{ base: 3, md: 0 }}
         minH={{ base: "auto", md: "96px" }}
-        align={{ base: "center", md: "flex-start" }}
+        align="center"
         gap={{ base: 2, md: 4 }}
         direction={{ base: "column", md: "row" }}
       >
         {/* logo - hidden on mobile to save space */}
-        <HStack
-          flexShrink={0}
-          display={{ base: "none", md: "flex" }}
-          mt={{ base: 0, md: "18px" }}
-        >
+        <HStack flexShrink={0} display={{ base: "none", md: "flex" }}>
           <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
             <Text fontWeight="semibold">FDA Device Search</Text>
           </Link>
@@ -154,9 +161,8 @@ export function Header() {
           maxW="780px"
           w="100%"
           mx="auto"
-          align="flex-start"
+          align="center"
           gap="12px"
-          pt={{ base: 0, md: 2 }}
         >
           <Box flex="1">
             <SearchForm
@@ -164,10 +170,33 @@ export function Header() {
               onBackendOptionsChange={handleBackendOptionsChange}
               backendOptions={backendOptions}
               initialQuery={query}
+              advancedPanelOpen={advancedPanelOpen}
+              onAdvancedPanelOpenChange={setAdvancedPanelOpen}
             />
           </Box>
           <Box display={{ base: "none", md: "block" }}>
-            <DateBox />
+            <Box
+              as="button"
+              type="button"
+              display="inline-flex"
+              alignItems="center"
+              gap="8px"
+              minH={HEADER_CONTROL_HEIGHT}
+              color="brand.primary"
+              fontSize="sm"
+              fontWeight="medium"
+              textDecoration="underline"
+              textUnderlineOffset="3px"
+              cursor="pointer"
+              _hover={{
+                color: "brand.primary",
+                opacity: 0.8,
+              }}
+              onClick={() => setAdvancedPanelOpen((prev) => !prev)}
+            >
+              Advanced search options
+              <Icon as={FaSlidersH} boxSize="4" />
+            </Box>
           </Box>
         </Flex>
       </Flex>

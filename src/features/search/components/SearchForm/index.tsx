@@ -20,6 +20,8 @@ interface SearchFormProps {
   onBackendOptionsChange?: (backendOptions: BackendOptions) => void;
   backendOptions?: BackendOptions;
   initialQuery?: string;
+  advancedPanelOpen?: boolean;
+  onAdvancedPanelOpenChange?: (isOpen: boolean) => void;
 }
 
 // simple gibberish detection without external library
@@ -40,6 +42,8 @@ export const SearchForm = ({
   onBackendOptionsChange,
   backendOptions,
   initialQuery,
+  advancedPanelOpen = false,
+  onAdvancedPanelOpenChange,
 }: SearchFormProps) => {
   const [searchTerm, setSearchTerm] = useState(initialQuery ?? "");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -51,7 +55,6 @@ export const SearchForm = ({
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [filterFocused, setFilterFocused] = useState(false);
-  const [advancedPanelOpen, setAdvancedPanelOpen] = useState(false);
   const [tags, setTags] = useState<
     Array<{ id: string; type: string; value: string }>
   >([]);
@@ -136,7 +139,7 @@ export const SearchForm = ({
           position="fixed"
           inset="0"
           zIndex={99}
-          onClick={() => setAdvancedPanelOpen(false)}
+          onClick={() => onAdvancedPanelOpenChange?.(false)}
         />
       )}
 
@@ -150,6 +153,7 @@ export const SearchForm = ({
           display="flex"
           alignItems="center"
           gap="8px"
+          minH="48px"
           backgroundColor="ui.background"
           borderRadius="8px"
           paddingLeft="16px"
@@ -366,34 +370,16 @@ export const SearchForm = ({
           onClose={() => setFilterFocused(false)}
           onFilterSelect={applyFilter}
           onAdvancedSearchToggle={() => {
-            setAdvancedPanelOpen((prev) => !prev);
+            onAdvancedPanelOpenChange?.(!advancedPanelOpen);
             setFilterFocused(false);
           }}
         />
       </Box>
 
-      <Box display="flex" justifyContent="flex-end" marginTop="1">
-        <Box
-          as="button"
-          fontSize="xs"
-          color="brand.primary"
-          textDecoration="underline"
-          cursor="pointer"
-          padding="8px 4px"
-          onClick={() => {
-            setAdvancedPanelOpen(true);
-            setFilterFocused(false);
-            setSearchFocused(false);
-          }}
-        >
-          Advanced search options
-        </Box>
-      </Box>
-
       {/* advanced search panel below search bar */}
       <AdvancedSearchPanel
         isOpen={advancedPanelOpen}
-        onClose={() => setAdvancedPanelOpen(false)}
+        onClose={() => onAdvancedPanelOpenChange?.(false)}
         options={effectiveBackendOptions}
         onOptionsChange={handleBackendOptionsChange}
         onSearch={handleAdvancedSearch}
