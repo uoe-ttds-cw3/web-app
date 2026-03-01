@@ -2,14 +2,11 @@ import { Input, Box, Text, Link, Icon } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import posthog from "posthog-js";
-import { FilterMenu } from "../FilterMenu";
+import { FilterMenu } from "./FilterMenu";
 import { SearchTags } from "../SearchTags";
 import { AdvancedSearchPanel } from "../AdvancedSearchModal";
 import { useAutocomplete } from "@/lib/queries/useAutocomplete";
-import {
-  defaultBackendOptions,
-  type BackendOptions,
-} from "@/lib/api/types";
+import { defaultBackendOptions, type BackendOptions } from "@/lib/api/types";
 
 interface SearchFormProps {
   onSearch?: (
@@ -369,14 +366,9 @@ export const SearchForm = ({
           isOpen={filterFocused}
           onClose={() => setFilterFocused(false)}
           onFilterSelect={applyFilter}
-          onAdvancedSearchToggle={() => {
-            onAdvancedPanelOpenChange?.(!advancedPanelOpen);
-            setFilterFocused(false);
-          }}
         />
       </Box>
 
-      {/* advanced search panel below search bar */}
       <AdvancedSearchPanel
         isOpen={advancedPanelOpen}
         onClose={() => onAdvancedPanelOpenChange?.(false)}
