@@ -37,8 +37,23 @@ export const FiltersSidebar = ({
         return normalizedA - normalizedB;
       }) ?? [];
 
-  const isSectionOpen = (field: string) =>
-    openSections[field] ?? field === "panel_code";
+  const getDefaultOpenState = (field: string, itemCount: number) => {
+    if (field === "panel_code") {
+      return true;
+    }
+
+    if (
+      ["product_code", "device_class", "decision_code"].includes(field) &&
+      itemCount <= 3
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const isSectionOpen = (field: string, itemCount: number) =>
+    openSections[field] ?? getDefaultOpenState(field, itemCount);
 
   if (availableFacets.length === 0) {
     return null;
@@ -80,7 +95,7 @@ export const FiltersSidebar = ({
               onClick={() =>
                 setOpenSections((prev) => ({
                   ...prev,
-                  [facet.field]: !isSectionOpen(facet.field),
+                  [facet.field]: !isSectionOpen(facet.field, facet.values.length),
                 }))
               }
             >
@@ -88,12 +103,16 @@ export const FiltersSidebar = ({
               <Icon
                 as={LuChevronDown}
                 boxSize="4"
-                transform={isSectionOpen(facet.field) ? "rotate(0deg)" : "rotate(-90deg)"}
+                transform={
+                  isSectionOpen(facet.field, facet.values.length)
+                    ? "rotate(0deg)"
+                    : "rotate(-90deg)"
+                }
                 transition="transform 0.2s ease"
               />
             </Button>
 
-            {isSectionOpen(facet.field) && (
+            {isSectionOpen(facet.field, facet.values.length) && (
               <Stack
                 gap="0.5"
                 marginTop="1"
