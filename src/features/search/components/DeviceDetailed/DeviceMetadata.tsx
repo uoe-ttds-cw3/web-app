@@ -1,4 +1,5 @@
-import { Box, Grid, Heading, Text } from "@chakra-ui/react";
+import { Box, Grid, Link as ChakraLink, Heading, Text } from "@chakra-ui/react";
+import Link from "next/link";
 import { ProductCodeValue } from "@/features/search/components/DeviceShared/ProductCodeValue";
 import type { DeviceLookupResponse } from "@/lib/api/types";
 
@@ -16,13 +17,26 @@ export const DeviceMetadata = ({ device, formatDate }: DeviceMetadataProps) => {
       <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap="12px">
         <Box>
           <Text color="brand.primary" fontWeight="bold">
-            Product Code:
+            Manufacturer:
           </Text>
-          {device.product_code ? (
-            <ProductCodeValue code={device.product_code} color="black" />
+          {device.sponsor ? (
+            <ChakraLink
+              asChild
+              color="brand.primary"
+              fontWeight="semibold"
+              textDecoration="underline"
+            >
+              <Link href={`/?q=${device.sponsor}`}>{device.sponsor}</Link>
+            </ChakraLink>
           ) : (
             <Text color="black">N/A</Text>
           )}
+        </Box>
+        <Box>
+          <Text color="brand.primary" fontWeight="bold">
+            Decision Date:
+          </Text>
+          <Text color="black">{formatDate(device.decision_date)}</Text>
         </Box>
         <Box>
           <Text color="brand.primary" fontWeight="bold">
@@ -32,9 +46,13 @@ export const DeviceMetadata = ({ device, formatDate }: DeviceMetadataProps) => {
         </Box>
         <Box>
           <Text color="brand.primary" fontWeight="bold">
-            Decision:
+            Product Code:
           </Text>
-          <Text color="black">{device.decision || "N/A"}</Text>
+          {device.product_code ? (
+            <ProductCodeValue code={device.product_code} color="black" />
+          ) : (
+            <Text color="black">N/A</Text>
+          )}
         </Box>
         {device.device_class && (
           <Box>
@@ -46,9 +64,9 @@ export const DeviceMetadata = ({ device, formatDate }: DeviceMetadataProps) => {
         )}
         <Box>
           <Text color="brand.primary" fontWeight="bold">
-            Decision Date:
+            Decision:
           </Text>
-          <Text color="black">{formatDate(device.decision_date)}</Text>
+          <Text color="black">{device.decision || "N/A"}</Text>
         </Box>
         {device.date_received && (
           <Box>

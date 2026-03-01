@@ -6,7 +6,6 @@ import {
   Link as ChakraLink,
   Text,
 } from "@chakra-ui/react";
-import Link from "next/link";
 import posthog from "posthog-js";
 import { LuInfo } from "react-icons/lu";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -122,21 +121,6 @@ export const DeviceHeader = ({
           textDecoration="underline"
         >
           View on FDA ↗
-        </ChakraLink>
-      </Box>
-      <Box>
-        <Text fontSize="lg" color="black" display="inline">
-          Manufacturer:{" "}
-        </Text>
-        <ChakraLink
-          asChild
-          fontWeight="bold"
-          color="brand.primary"
-          textDecoration="underline"
-          cursor="pointer"
-          fontSize="lg"
-        >
-          <Link href={`/?q=${device.sponsor}`}>{device.sponsor}</Link>
         </ChakraLink>
       </Box>
       {deviceSafety?.brand_names && deviceSafety.brand_names.length > 0 && (
