@@ -56,7 +56,6 @@ export const SearchForm = ({
   const [filterFocused, setFilterFocused] = useState(false);
   const [quickFilters, setQuickFilters] = useState<QuickFilters>({
     submissionNumber: "",
-    productCode: "",
     dateAfter: "",
     dateBefore: "",
   });
@@ -90,9 +89,6 @@ export const SearchForm = ({
 
     setQuickFilters((prev) => ({
       submissionNumber: prev.submissionNumber,
-      productCode: typeof router.query.product_code === "string"
-        ? router.query.product_code
-        : "",
       dateAfter: typeof router.query.date_from === "string"
         ? router.query.date_from
         : "",
@@ -102,7 +98,6 @@ export const SearchForm = ({
     }));
   }, [
     router.isReady,
-    router.query.product_code,
     router.query.date_from,
     router.query.date_to,
   ]);
@@ -119,14 +114,6 @@ export const SearchForm = ({
         id: "submissionNumber",
         type: "Submission No.",
         value: filters.submissionNumber.trim(),
-      });
-    }
-
-    if (filters.productCode.trim()) {
-      tags.push({
-        id: "productCode",
-        type: "Product Code",
-        value: filters.productCode.trim(),
       });
     }
 

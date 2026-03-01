@@ -34,13 +34,6 @@ export function Header() {
 
   const activeQuickFilters = [
     {
-      key: "product_code",
-      label: "Product Code",
-      value: typeof router.query.product_code === "string"
-        ? router.query.product_code
-        : "",
-    },
-    {
       key: "date_from",
       label: "After",
       value: typeof router.query.date_from === "string"

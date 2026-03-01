@@ -1,12 +1,11 @@
 import { Box, Button, Icon, Input, Text } from "@chakra-ui/react";
 import { type ElementType, useRef } from "react";
-import { FaBarcode, FaRegCalendarAlt } from "react-icons/fa";
+import { FaRegCalendarAlt } from "react-icons/fa";
 import { IoCalendarNumber } from "react-icons/io5";
 import { MdNumbers } from "react-icons/md";
 
 export type QuickFilters = {
   submissionNumber: string;
-  productCode: string;
   dateAfter: string;
   dateBefore: string;
 };
@@ -29,12 +28,6 @@ const FILTER_FIELDS: Array<{
     label: "Submission Number",
     placeholder: "By Submission No.",
     icon: MdNumbers,
-  },
-  {
-    key: "productCode",
-    label: "Product Code",
-    placeholder: "By Product Code",
-    icon: FaBarcode,
   },
   {
     key: "dateAfter",
