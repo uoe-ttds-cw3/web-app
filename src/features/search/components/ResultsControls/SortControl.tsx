@@ -11,7 +11,7 @@ export const SortControl = ({ sortBy, onSortChange }: SortControlProps) => {
       <Text fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">
         Sort:
       </Text>
-      <NativeSelect.Root size="sm" width={{ base: "124px", md: "144px" }}>
+      <NativeSelect.Root size="sm" width={{ base: "148px", md: "172px" }}>
         <NativeSelect.Field
           value={sortBy || ""}
           onChange={(e) => onSortChange(e.currentTarget.value)}

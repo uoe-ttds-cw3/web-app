@@ -30,7 +30,7 @@ const CATEGORY_SUGGESTIONS: Record<string, string[]> = {
 
 const SUGGESTION_POOL = Object.values(CATEGORY_SUGGESTIONS).flat();
 
-const SUGGESTION_COUNT = 5;
+const SUGGESTION_COUNT = 8;
 
 function pickRandomSuggestions() {
   const shuffled = [...SUGGESTION_POOL];

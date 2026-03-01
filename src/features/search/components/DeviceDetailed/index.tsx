@@ -1,5 +1,5 @@
-import { Box, Separator } from "@chakra-ui/react";
-import { DeviceDetailCard } from "./DeviceDetailCard";
+import { Box, Separator, Tabs } from "@chakra-ui/react";
+import { DEVICE_DETAIL_MAX_W } from "./DeviceDetailCard";
 import { DeviceDescriptionSection } from "./DeviceDescriptionSection";
 import { DeviceHeader } from "./DeviceHeader";
 import { DeviceLineageSection } from "./DeviceLineageSection";
@@ -35,51 +35,93 @@ export const DeviceDetailed = ({
   deviceSafety,
 }: DeviceDetailedProps) => {
   return (
-    <Box display="grid" gap="16px">
-      <DeviceDetailCard>
-        <DeviceHeader device={device} deviceSafety={deviceSafety} />
+    <Box width="100%" maxW={DEVICE_DETAIL_MAX_W} mx="auto">
+      <Tabs.Root defaultValue="overview" lazyMount unmountOnExit variant="line">
+        <Box
+          backgroundColor="white"
+          borderWidth="1px"
+          borderColor="ui.border"
+          borderRadius="12px"
+          overflow="hidden"
+        >
+          <Box
+            px={{ base: "16px", md: "24px" }}
+            pt={{ base: "12px", md: "16px" }}
+          >
+            <Tabs.List>
+              <Tabs.Trigger value="overview" px={{ base: "4", md: "5" }}>
+                Overview
+              </Tabs.Trigger>
+              <Tabs.Trigger value="safety" px={{ base: "4", md: "5" }}>
+                Safety
+              </Tabs.Trigger>
+              <Tabs.Trigger value="relationships" px={{ base: "4", md: "5" }}>
+                Relationships
+              </Tabs.Trigger>
+              <Tabs.Indicator />
+            </Tabs.List>
+          </Box>
 
-        <Separator marginY="16px" />
+          <Box
+            px={{ base: "16px", md: "24px" }}
+            pb={{ base: "16px", md: "24px" }}
+          >
+            <Tabs.Content value="overview">
+              <Box pt="16px">
+                <DeviceHeader device={device} deviceSafety={deviceSafety} />
 
-        <DeviceMetadata device={device} formatDate={formatDate} />
+                <Separator marginY="16px" />
 
-        <Separator marginY="16px" />
+                <DeviceMetadata device={device} formatDate={formatDate} />
 
-        <DeviceSignalsSummaryBox device={device} deviceSafety={deviceSafety} />
+                <Separator marginY="16px" />
 
-        <IndicationsForUseSection device={device} />
+                <DeviceSignalsSummaryBox
+                  device={device}
+                  deviceSafety={deviceSafety}
+                />
 
-        <DeviceDescriptionSection device={device} />
+                <IndicationsForUseSection device={device} />
 
-        <StandardsReferencedSection device={device} />
+                <DeviceDescriptionSection device={device} />
 
-        <SterilizationMethodsSection device={device} />
+                <DeviceSummarySection device={device} />
 
-        <DeviceSummarySection device={device} />
-      </DeviceDetailCard>
+                <StandardsReferencedSection device={device} />
 
-      <DeviceDetailCard title="Safety">
-        <DeviceSafetyOverview
-          device={device}
-          deviceSafety={deviceSafety}
-          formatDate={formatDate}
-          formatNumber={formatNumber}
-        />
+                <SterilizationMethodsSection device={device} />
+              </Box>
+            </Tabs.Content>
 
-        <ProductCodeSafetySection
-          safety={safety}
-          deviceSafety={deviceSafety}
-          productCode={device.product_code}
-        />
-      </DeviceDetailCard>
+            <Tabs.Content value="safety">
+              <Box pt="16px">
+                <DeviceSafetyOverview
+                  device={device}
+                  deviceSafety={deviceSafety}
+                  formatDate={formatDate}
+                  formatNumber={formatNumber}
+                />
 
-      <DeviceDetailCard title="Relationships">
-        <DeviceLineageSection lineage={lineage} device={device} />
+                <ProductCodeSafetySection
+                  safety={safety}
+                  deviceSafety={deviceSafety}
+                  productCode={device.product_code}
+                />
+              </Box>
+            </Tabs.Content>
 
-        <ManufacturerDevicesSection device={device} />
+            <Tabs.Content value="relationships">
+              <Box pt="16px">
+                <DeviceLineageSection lineage={lineage} device={device} />
 
-        <SimilarDevicesSection device={device} />
-      </DeviceDetailCard>
+                <ManufacturerDevicesSection device={device} />
+
+                <SimilarDevicesSection device={device} />
+              </Box>
+            </Tabs.Content>
+          </Box>
+        </Box>
+      </Tabs.Root>
     </Box>
   );
 };

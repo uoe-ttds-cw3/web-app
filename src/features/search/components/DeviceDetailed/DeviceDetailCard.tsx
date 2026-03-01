@@ -1,7 +1,7 @@
 import { Box, Card, Heading } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 
-const DEVICE_DETAIL_MAX_W = "1000px";
+export const DEVICE_DETAIL_MAX_W = "1000px";
 
 export type DeviceDetailCardProps = {
   title?: string;
