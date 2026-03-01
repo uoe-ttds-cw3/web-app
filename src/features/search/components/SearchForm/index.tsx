@@ -1,10 +1,10 @@
 import { Input, Box, Text, Link, Icon, IconButton } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import posthog from "posthog-js";
-import { FilterMenu } from "./FilterMenu";
-import { SearchTags } from "../SearchTags";
-import { AdvancedSearchPanel } from "../AdvancedSearchModal";
+import { FilterMenu, type QuickFilters } from "./FilterMenu";
+import { AdvancedSearchPanel } from "./AdvancedSearchModal";
 import { useAutocomplete } from "@/lib/queries/useAutocomplete";
 import { defaultBackendOptions, type BackendOptions } from "@/lib/api/types";
 
@@ -44,8 +44,8 @@ export const SearchForm = ({
   advancedPanelOpen = false,
   onAdvancedPanelOpenChange,
 }: SearchFormProps) => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState(initialQuery ?? "");
-  const [selectedCategory, setSelectedCategory] = useState("");
   const effectiveBackendOptions = backendOptions ?? defaultBackendOptions;
 
   useEffect(() => {
@@ -54,9 +54,12 @@ export const SearchForm = ({
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [filterFocused, setFilterFocused] = useState(false);
-  const [tags, setTags] = useState<
-    Array<{ id: string; type: string; value: string }>
-  >([]);
+  const [quickFilters, setQuickFilters] = useState<QuickFilters>({
+    submissionNumber: "",
+    productCode: "",
+    dateAfter: "",
+    dateBefore: "",
+  });
   const [showGibberishWarning, setShowGibberishWarning] = useState(false);
 
   const { data: autocompleteData } = useAutocomplete(searchTerm);
@@ -82,46 +85,91 @@ export const SearchForm = ({
     }
   }, [searchTerm]);
 
-  const filterTypeMap = {
-    productCode: "Product Code",
-    submissionNumber: "Submission No.",
-    dateBefore: "Before",
-    dateAfter: "After",
-  };
+  useEffect(() => {
+    if (!router.isReady) return;
 
-  function applyFilter(filterId: string) {
-    const filterType = filterTypeMap[filterId as keyof typeof filterTypeMap];
-    const newTag = {
-      id: `${filterId}-${Date.now()}`,
-      type: filterType,
-      value: "",
-    };
-    setTags([...tags, newTag]);
+    setQuickFilters((prev) => ({
+      submissionNumber: prev.submissionNumber,
+      productCode: typeof router.query.product_code === "string"
+        ? router.query.product_code
+        : "",
+      dateAfter: typeof router.query.date_from === "string"
+        ? router.query.date_from
+        : "",
+      dateBefore: typeof router.query.date_to === "string"
+        ? router.query.date_to
+        : "",
+    }));
+  }, [
+    router.isReady,
+    router.query.product_code,
+    router.query.date_from,
+    router.query.date_to,
+  ]);
+
+  function buildSearchTags() {
+    return buildSearchTagsFromFilters(quickFilters);
+  }
+
+  function buildSearchTagsFromFilters(filters: QuickFilters) {
+    const tags: Array<{ id: string; type: string; value: string }> = [];
+
+    if (filters.submissionNumber.trim()) {
+      tags.push({
+        id: "submissionNumber",
+        type: "Submission No.",
+        value: filters.submissionNumber.trim(),
+      });
+    }
+
+    if (filters.productCode.trim()) {
+      tags.push({
+        id: "productCode",
+        type: "Product Code",
+        value: filters.productCode.trim(),
+      });
+    }
+
+    if (filters.dateAfter.trim()) {
+      tags.push({
+        id: "dateAfter",
+        type: "After",
+        value: filters.dateAfter.trim(),
+      });
+    }
+
+    if (filters.dateBefore.trim()) {
+      tags.push({
+        id: "dateBefore",
+        type: "Before",
+        value: filters.dateBefore.trim(),
+      });
+    }
+
+    return tags;
   }
 
   function handleAdvancedSearch(query: string, backendOptions: BackendOptions) {
     setSearchTerm(query);
-    onSearch?.(query, tags, backendOptions);
+    onSearch?.(query, buildSearchTags(), backendOptions);
   }
 
   function handleBackendOptionsChange(nextOptions: BackendOptions) {
     onBackendOptionsChange?.(nextOptions);
   }
 
-  function updateTagValue(tagId: string, newValue: string) {
-    setTags(
-      tags.map((tag) => (tag.id === tagId ? { ...tag, value: newValue } : tag)),
-    );
-  }
-
-  function removeTag(tagId: string) {
-    const updatedTags = tags.filter((tag) => tag.id !== tagId);
-    setTags(updatedTags);
-    onSearch?.(searchTerm, updatedTags, effectiveBackendOptions);
-  }
-
   function submitSearch() {
-    onSearch?.(searchTerm, tags, effectiveBackendOptions);
+    onSearch?.(searchTerm, buildSearchTags(), effectiveBackendOptions);
+    setSearchFocused(false);
+  }
+
+  function applyQuickFilters() {
+    onSearch?.(
+      searchTerm,
+      buildSearchTags(),
+      effectiveBackendOptions,
+    );
+    setFilterFocused(false);
     setSearchFocused(false);
   }
 
@@ -172,39 +220,11 @@ export const SearchForm = ({
               flexShrink={0}
             />
 
-            <Box
-              display="flex"
-              gap="4px"
-              overflowX="auto"
-              flexShrink={0}
-              maxWidth="60%"
-              css={{
-                "&::-webkit-scrollbar": {
-                  display: "none",
-                },
-              }}
-            >
-              {tags.map((tag) => (
-                <SearchTags
-                  key={tag.id}
-                  filterType={tag.type}
-                  value={tag.value}
-                  onChange={(newValue) => updateTagValue(tag.id, newValue)}
-                  onRemove={() => removeTag(tag.id)}
-                  onEnter={submitSearch}
-                />
-              ))}
-            </Box>
-
             <Input
               flex="1"
               borderRadius="8px"
               colorPalette="gray"
-              placeholder={
-                tags.length > 0
-                  ? ""
-                  : "Search by manufacturer, material, device name"
-              }
+              placeholder="Search by manufacturer, material, device name"
               border="none"
               _focus={{ boxShadow: "none", outline: "none" }}
               value={searchTerm}
@@ -239,8 +259,11 @@ export const SearchForm = ({
 
             <FilterMenu
               isOpen={filterFocused}
-              onClose={() => setFilterFocused(false)}
-              onFilterSelect={applyFilter}
+              values={quickFilters}
+              onChange={(field, value) =>
+                setQuickFilters((prev) => ({ ...prev, [field]: value }))
+              }
+              onApply={applyQuickFilters}
             />
           </Box>
         </Box>
@@ -289,7 +312,7 @@ export const SearchForm = ({
                         setSearchTerm(suggestion.text);
                         onSearch?.(
                           suggestion.text,
-                          tags,
+                          buildSearchTags(),
                           effectiveBackendOptions,
                         );
                         setSearchFocused(false);
@@ -348,7 +371,7 @@ export const SearchForm = ({
                         setSearchTerm(suggestion.text);
                         onSearch?.(
                           suggestion.text,
-                          tags,
+                          buildSearchTags(),
                           effectiveBackendOptions,
                         );
                         setSearchFocused(false);

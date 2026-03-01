@@ -20,8 +20,22 @@ export const FiltersSidebar = ({
   onFacetFilter,
 }: FiltersSidebarProps) => {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const orderedFields = [
+    "panel_code",
+    "product_code",
+    "device_class",
+    "decision_code",
+  ];
   const availableFacets =
-    facets?.filter((facet) => facet.total > 0 && facet.values.length > 0) ?? [];
+    facets
+      ?.filter((facet) => facet.total > 0 && facet.values.length > 0)
+      .sort((a, b) => {
+        const aIndex = orderedFields.indexOf(a.field);
+        const bIndex = orderedFields.indexOf(b.field);
+        const normalizedA = aIndex === -1 ? orderedFields.length : aIndex;
+        const normalizedB = bIndex === -1 ? orderedFields.length : bIndex;
+        return normalizedA - normalizedB;
+      }) ?? [];
 
   const isSectionOpen = (field: string) =>
     openSections[field] ?? field === "panel_code";

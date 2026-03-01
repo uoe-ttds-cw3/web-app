@@ -25,8 +25,40 @@ export function Header() {
   };
 
   const convertDateFormat = (ddmmyyyy: string): string => {
+    if (ddmmyyyy.includes("-")) {
+      return ddmmyyyy;
+    }
     const [day, month, year] = ddmmyyyy.split("/");
     return `${year}-${month}-${day}`;
+  };
+
+  const activeQuickFilters = [
+    {
+      key: "product_code",
+      label: "Product Code",
+      value: typeof router.query.product_code === "string"
+        ? router.query.product_code
+        : "",
+    },
+    {
+      key: "date_from",
+      label: "After",
+      value: typeof router.query.date_from === "string"
+        ? router.query.date_from
+        : "",
+    },
+    {
+      key: "date_to",
+      label: "Before",
+      value: typeof router.query.date_to === "string"
+        ? router.query.date_to
+        : "",
+    },
+  ].filter((filter) => filter.value);
+
+  const clearQuickFilter = (key: string) => {
+    const { [key]: _removed, ...rest } = router.query;
+    router.push({ pathname: "/", query: rest }, undefined, { shallow: true });
   };
 
   const applyBackendOptionsToQuery = (
@@ -140,8 +172,8 @@ export function Header() {
         maxW={HEADER_CONTENT_MAX_W}
         mx="auto"
         px={{ base: 3, md: 6, lg: 8 }}
-        py={{ base: 3, md: 0 }}
-        minH={{ base: "auto", md: "96px" }}
+        py={{ base: 3, md: 3 }}
+        minH={{ base: "auto", md: "136px" }}
         align="center"
         gap={{ base: 2, md: 4 }}
         direction={{ base: "column", md: "row" }}
@@ -211,6 +243,43 @@ export function Header() {
               </Button>
             </Flex>
           </Flex>
+
+          <Box minH={{ base: activeQuickFilters.length ? "auto" : "0", md: "40px" }} mt="8px">
+            {activeQuickFilters.length > 0 && (
+              <Box display="flex" gap="8px" flexWrap="wrap">
+                {activeQuickFilters.map((filter) => (
+                  <Box
+                    key={filter.key}
+                    display="inline-flex"
+                    alignItems="center"
+                    gap="6px"
+                    padding="4px 10px"
+                    borderRadius="10px"
+                    backgroundColor="brand.accentBg"
+                    color="brand.primary"
+                    fontSize="sm"
+                    lineHeight="1"
+                  >
+                    <Text fontSize="sm">
+                      {filter.label}: {filter.value}
+                    </Text>
+                    <Box
+                      as="button"
+                      onClick={() => clearQuickFilter(filter.key)}
+                      cursor="pointer"
+                      display="inline-flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      fontWeight="bold"
+                      lineHeight="1"
+                    >
+                      x
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </Box>
         </Box>
       </Flex>
     </Box>

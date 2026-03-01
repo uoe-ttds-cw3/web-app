@@ -1,104 +1,244 @@
-import { Box, Text, Link, Icon } from "@chakra-ui/react";
-import { FaBarcode } from "react-icons/fa";
-import { MdNumbers } from "react-icons/md";
+import { Box, Button, Icon, Input, Text } from "@chakra-ui/react";
+import { type ElementType, useRef } from "react";
+import { FaBarcode, FaRegCalendarAlt } from "react-icons/fa";
 import { IoCalendarNumber } from "react-icons/io5";
+import { MdNumbers } from "react-icons/md";
+
+export type QuickFilters = {
+  submissionNumber: string;
+  productCode: string;
+  dateAfter: string;
+  dateBefore: string;
+};
 
 interface FilterMenuProps {
   isOpen: boolean;
-  onClose: () => void;
-  onFilterSelect: (filterId: string) => void;
+  values: QuickFilters;
+  onChange: (field: keyof QuickFilters, value: string) => void;
+  onApply: () => void;
 }
+
+const FILTER_FIELDS: Array<{
+  key: keyof QuickFilters;
+  label: string;
+  placeholder: string;
+  icon: ElementType;
+}> = [
+  {
+    key: "submissionNumber",
+    label: "Submission Number",
+    placeholder: "By Submission No.",
+    icon: MdNumbers,
+  },
+  {
+    key: "productCode",
+    label: "Product Code",
+    placeholder: "By Product Code",
+    icon: FaBarcode,
+  },
+  {
+    key: "dateAfter",
+    label: "Cleared After Date",
+    placeholder: "",
+    icon: IoCalendarNumber,
+  },
+  {
+    key: "dateBefore",
+    label: "Cleared Before Date",
+    placeholder: "",
+    icon: IoCalendarNumber,
+  },
+];
+
+const DATE_FIELDS: Array<keyof QuickFilters> = ["dateAfter", "dateBefore"];
+
+const QuickFilterTextInput = ({
+  value,
+  placeholder,
+  onChange,
+}: {
+  value: string;
+  placeholder: string;
+  onChange: (value: string) => void;
+}) => (
+  <Box
+    display="flex"
+    alignItems="center"
+    backgroundColor="ui.background"
+    borderRadius="8px"
+    paddingX="12px"
+    height="44px"
+    border="1px solid"
+    borderColor="ui.borderLight"
+    _focusWithin={{
+      borderColor: "brand.primary",
+      boxShadow: "0 0 0 1px var(--chakra-colors-brand-primary)",
+    }}
+  >
+    <Input
+      value={value}
+      onChange={(e) => onChange(e.currentTarget.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+        }
+      }}
+      placeholder={placeholder}
+      border="none"
+      padding="0"
+      height="100%"
+      fontSize="sm"
+      background="transparent"
+      _focus={{ boxShadow: "none", outline: "none" }}
+    />
+  </Box>
+);
+
+const QuickFilterDateInput = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const today = new Date().toISOString().split("T")[0];
+
+  return (
+    <Box
+      display="flex"
+      alignItems="center"
+      gap="8px"
+      backgroundColor="ui.background"
+      borderRadius="8px"
+      paddingX="12px"
+      height="44px"
+      border="1px solid"
+      borderColor="ui.borderLight"
+      cursor="pointer"
+      onClick={() => {
+        inputRef.current?.showPicker?.();
+        inputRef.current?.focus();
+      }}
+    >
+      <Icon
+        as={FaRegCalendarAlt}
+        color="brand.primary"
+        boxSize="4"
+        flexShrink={0}
+      />
+      <Input
+        ref={inputRef}
+        type="date"
+        value={value}
+        max={today}
+        onChange={(e) => {
+          onChange(e.currentTarget.value);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+          }
+        }}
+        border="none"
+        padding="0"
+        height="100%"
+        fontSize="sm"
+        background="transparent"
+        _focus={{ boxShadow: "none", outline: "none" }}
+        css={{
+          "&::-webkit-calendar-picker-indicator": {
+            opacity: 0,
+            display: "none",
+            pointerEvents: "none",
+          },
+          "&::-webkit-clear-button": {
+            display: "none",
+          },
+        }}
+      />
+    </Box>
+  );
+};
 
 export const FilterMenu = ({
   isOpen,
-  onClose,
-  onFilterSelect,
+  values,
+  onChange,
+  onApply,
 }: FilterMenuProps) => {
-  const filterOptions = [
-    {
-      id: "submissionNumber",
-      title: "Submission Number",
-      icon: MdNumbers,
-      description: "By Submission No.",
-    },
-    {
-      id: "productCode",
-      title: "Product Code",
-      icon: FaBarcode,
-      description: "By Product Code",
-    },
-    {
-      id: "dateBefore",
-      title: "Date Before",
-      icon: IoCalendarNumber,
-      description: "Cleared before date",
-    },
-    {
-      id: "dateAfter",
-      title: "Date After",
-      icon: IoCalendarNumber,
-      description: "Cleared after date",
-    },
-  ];
-
   if (!isOpen) return null;
 
   return (
     <Box
-      width="192px"
+      width={{ base: "300px", md: "320px" }}
       background="ui.background"
-      borderRadius="6px"
-      marginTop="6px"
-      padding="4px"
+      borderRadius="12px"
+      marginTop="8px"
+      padding="16px"
       position="absolute"
       right="0"
       zIndex={10}
       border="1px solid"
       borderColor="ui.borderLight"
-      boxShadow="md"
-      onClick={onClose}
+      boxShadow="lg"
+      onMouseDown={(e) => e.stopPropagation()}
     >
-      {filterOptions.map((option) => {
-        const IconComponent = option.icon;
+      <Text fontSize="2xl" fontWeight="semibold" color="brand.primary" mb="4">
+        Quick Filters
+      </Text>
 
-        return (
-          <Link
-            key={option.id}
-            onClick={() => {
-              onFilterSelect(option.id);
-              onClose();
-            }}
-            display="block"
-            width="100%"
-            padding="6px"
-            borderRadius="6px"
-            _hover={{
-              bg: "ui.surface",
-              textDecoration: "none",
-            }}
-            cursor="pointer"
-          >
-            <Box display="flex" alignItems="center" gap="6px">
+      <Box display="flex" flexDirection="column" gap="4">
+        {FILTER_FIELDS.map((field) => (
+          <Box key={field.key}>
+            <Box
+              display="flex"
+              alignItems="center"
+              gap="2"
+              marginBottom="2"
+              color="ui.text"
+            >
               <Icon
-                as={IconComponent}
+                as={field.icon}
+                boxSize="4"
                 color="brand.primary"
-                marginRight="6px"
-                minWidth="13px"
-                boxSize="3.5"
                 flexShrink={0}
               />
-              <Box flex="1">
-                <Text fontWeight="500" display="block" fontSize="sm">
-                  {option.title}
-                </Text>
-                <Text fontSize="xs" color="ui.textMuted">
-                  {option.description}
-                </Text>
-              </Box>
+              <Text fontSize="sm" fontWeight="semibold">
+                {field.label}
+              </Text>
             </Box>
-          </Link>
-        );
-      })}
+            {DATE_FIELDS.includes(field.key) ? (
+              <QuickFilterDateInput
+                value={values[field.key]}
+                onChange={(value) => onChange(field.key, value)}
+              />
+            ) : (
+              <QuickFilterTextInput
+                value={values[field.key]}
+                placeholder={field.placeholder}
+                onChange={(value) => onChange(field.key, value)}
+              />
+            )}
+          </Box>
+        ))}
+
+        <Button
+          type="button"
+          onClick={onApply}
+          width="100%"
+          height="44px"
+          borderRadius="8px"
+          backgroundColor="brand.primary"
+          color="white"
+          fontSize="sm"
+          fontWeight="semibold"
+          _hover={{ opacity: 0.9 }}
+          _active={{ opacity: 0.9 }}
+        >
+          Apply filters
+        </Button>
+      </Box>
     </Box>
   );
 };
