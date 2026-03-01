@@ -40,8 +40,8 @@ import "@xyflow/react/dist/style.css";
 import posthog from "posthog-js";
 import { Tooltip as UiTooltip } from "@/components/ui/Tooltip";
 import { DeviceHeader } from "./DeviceHeader";
+import { DeviceMetadata } from "./DeviceMetadata";
 import { FEATURE_SIGNAL_CONFIG } from "@/features/search/components/DeviceShared/featureSignalConfig";
-import { ProductCodeValue } from "@/features/search/components/DeviceShared/ProductCodeValue";
 import { useSearch } from "@/lib/queries/useSearch";
 import type {
   DeviceLookupResponse,
@@ -418,61 +418,7 @@ export const DeviceDetailed = ({
 
       <Separator marginY="16px" />
 
-      {/* metadata grid - responsive */}
-      <Box marginBottom="24px">
-        <Heading size="md" color="brand.primary" marginBottom="12px">
-          Device Information
-        </Heading>
-        <Grid
-          templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
-          gap="12px"
-        >
-          <Box>
-            <Text color="brand.primary" fontWeight="bold">
-              Product Code:
-            </Text>
-            {device.product_code ? (
-              <ProductCodeValue code={device.product_code} color="black" />
-            ) : (
-              <Text color="black">N/A</Text>
-            )}
-          </Box>
-          <Box>
-            <Text color="brand.primary" fontWeight="bold">
-              Panel:
-            </Text>
-            <Text color="black">{device.panel || "N/A"}</Text>
-          </Box>
-          <Box>
-            <Text color="brand.primary" fontWeight="bold">
-              Decision:
-            </Text>
-            <Text color="black">{device.decision || "N/A"}</Text>
-          </Box>
-          {device.device_class && (
-            <Box>
-              <Text color="brand.primary" fontWeight="bold">
-                Device Class:
-              </Text>
-              <Text color="black">{device.device_class}</Text>
-            </Box>
-          )}
-          <Box>
-            <Text color="brand.primary" fontWeight="bold">
-              Decision Date:
-            </Text>
-            <Text color="black">{formatDate(device.decision_date)}</Text>
-          </Box>
-          {device.date_received && (
-            <Box>
-              <Text color="brand.primary" fontWeight="bold">
-                Date Received:
-              </Text>
-              <Text color="black">{formatDate(device.date_received)}</Text>
-            </Box>
-          )}
-        </Grid>
-      </Box>
+      <DeviceMetadata device={device} formatDate={formatDate} />
 
       {/* feature flags */}
       <Separator marginY="16px" />
