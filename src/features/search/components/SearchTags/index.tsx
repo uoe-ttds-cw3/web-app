@@ -38,15 +38,15 @@ export const SearchTags = ({ filterType, value, onChange, onRemove, onEnter }: S
     <Box
       display="flex"
       alignItems="center"
-      background="#9CCA9F"
+      background="brand.accentBg"
       borderRadius="4px"
       position="relative"
     >
       <Box
-        background="#6EAF72"
+        background="brand.accentSelected"
         fontSize="10px"
         fontWeight="600"
-        color="black"
+        color="brand.primary"
         whiteSpace="nowrap"
         padding="5px 6px"
         display="flex"
