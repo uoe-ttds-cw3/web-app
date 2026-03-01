@@ -10,14 +10,7 @@ import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { ResultsControls } from "@/features/search/components/ResultsControls";
 import { NavBar } from "@/features/search/components/NavBar";
 import { StartSearching } from "@/features/search/components/StartSearching";
-import {
-  Stack,
-  Text,
-  Box,
-  Spinner,
-  Alert,
-  Textarea,
-} from "@chakra-ui/react";
+import { Stack, Text, Box, Spinner, Alert } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
 import type { BackendOptions, Device, ExpansionInfo } from "@/lib/api/types";
@@ -25,10 +18,9 @@ import { toaster } from "@/components/ui/Toaster";
 import { SideDrawer } from "@/features/search/components/SideDrawer";
 import useLocalStorage from "use-local-storage";
 import { LANGUAGE_NOT_SUPPORTED } from "@/constants/error-codes";
-import { useQuery } from "@tanstack/react-query";
 
 const subscribe = () => () => {};
-const SEARCH_CONTENT_MAX_W = "1120px";
+const SEARCH_CONTENT_MAX_W = "956px";
 
 export default function Home() {
   const router = useRouter();
@@ -331,12 +323,12 @@ export default function Home() {
               isLoading &&
               Boolean(
                 query ||
-                  panel ||
-                  productCode ||
-                  dateBefore ||
-                  dateAfter ||
-                  decision ||
-                  deviceClass,
+                panel ||
+                productCode ||
+                dateBefore ||
+                dateAfter ||
+                decision ||
+                deviceClass,
               )
             }
           />

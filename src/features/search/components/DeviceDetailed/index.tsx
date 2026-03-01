@@ -1,4 +1,5 @@
-import { Separator, Card } from "@chakra-ui/react";
+import { Box, Separator } from "@chakra-ui/react";
+import { DeviceDetailCard } from "./DeviceDetailCard";
 import { DeviceDescriptionSection } from "./DeviceDescriptionSection";
 import { DeviceHeader } from "./DeviceHeader";
 import { DeviceLineageSection } from "./DeviceLineageSection";
@@ -34,52 +35,51 @@ export const DeviceDetailed = ({
   deviceSafety,
 }: DeviceDetailedProps) => {
   return (
-    <Card.Root
-      backgroundColor="white"
-      padding={{ base: "16px", md: "24px" }}
-      borderRadius="12px"
-      maxWidth="1200px"
-      borderWidth="1px"
-      borderColor="ui.border"
-    >
-      <DeviceHeader device={device} deviceSafety={deviceSafety} />
+    <Box display="grid" gap="16px">
+      <DeviceDetailCard>
+        <DeviceHeader device={device} deviceSafety={deviceSafety} />
 
-      <Separator marginY="16px" />
+        <Separator marginY="16px" />
 
-      <DeviceMetadata device={device} formatDate={formatDate} />
+        <DeviceMetadata device={device} formatDate={formatDate} />
 
-      <Separator marginY="16px" />
+        <Separator marginY="16px" />
 
-      <DeviceSignalsSummaryBox device={device} deviceSafety={deviceSafety} />
+        <DeviceSignalsSummaryBox device={device} deviceSafety={deviceSafety} />
 
-      <IndicationsForUseSection device={device} />
+        <IndicationsForUseSection device={device} />
 
-      <DeviceDescriptionSection device={device} />
+        <DeviceDescriptionSection device={device} />
 
-      <StandardsReferencedSection device={device} />
+        <StandardsReferencedSection device={device} />
 
-      <SterilizationMethodsSection device={device} />
+        <SterilizationMethodsSection device={device} />
 
-      <DeviceSummarySection device={device} />
+        <DeviceSummarySection device={device} />
+      </DeviceDetailCard>
 
-      <DeviceLineageSection lineage={lineage} device={device} />
+      <DeviceDetailCard title="Safety">
+        <DeviceSafetyOverview
+          device={device}
+          deviceSafety={deviceSafety}
+          formatDate={formatDate}
+          formatNumber={formatNumber}
+        />
 
-      <DeviceSafetyOverview
-        device={device}
-        deviceSafety={deviceSafety}
-        formatDate={formatDate}
-        formatNumber={formatNumber}
-      />
+        <ProductCodeSafetySection
+          safety={safety}
+          deviceSafety={deviceSafety}
+          productCode={device.product_code}
+        />
+      </DeviceDetailCard>
 
-      <ProductCodeSafetySection
-        safety={safety}
-        deviceSafety={deviceSafety}
-        productCode={device.product_code}
-      />
+      <DeviceDetailCard title="Relationships">
+        <DeviceLineageSection lineage={lineage} device={device} />
 
-      <ManufacturerDevicesSection device={device} />
+        <ManufacturerDevicesSection device={device} />
 
-      <SimilarDevicesSection device={device} />
-    </Card.Root>
+        <SimilarDevicesSection device={device} />
+      </DeviceDetailCard>
+    </Box>
   );
 };
