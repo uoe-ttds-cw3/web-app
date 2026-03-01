@@ -1,6 +1,8 @@
 import { Box, Card, Heading } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 
+const DEVICE_DETAIL_MAX_W = "956px";
+
 export type DeviceDetailCardProps = {
   title?: string;
   children: ReactNode;
@@ -13,9 +15,11 @@ export const DeviceDetailCard = ({
   return (
     <Card.Root
       backgroundColor="white"
+      width="100%"
       padding={{ base: "16px", md: "24px" }}
       borderRadius="12px"
-      maxWidth="1200px"
+      maxWidth={DEVICE_DETAIL_MAX_W}
+      marginX="auto"
       borderWidth="1px"
       borderColor="ui.border"
     >
