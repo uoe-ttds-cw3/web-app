@@ -10,6 +10,21 @@ export interface TooltipProps extends ChakraTooltip.RootProps {
   disabled?: boolean;
 }
 
+const toCssVarReference = (value: string) => {
+  if (
+    value.startsWith("var(") ||
+    value.startsWith("#") ||
+    value.startsWith("rgb(") ||
+    value.startsWith("rgba(") ||
+    value.startsWith("hsl(") ||
+    value.startsWith("hsla(")
+  ) {
+    return value;
+  }
+
+  return `var(--chakra-colors-${value.replace(/\./g, "-")})`;
+};
+
 export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
   function Tooltip(props, ref) {
     const {
@@ -22,6 +37,17 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
       portalRef,
       ...rest
     } = props;
+    const tooltipBg = contentProps?.bg ?? contentProps?.backgroundColor;
+    const tooltipBgVar =
+      typeof tooltipBg === "string" ? toCssVarReference(tooltipBg) : undefined;
+    const mergedContentProps = tooltipBg
+      ? {
+          ...contentProps,
+          bg: tooltipBg,
+          "--tooltip-bg": tooltipBgVar ?? tooltipBg,
+          "--arrow-background": tooltipBgVar ?? tooltipBg,
+        }
+      : contentProps;
 
     if (disabled) return children;
 
@@ -30,7 +56,7 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
         <ChakraTooltip.Trigger asChild>{children}</ChakraTooltip.Trigger>
         <Portal disabled={!portalled} container={portalRef}>
           <ChakraTooltip.Positioner>
-            <ChakraTooltip.Content ref={ref} {...contentProps}>
+            <ChakraTooltip.Content ref={ref} {...mergedContentProps}>
               {showArrow && (
                 <ChakraTooltip.Arrow>
                   <ChakraTooltip.ArrowTip />

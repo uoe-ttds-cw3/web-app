@@ -2,8 +2,8 @@
 export const semanticTokens = {
   colors: {
     brand: {
-      primary: { value: "{colors.brand.green}" },
-      accent: { value: "{colors.brand.greenLight}" },
+      primary: { value: "{colors.brand.base}" },
+      accent: { value: "{colors.brand.accent}" },
     },
     ui: {
       text: { value: "black" },

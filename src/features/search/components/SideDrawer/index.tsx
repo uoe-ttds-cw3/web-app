@@ -116,7 +116,7 @@ export const SideDrawer = () => {
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
-                color="green.700"
+                color="brand.primary"
                 fontSize="md"
                 title="Open Comparison"
                 padding="0"
@@ -130,7 +130,7 @@ export const SideDrawer = () => {
               >
                 <MdCompare />
                 {selectedDevicesForRender.length > 0 && (
-                  <Badge colorPalette="green">
+                  <Badge colorPalette="blue">
                     {" "}
                     {selectedDevicesForRender.length}{" "}
                   </Badge>

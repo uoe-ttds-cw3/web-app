@@ -1,49 +1,32 @@
-import { NativeSelect, Flex, Box, Text } from "@chakra-ui/react";
-import { useState } from "react";
-import { FaSearch } from "react-icons/fa";
+import { Box, Text } from "@chakra-ui/react";
+import type { QueryDebugInfo } from "@/lib/api/types";
+import { FoundResults } from "./FoundResults";
+import { SearchDetailsModal } from "./SearchDetailsModal";
 
 interface ResultsHeaderProps {
   numResults: number;
+  debugInfo?: QueryDebugInfo | null;
 }
 
-export const ResultsHeader = ({ numResults = 0 }: ResultsHeaderProps) => {
-  const [sort, setValue] = useState("default");
-
+export const ResultsHeader = ({
+  numResults = 0,
+  debugInfo,
+}: ResultsHeaderProps) => {
   return (
     <Box
-      paddingBottom="4"
-      color="brand.primary"
       display="flex"
       alignItems="center"
-      justifyContent="space-between"
+      justifyContent="flex-start"
+      gap="2"
+      flexWrap="wrap"
     >
-      <Text display="inline-flex" alignItems="center">
-        <FaSearch
-          color="var(--chakra-colors-brand-accent)"
-          style={{ marginRight: "8px" }}
-        />
-        Found {numResults == 0 ? "no" : numResults >= 500 ? "500+" : numResults} device
-        {numResults == 1 ? "" : "s"}...
-      </Text>
-      {/* This doesn't work right now so am just going to comment it out */}
-      {/* <Box>
-                <NativeSelect.Root width="190px" borderRadius="8px" border="none">
-                <NativeSelect.Field
-                    textAlign="right"
-                    paddingRight="30px"
-                    border="none"
-                    value={sort}
-                    onChange={(e) => setValue(e.currentTarget.value)}
-                >
-                    <option value="default">Default</option>
-                    <option value="pagerank">Pagerank boost</option>
-                    <option value="date">Date</option>
-                    <option value="length">Documentation length</option>
-                    <option value="links">Number of linked devices</option>
-                </NativeSelect.Field>
-                <NativeSelect.Indicator />
-                </NativeSelect.Root>
-            </Box> */}
+      <FoundResults numResults={numResults} />
+      {debugInfo && (
+        <Text fontSize="xs" color="ui.textMuted" lineHeight="1">
+          ·
+        </Text>
+      )}
+      <SearchDetailsModal debugInfo={debugInfo} />
     </Box>
   );
 };

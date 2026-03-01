@@ -2,11 +2,11 @@
 export const tokens = {
   colors: {
     brand: {
-      green: { value: "#266429" },
-      greenLight: { value: "#4CAF50" },
-      greenBg: { value: "#4CAF5020" },
-      greenHover: { value: "#4caf4f7e" },
-      greenSelected: { value: "#4CAF5052" },
+      base: { value: "#1E5AA8" },
+      accent: { value: "#4A90E2" },
+      accentBg: { value: "#4A90E220" },
+      accentHover: { value: "#4A90E27E" },
+      accentSelected: { value: "#4A90E252" },
       surface: { value: "#F5F5F5" },
       pageBg: { value: "#E6E6E6" },
     },

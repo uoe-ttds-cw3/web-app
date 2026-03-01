@@ -1,4 +1,4 @@
-import { Input, Box, Text, Link } from "@chakra-ui/react";
+import { Input, Box, Text, Link, Icon } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import posthog from "posthog-js";
@@ -6,7 +6,10 @@ import { FilterMenu } from "../FilterMenu";
 import { SearchTags } from "../SearchTags";
 import { AdvancedSearchPanel } from "../AdvancedSearchModal";
 import { useAutocomplete } from "@/lib/queries/useAutocomplete";
-import type { BackendOptions } from "@/lib/api/types";
+import {
+  defaultBackendOptions,
+  type BackendOptions,
+} from "@/lib/api/types";
 
 interface SearchFormProps {
   onSearch?: (
@@ -14,7 +17,11 @@ interface SearchFormProps {
     tags?: Array<{ id: string; type: string; value: string }>,
     backendOptions?: BackendOptions,
   ) => void;
+  onBackendOptionsChange?: (backendOptions: BackendOptions) => void;
+  backendOptions?: BackendOptions;
   initialQuery?: string;
+  advancedPanelOpen?: boolean;
+  onAdvancedPanelOpenChange?: (isOpen: boolean) => void;
 }
 
 // simple gibberish detection without external library
@@ -30,9 +37,17 @@ const isLikelyGibberish = (text: string): boolean => {
   );
 };
 
-export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
+export const SearchForm = ({
+  onSearch,
+  onBackendOptionsChange,
+  backendOptions,
+  initialQuery,
+  advancedPanelOpen = false,
+  onAdvancedPanelOpenChange,
+}: SearchFormProps) => {
   const [searchTerm, setSearchTerm] = useState(initialQuery ?? "");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const effectiveBackendOptions = backendOptions ?? defaultBackendOptions;
 
   useEffect(() => {
     if (initialQuery !== undefined) setSearchTerm(initialQuery);
@@ -40,7 +55,6 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [filterFocused, setFilterFocused] = useState(false);
-  const [advancedPanelOpen, setAdvancedPanelOpen] = useState(false);
   const [tags, setTags] = useState<
     Array<{ id: string; type: string; value: string }>
   >([]);
@@ -91,6 +105,10 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
     onSearch?.(query, tags, backendOptions);
   }
 
+  function handleBackendOptionsChange(nextOptions: BackendOptions) {
+    onBackendOptionsChange?.(nextOptions);
+  }
+
   function updateTagValue(tagId: string, newValue: string) {
     setTags(
       tags.map((tag) => (tag.id === tagId ? { ...tag, value: newValue } : tag)),
@@ -100,11 +118,11 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
   function removeTag(tagId: string) {
     const updatedTags = tags.filter((tag) => tag.id !== tagId);
     setTags(updatedTags);
-    onSearch?.(searchTerm, updatedTags);
+    onSearch?.(searchTerm, updatedTags, effectiveBackendOptions);
   }
 
   return (
-    <Box position="relative" width="100%">
+    <Box width="100%" position="relative">
       {/* backdrop to close filter menu */}
       {filterFocused && (
         <Box
@@ -121,240 +139,249 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
           position="fixed"
           inset="0"
           zIndex={99}
-          onClick={() => setAdvancedPanelOpen(false)}
+          onClick={() => onAdvancedPanelOpenChange?.(false)}
         />
       )}
 
       <Box
         display="flex"
-        alignItems="center"
-        gap="8px"
-        backgroundColor="ui.background"
-        borderRadius="8px"
-        paddingLeft="16px"
-        paddingRight="16px"
-        border="1px solid"
-        borderColor="ui.borderLight"
+        flexDirection="column"
+        width="100%"
+        position="relative"
       >
-        <FaSearch color="var(--chakra-colors-brand-accent)" />
-
         <Box
-          display="flex"
-          gap="4px"
-          overflowX="auto"
-          flexShrink={0}
-          maxWidth="60%"
-          css={{
-            "&::-webkit-scrollbar": {
-              display: "none",
-            },
-          }}
-        >
-          {tags.map((tag) => (
-            <SearchTags
-              key={tag.id}
-              filterType={tag.type}
-              value={tag.value}
-              onChange={(newValue) => updateTagValue(tag.id, newValue)}
-              onRemove={() => removeTag(tag.id)}
-              onEnter={() => onSearch?.(searchTerm, tags)}
-            />
-          ))}
-        </Box>
-
-        <Input
-          flex="1"
-          borderRadius="8px"
-          colorPalette="gray"
-          placeholder={
-            tags.length > 0
-              ? ""
-              : "Search by manufacturer, material, device name"
-          }
-          border="none"
-          _focus={{ boxShadow: "none", outline: "none" }}
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            if (!searchFocused) setSearchFocused(true);
-          }}
-          onFocus={() => setSearchFocused(true)}
-          onBlur={() => {
-            setSearchFocused(false);
-            setFilterFocused(false);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              onSearch?.(searchTerm, tags);
-              setSearchFocused(false);
-            }
-          }}
-        />
-
-        <Box
-          onClick={() => setFilterFocused(!filterFocused)}
-          cursor="pointer"
           display="flex"
           alignItems="center"
+          gap="8px"
+          minH="48px"
+          backgroundColor="ui.background"
+          borderRadius="8px"
+          paddingLeft="16px"
+          paddingRight="16px"
+          border="1px solid"
+          borderColor="ui.borderLight"
         >
-          <FaFilter color="var(--chakra-colors-brand-accent)" />
-        </Box>
-      </Box>
+          <Icon
+            as={FaSearch}
+            color="brand.primary"
+            boxSize="4"
+            flexShrink={0}
+          />
 
-      <Box position="absolute" right="0" top="100%" marginBottom="4px">
-        <Box
-          as="button"
-          fontSize="xs"
-          color="brand.primary"
-          textDecoration="underline"
-          cursor="pointer"
-          padding="8px 4px"
-          onClick={() => {
-            setAdvancedPanelOpen(true);
-            setFilterFocused(false);
-            setSearchFocused(false);
-          }}
-        >
-          Advanced Search
-        </Box>
-      </Box>
-
-      {/* grouped autocomplete dropdown */}
-      {searchFocused &&
-        !advancedPanelOpen &&
-        (deviceSuggestions.length > 0 ||
-          manufacturerSuggestions.length > 0) && (
           <Box
-            width="100%"
-            background="ui.background"
-            borderRadius="8px"
-            marginTop="12px"
-            position="absolute"
-            zIndex={10}
-            boxShadow="lg"
-            border="1px solid"
-            borderColor="ui.borderLight"
-            onMouseDown={(e) => e.preventDefault()}
+            display="flex"
+            gap="4px"
+            overflowX="auto"
+            flexShrink={0}
+            maxWidth="60%"
+            css={{
+              "&::-webkit-scrollbar": {
+                display: "none",
+              },
+            }}
           >
-            {/* devices section */}
-            {deviceSuggestions.length > 0 && (
-              <Box>
-                <Text
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  color="ui.textMuted"
-                  padding="8px 12px 4px"
-                  textTransform="uppercase"
-                  letterSpacing="wide"
-                >
-                  Devices
-                </Text>
-                {deviceSuggestions.map((suggestion, index) => (
-                  <Link
-                    key={`${suggestion.text}-${index}`}
-                    onClick={() => {
-                      // track autocomplete suggestion selected
-                      posthog.capture("autocomplete_suggestion_selected", {
-                        suggestion_text: suggestion.text,
-                        suggestion_source: suggestion.source,
-                        suggestion_type: "device",
-                        typed_query: searchTerm,
-                      });
-                      setSearchTerm(suggestion.text);
-                      onSearch?.(suggestion.text, tags);
-                      setSearchFocused(false);
-                    }}
-                    display="block"
-                    width="100%"
-                    padding="8px 12px"
-                    borderRadius="4px"
-                    _hover={{
-                      bg: "ui.surface",
-                      textDecoration: "none",
-                    }}
-                    cursor="pointer"
-                  >
-                    <Text fontSize="sm">{suggestion.text}</Text>
-                    <Text fontSize="xs" color="ui.textSubtle">
-                      {suggestion.source === "product_code"
-                        ? "product code"
-                        : suggestion.source === "device_term"
-                          ? "device type"
-                          : "device name"}
-                    </Text>
-                  </Link>
-                ))}
-              </Box>
-            )}
-
-            {/* manufacturers section */}
-            {manufacturerSuggestions.length > 0 && (
-              <Box
-                borderTop={
-                  deviceSuggestions.length > 0 ? "1px solid" : undefined
+            {tags.map((tag) => (
+              <SearchTags
+                key={tag.id}
+                filterType={tag.type}
+                value={tag.value}
+                onChange={(newValue) => updateTagValue(tag.id, newValue)}
+                onRemove={() => removeTag(tag.id)}
+                onEnter={() =>
+                  onSearch?.(searchTerm, tags, effectiveBackendOptions)
                 }
-                borderColor="ui.borderLight"
-              >
-                <Text
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  color="ui.textMuted"
-                  padding="8px 12px 4px"
-                  textTransform="uppercase"
-                  letterSpacing="wide"
-                >
-                  Manufacturers
-                </Text>
-                {manufacturerSuggestions.map((suggestion, index) => (
-                  <Link
-                    key={`${suggestion.text}-${index}`}
-                    onClick={() => {
-                      // track autocomplete suggestion selected
-                      posthog.capture("autocomplete_suggestion_selected", {
-                        suggestion_text: suggestion.text,
-                        suggestion_source: suggestion.source,
-                        suggestion_type: "manufacturer",
-                        typed_query: searchTerm,
-                      });
-                      setSearchTerm(suggestion.text);
-                      onSearch?.(suggestion.text, tags);
-                      setSearchFocused(false);
-                    }}
-                    display="block"
-                    width="100%"
-                    padding="8px 12px"
-                    borderRadius="4px"
-                    _hover={{
-                      bg: "ui.surface",
-                      textDecoration: "none",
-                    }}
-                    cursor="pointer"
-                  >
-                    <Text fontSize="sm">{suggestion.text}</Text>
-                    <Text fontSize="xs" color="ui.textSubtle">
-                      manufacturer
-                    </Text>
-                  </Link>
-                ))}
-              </Box>
-            )}
+              />
+            ))}
           </Box>
-        )}
 
-      <FilterMenu
-        isOpen={filterFocused}
-        onClose={() => setFilterFocused(false)}
-        onFilterSelect={applyFilter}
-        onAdvancedSearchToggle={() => {
-          setAdvancedPanelOpen((prev) => !prev);
-          setFilterFocused(false);
-        }}
-      />
+          <Input
+            flex="1"
+            borderRadius="8px"
+            colorPalette="gray"
+            placeholder={
+              tags.length > 0
+                ? ""
+                : "Search by manufacturer, material, device name"
+            }
+            border="none"
+            _focus={{ boxShadow: "none", outline: "none" }}
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              if (!searchFocused) setSearchFocused(true);
+            }}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => {
+              setSearchFocused(false);
+              setFilterFocused(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                onSearch?.(searchTerm, tags, effectiveBackendOptions);
+                setSearchFocused(false);
+              }
+            }}
+          />
+
+          <Box
+            onClick={() => setFilterFocused(!filterFocused)}
+            cursor="pointer"
+            display="flex"
+            alignItems="center"
+          >
+            <Icon as={FaFilter} color="brand.primary" boxSize="4" />
+          </Box>
+        </Box>
+
+        {/* grouped autocomplete dropdown */}
+        {searchFocused &&
+          !advancedPanelOpen &&
+          (deviceSuggestions.length > 0 ||
+            manufacturerSuggestions.length > 0) && (
+            <Box
+              width="100%"
+              background="ui.background"
+              borderRadius="8px"
+              marginTop="12px"
+              position="absolute"
+              top="100%"
+              left="0"
+              zIndex={10}
+              boxShadow="lg"
+              border="1px solid"
+              borderColor="ui.borderLight"
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              {/* devices section */}
+              {deviceSuggestions.length > 0 && (
+                <Box>
+                  <Text
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    color="ui.textMuted"
+                    padding="8px 12px 4px"
+                    textTransform="uppercase"
+                    letterSpacing="wide"
+                  >
+                    Devices
+                  </Text>
+                  {deviceSuggestions.map((suggestion, index) => (
+                    <Link
+                      key={`${suggestion.text}-${index}`}
+                      onClick={() => {
+                        // track autocomplete suggestion selected
+                        posthog.capture("autocomplete_suggestion_selected", {
+                          suggestion_text: suggestion.text,
+                          suggestion_source: suggestion.source,
+                          suggestion_type: "device",
+                          typed_query: searchTerm,
+                        });
+                        setSearchTerm(suggestion.text);
+                        onSearch?.(
+                          suggestion.text,
+                          tags,
+                          effectiveBackendOptions,
+                        );
+                        setSearchFocused(false);
+                      }}
+                      display="block"
+                      width="100%"
+                      padding="8px 12px"
+                      borderRadius="4px"
+                      _hover={{
+                        bg: "ui.surface",
+                        textDecoration: "none",
+                      }}
+                      cursor="pointer"
+                    >
+                      <Text fontSize="sm">{suggestion.text}</Text>
+                      <Text fontSize="xs" color="ui.textSubtle">
+                        {suggestion.source === "product_code"
+                          ? "product code"
+                          : suggestion.source === "device_term"
+                            ? "device type"
+                            : "device name"}
+                      </Text>
+                    </Link>
+                  ))}
+                </Box>
+              )}
+
+              {/* manufacturers section */}
+              {manufacturerSuggestions.length > 0 && (
+                <Box
+                  borderTop={
+                    deviceSuggestions.length > 0 ? "1px solid" : undefined
+                  }
+                  borderColor="ui.borderLight"
+                >
+                  <Text
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    color="ui.textMuted"
+                    padding="8px 12px 4px"
+                    textTransform="uppercase"
+                    letterSpacing="wide"
+                  >
+                    Manufacturers
+                  </Text>
+                  {manufacturerSuggestions.map((suggestion, index) => (
+                    <Link
+                      key={`${suggestion.text}-${index}`}
+                      onClick={() => {
+                        // track autocomplete suggestion selected
+                        posthog.capture("autocomplete_suggestion_selected", {
+                          suggestion_text: suggestion.text,
+                          suggestion_source: suggestion.source,
+                          suggestion_type: "manufacturer",
+                          typed_query: searchTerm,
+                        });
+                        setSearchTerm(suggestion.text);
+                        onSearch?.(
+                          suggestion.text,
+                          tags,
+                          effectiveBackendOptions,
+                        );
+                        setSearchFocused(false);
+                      }}
+                      display="block"
+                      width="100%"
+                      padding="8px 12px"
+                      borderRadius="4px"
+                      _hover={{
+                        bg: "ui.surface",
+                        textDecoration: "none",
+                      }}
+                      cursor="pointer"
+                    >
+                      <Text fontSize="sm">{suggestion.text}</Text>
+                      <Text fontSize="xs" color="ui.textSubtle">
+                        manufacturer
+                      </Text>
+                    </Link>
+                  ))}
+                </Box>
+              )}
+            </Box>
+          )}
+
+        <FilterMenu
+          isOpen={filterFocused}
+          onClose={() => setFilterFocused(false)}
+          onFilterSelect={applyFilter}
+          onAdvancedSearchToggle={() => {
+            onAdvancedPanelOpenChange?.(!advancedPanelOpen);
+            setFilterFocused(false);
+          }}
+        />
+      </Box>
 
       {/* advanced search panel below search bar */}
       <AdvancedSearchPanel
         isOpen={advancedPanelOpen}
-        onClose={() => setAdvancedPanelOpen(false)}
+        onClose={() => onAdvancedPanelOpenChange?.(false)}
+        options={effectiveBackendOptions}
+        onOptionsChange={handleBackendOptionsChange}
         onSearch={handleAdvancedSearch}
       />
     </Box>

@@ -1,10 +1,11 @@
-import { Box, Input, Text, NativeSelect } from "@chakra-ui/react";
+import { Box, Icon, Input, Text, NativeSelect } from "@chakra-ui/react";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { FaPlus, FaTimes, FaSearch } from "react-icons/fa";
+import { LuInfo } from "react-icons/lu";
 import posthog from "posthog-js";
 import type { BackendOptions } from "@/lib/api/types";
-import { defaultBackendOptions } from "@/lib/api/types";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { DateBox } from "@/features/search/components/DateBox";
 
 type Operator = "contains" | "AND" | "OR" | "NOT" | "phrase" | "proximity";
 type Joiner = "AND" | "OR";
@@ -20,6 +21,8 @@ interface QueryRow {
 interface AdvancedSearchPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  options: BackendOptions;
+  onOptionsChange: (options: BackendOptions) => void;
   onSearch: (query: string, backendOptions: BackendOptions) => void;
 }
 
@@ -78,7 +81,7 @@ const OptionPill = ({
       borderRadius="12px"
       fontSize="xs"
       cursor="pointer"
-      bg={active ? "brand.greenBg" : "transparent"}
+      bg={active ? "brand.accentBg" : "transparent"}
       color={active ? "brand.primary" : "ui.textMuted"}
       border="1px solid"
       borderColor={active ? "brand.primary" : "ui.borderLight"}
@@ -112,13 +115,12 @@ const OptionPill = ({
 export const AdvancedSearchPanel = ({
   isOpen,
   onClose,
+  options,
+  onOptionsChange,
   onSearch,
 }: AdvancedSearchPanelProps) => {
   const [rows, setRows] = useState<QueryRow[]>([createRow()]);
   const [joiners, setJoiners] = useState<Joiner[]>([]);
-  const [options, setOptions] = useState<BackendOptions>({
-    ...defaultBackendOptions,
-  });
 
   // close on escape
   useEffect(() => {
@@ -174,7 +176,7 @@ export const AdvancedSearchPanel = ({
   };
 
   const toggleOption = (key: keyof BackendOptions) => {
-    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
+    onOptionsChange({ ...options, [key]: !options[key] });
   };
 
   const handleSearch = () => {
@@ -227,7 +229,7 @@ export const AdvancedSearchPanel = ({
         mb="12px"
       >
         <Text fontWeight="600" fontSize="sm" color="brand.primary">
-          Query Builder
+          Advanced query builder
         </Text>
         <Box
           as="button"
@@ -241,216 +243,242 @@ export const AdvancedSearchPanel = ({
         </Box>
       </Box>
 
-      {/* query rows */}
-      {rows.map((row, index) => (
-        <Box key={row.id}>
-          {/* joiner toggle between rows */}
-          {index > 0 && (
-            <Box display="flex" justifyContent="center" my="6px">
-              <Box
-                display="inline-flex"
-                borderRadius="4px"
-                overflow="hidden"
-                border="1px solid"
-                borderColor="ui.borderLight"
-              >
+      <Box mb="16px">
+        {/* query rows */}
+        {rows.map((row, index) => (
+          <Box key={row.id}>
+            {/* joiner toggle between rows */}
+            {index > 0 && (
+              <Box display="flex" justifyContent="center" my="6px">
                 <Box
-                  as="button"
-                  px="10px"
-                  py="2px"
-                  fontSize="xs"
-                  fontWeight="600"
-                  cursor="pointer"
-                  bg={
-                    joiners[index - 1] === "AND"
-                      ? "brand.greenBg"
-                      : "transparent"
-                  }
-                  color={
-                    joiners[index - 1] === "AND"
-                      ? "brand.primary"
-                      : "ui.textMuted"
-                  }
-                  onClick={() => toggleJoiner(index - 1)}
+                  display="inline-flex"
+                  borderRadius="4px"
+                  overflow="hidden"
+                  border="1px solid"
+                  borderColor="ui.borderLight"
                 >
-                  AND
-                </Box>
-                <Box
-                  as="button"
-                  px="10px"
-                  py="2px"
-                  fontSize="xs"
-                  fontWeight="600"
-                  cursor="pointer"
-                  bg={
-                    joiners[index - 1] === "OR"
-                      ? "brand.greenBg"
-                      : "transparent"
-                  }
-                  color={
-                    joiners[index - 1] === "OR"
-                      ? "brand.primary"
-                      : "ui.textMuted"
-                  }
-                  onClick={() => toggleJoiner(index - 1)}
-                >
-                  OR
+                  <Box
+                    as="button"
+                    px="10px"
+                    py="2px"
+                    fontSize="xs"
+                    fontWeight="600"
+                    cursor="pointer"
+                    bg={
+                      joiners[index - 1] === "AND"
+                        ? "brand.accentBg"
+                        : "transparent"
+                    }
+                    color={
+                      joiners[index - 1] === "AND"
+                        ? "brand.primary"
+                        : "ui.textMuted"
+                    }
+                    onClick={() => toggleJoiner(index - 1)}
+                  >
+                    AND
+                  </Box>
+                  <Box
+                    as="button"
+                    px="10px"
+                    py="2px"
+                    fontSize="xs"
+                    fontWeight="600"
+                    cursor="pointer"
+                    bg={
+                      joiners[index - 1] === "OR"
+                        ? "brand.accentBg"
+                        : "transparent"
+                    }
+                    color={
+                      joiners[index - 1] === "OR"
+                        ? "brand.primary"
+                        : "ui.textMuted"
+                    }
+                    onClick={() => toggleJoiner(index - 1)}
+                  >
+                    OR
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          )}
+            )}
 
-          {/* row inputs */}
-          <Box display="flex" alignItems="center" gap="6px" mb="4px">
-            {/* operator dropdown */}
-            <NativeSelect.Root size="sm" width="120px" flexShrink={0}>
-              <NativeSelect.Field
-                value={row.operator}
-                onChange={(e) =>
-                  updateRow(row.id, {
-                    operator: e.target.value as Operator,
-                    value2: "",
-                    distance: "5",
-                  })
+            {/* row inputs */}
+            <Box display="flex" alignItems="center" gap="6px" mb="4px">
+              {/* operator dropdown */}
+              <NativeSelect.Root size="sm" width="120px" flexShrink={0}>
+                <NativeSelect.Field
+                  value={row.operator}
+                  onChange={(e) =>
+                    updateRow(row.id, {
+                      operator: e.target.value as Operator,
+                      value2: "",
+                      distance: "5",
+                    })
+                  }
+                  fontSize="xs"
+                  paddingLeft="8px"
+                >
+                  <option value="contains">contains</option>
+                  <option value="NOT">NOT</option>
+                  <option value="phrase">phrase</option>
+                  <option value="proximity">proximity</option>
+                </NativeSelect.Field>
+                <NativeSelect.Indicator />
+              </NativeSelect.Root>
+
+              {/* primary input */}
+              <Input
+                size="sm"
+                placeholder={
+                  row.operator === "phrase" ? "enter phrase" : "term"
                 }
-                fontSize="xs"
+                value={row.value1}
+                onChange={(e) => updateRow(row.id, { value1: e.target.value })}
+                flex="1"
+                fontSize="sm"
                 paddingLeft="8px"
-              >
-                <option value="contains">contains</option>
-                <option value="NOT">NOT</option>
-                <option value="phrase">phrase</option>
-                <option value="proximity">proximity</option>
-              </NativeSelect.Field>
-              <NativeSelect.Indicator />
-            </NativeSelect.Root>
+              />
 
-            {/* primary input */}
-            <Input
-              size="sm"
-              placeholder={row.operator === "phrase" ? "enter phrase" : "term"}
-              value={row.value1}
-              onChange={(e) => updateRow(row.id, { value1: e.target.value })}
-              flex="1"
-              fontSize="sm"
-              paddingLeft="8px"
-            />
-
-            {/* secondary input for two-input operators */}
-            {needsTwoInputs(row.operator) && (
-              <>
-                {row.operator === "proximity" && (
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    gap="2px"
-                    flexShrink={0}
-                  >
+              {/* secondary input for two-input operators */}
+              {needsTwoInputs(row.operator) && (
+                <>
+                  {row.operator === "proximity" && (
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      gap="2px"
+                      flexShrink={0}
+                    >
+                      <Text
+                        fontSize="xs"
+                        color="ui.textMuted"
+                        whiteSpace="nowrap"
+                      >
+                        NEAR/
+                      </Text>
+                      <Input
+                        size="sm"
+                        type="number"
+                        value={row.distance}
+                        onChange={(e) =>
+                          updateRow(row.id, { distance: e.target.value })
+                        }
+                        width="45px"
+                        fontSize="sm"
+                        textAlign="center"
+                      />
+                    </Box>
+                  )}
+                  {row.operator !== "proximity" && (
                     <Text
                       fontSize="xs"
+                      fontWeight="600"
                       color="ui.textMuted"
                       whiteSpace="nowrap"
                     >
-                      NEAR/
+                      {row.operator}
                     </Text>
-                    <Input
-                      size="sm"
-                      type="number"
-                      value={row.distance}
-                      onChange={(e) =>
-                        updateRow(row.id, { distance: e.target.value })
-                      }
-                      width="45px"
-                      fontSize="sm"
-                      textAlign="center"
-                    />
-                  </Box>
-                )}
-                {row.operator !== "proximity" && (
-                  <Text
-                    fontSize="xs"
-                    fontWeight="600"
-                    color="ui.textMuted"
-                    whiteSpace="nowrap"
-                  >
-                    {row.operator}
-                  </Text>
-                )}
-                <Input
-                  size="sm"
-                  placeholder="term"
-                  value={row.value2}
-                  onChange={(e) =>
-                    updateRow(row.id, { value2: e.target.value })
-                  }
-                  flex="1"
-                  fontSize="sm"
-                  paddingLeft="8px"
-                />
-              </>
-            )}
+                  )}
+                  <Input
+                    size="sm"
+                    placeholder="term"
+                    value={row.value2}
+                    onChange={(e) =>
+                      updateRow(row.id, { value2: e.target.value })
+                    }
+                    flex="1"
+                    fontSize="sm"
+                    paddingLeft="8px"
+                  />
+                </>
+              )}
 
-            {/* remove row button */}
-            <Box
-              as="button"
-              onClick={() => removeRow(row.id)}
-              cursor={rows.length > 1 ? "pointer" : "not-allowed"}
-              opacity={rows.length > 1 ? 1 : 0.3}
-              _hover={rows.length > 1 ? { opacity: 0.7 } : {}}
-              display="flex"
-              alignItems="center"
-              flexShrink={0}
-            >
-              <FaTimes size={12} color="#999" />
+              {/* remove row button */}
+              <Box
+                as="button"
+                onClick={() => removeRow(row.id)}
+                cursor={rows.length > 1 ? "pointer" : "not-allowed"}
+                opacity={rows.length > 1 ? 1 : 0.3}
+                _hover={rows.length > 1 ? { opacity: 0.7 } : {}}
+                display="flex"
+                alignItems="center"
+                flexShrink={0}
+              >
+                <FaTimes size={12} color="#999" />
+              </Box>
             </Box>
           </Box>
-        </Box>
-      ))}
+        ))}
 
-      {/* add condition */}
-      <Box
-        as="button"
-        onClick={addRow}
-        display="flex"
-        alignItems="center"
-        gap="4px"
-        mt="8px"
-        mb="12px"
-        cursor="pointer"
-        color="brand.primary"
-        fontSize="xs"
-        _hover={{ opacity: 0.8 }}
-      >
-        <FaPlus size={10} />
-        <Text fontSize="xs">Add condition</Text>
+        {/* add condition */}
+        <Box
+          as="button"
+          onClick={addRow}
+          display="flex"
+          alignItems="center"
+          gap="4px"
+          mt="8px"
+          mb="12px"
+          cursor="pointer"
+          color="brand.primary"
+          fontSize="xs"
+          _hover={{ opacity: 0.8 }}
+        >
+          <FaPlus size={10} />
+          <Text fontSize="xs">Add condition</Text>
+        </Box>
+
+        {/* live query preview */}
+        {queryPreview && (
+          <Box
+            bg="brand.surface"
+            borderRadius="6px"
+            padding="8px 12px"
+            mb="12px"
+            border="1px solid"
+            borderColor="ui.borderLight"
+          >
+            <Text fontSize="xs" color="ui.textMuted" mb="2px">
+              query preview
+            </Text>
+            <Text
+              fontSize="sm"
+              fontFamily="monospace"
+              color="ui.text"
+              wordBreak="break-all"
+            >
+              {queryPreview}
+            </Text>
+          </Box>
+        )}
+
+        <Box
+          as="button"
+          onClick={handleSearch}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          gap="6px"
+          width="100%"
+          padding="8px"
+          borderRadius="6px"
+          bg={queryPreview ? "brand.primary" : "ui.borderLight"}
+          color={queryPreview ? "white" : "ui.textMuted"}
+          cursor={queryPreview ? "pointer" : "not-allowed"}
+          fontSize="sm"
+          fontWeight="600"
+          _hover={queryPreview ? { opacity: 0.9 } : {}}
+          transition="all 0.15s"
+        >
+          <FaSearch size={12} />
+          Run advanced search
+        </Box>
       </Box>
 
-      {/* live query preview */}
-      {queryPreview && (
-        <Box
-          bg="brand.surface"
-          borderRadius="6px"
-          padding="8px 12px"
-          mb="12px"
-          border="1px solid"
-          borderColor="ui.borderLight"
-        >
-          <Text fontSize="xs" color="ui.textMuted" mb="2px">
-            query preview
-          </Text>
-          <Text
-            fontSize="sm"
-            fontFamily="monospace"
-            color="ui.text"
-            wordBreak="break-all"
-          >
-            {queryPreview}
-          </Text>
-        </Box>
-      )}
-
       {/* backend search options */}
-      <Box mb="12px">
-        <Text fontSize="xs" color="ui.textMuted" mb="6px">
+      <Box pt="12px" borderTop="1px solid" borderColor="ui.borderLight">
+        <Text fontWeight="600" fontSize="sm" color="brand.primary" mb="6px">
           Search options
         </Text>
         <Box display="flex" flexWrap="wrap" gap="8px">
@@ -482,27 +510,33 @@ export const AdvancedSearchPanel = ({
         </Box>
       </Box>
 
-      {/* search button */}
-      <Box
-        as="button"
-        onClick={handleSearch}
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        gap="6px"
-        width="100%"
-        padding="8px"
-        borderRadius="6px"
-        bg={queryPreview ? "brand.primary" : "ui.borderLight"}
-        color={queryPreview ? "white" : "ui.textMuted"}
-        cursor={queryPreview ? "pointer" : "not-allowed"}
-        fontSize="sm"
-        fontWeight="600"
-        _hover={queryPreview ? { opacity: 0.9 } : {}}
-        transition="all 0.15s"
-      >
-        <FaSearch size={12} />
-        Search
+      <Box pt="12px" mt="12px" borderTop="1px solid" borderColor="ui.borderLight">
+        <Box display="flex" alignItems="center" gap="6px" mb="10px">
+          <Text fontWeight="600" fontSize="sm" color="brand.primary">
+            Snapshot date
+          </Text>
+          <Tooltip
+            content="Only include records available on or before the selected date."
+            contentProps={{
+              px: "12px",
+              py: "10px",
+              borderRadius: "12px",
+              bg: "ui.surface",
+              color: "ui.text",
+              border: "1px solid",
+              borderColor: "ui.borderLight",
+              boxShadow: "md",
+              maxW: "260px",
+              fontSize: "sm",
+              lineHeight: "1.4",
+            }}
+          >
+            <Box as="span" display="inline-flex" alignItems="center">
+              <Icon as={LuInfo} color="ui.textMuted" boxSize="3.5" />
+            </Box>
+          </Tooltip>
+        </Box>
+        <DateBox />
       </Box>
     </Box>
   );

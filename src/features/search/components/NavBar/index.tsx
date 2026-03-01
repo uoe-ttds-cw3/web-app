@@ -2,17 +2,16 @@ import {
   Box,
   Button,
   Flex,
-  Text,
-  Icon,
-  Skeleton,
   HStack,
+  Icon,
   SkeletonText,
-  Grid,
-  Badge,
+  Text,
 } from "@chakra-ui/react";
 import { PiMedalDuotone } from "react-icons/pi";
+import { LuInfo } from "react-icons/lu";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 type Category = {
   id: string;
@@ -31,6 +30,7 @@ type NavBarProps = {
   onCategorySelect?: (categoryId: string) => void;
   selectedCategory?: string;
   searchFacets?: SearchFacetValue[];
+  isResultsLoading?: boolean;
 };
 
 type PanelsResponse = {
@@ -58,6 +58,7 @@ export const NavBar = ({
   onCategorySelect,
   selectedCategory,
   searchFacets,
+  isResultsLoading = false,
 }: NavBarProps) => {
   const {
     data: fetchedCategories,
@@ -75,32 +76,59 @@ export const NavBar = ({
   // when search facets are provided, only show panels that appear in the results
   // and use the search-scoped counts instead of total index counts
   const categories = searchFacets
-  ? allCategories
-      .filter((cat) => searchFacets.some((f) => f.value === cat.id))
-      .map((cat) => {
-        const facet = searchFacets.find((f) => f.value === cat.id);
-        return { ...cat, deviceCount: facet?.count ?? cat.deviceCount };
-      })
-      .sort((a, b) => b.deviceCount - a.deviceCount)
-  : selectedCategory
-  ? allCategories.filter((cat) => cat.id === selectedCategory)
-  : allCategories;
+    ? allCategories
+        .filter((cat) => searchFacets.some((f) => f.value === cat.id))
+        .map((cat) => {
+          const facet = searchFacets.find((f) => f.value === cat.id);
+          return { ...cat, deviceCount: facet?.count ?? cat.deviceCount };
+        })
+        .sort((a, b) => b.deviceCount - a.deviceCount)
+    : selectedCategory
+      ? allCategories.filter((cat) => cat.id === selectedCategory)
+      : allCategories;
 
   // on mobile, show first 4 categories unless expanded
   const mobileLimit = 4;
   const hasMore = categories.length > mobileLimit;
+  const showLoadingSkeletons = isFetching || isResultsLoading;
+  const tooltipProps = {
+    bg: "ui.background",
+    color: "ui.text",
+    px: 2,
+    py: 1,
+    borderRadius: "md",
+    maxW: "320px",
+  };
 
   return (
-    <Box padding="16px 0">
-      <Text
+    <Box pt="0" pb="12px">
+      <HStack
         fontSize={{ base: "md", md: "xl" }}
         fontWeight="semibold"
         marginBottom="0.5rem"
-        color="#266429"
+        color="brand.primary"
+        gap="2"
       >
         <Icon as={PiMedalDuotone} marginRight="8px" />
-        Filter by Category
-      </Text>
+        <Text>Filter by Panel (Category)</Text>
+        <Tooltip
+          content="A panel is an FDA advisory committee for a specific medical specialty or device category. Think of panels as device-grouping departments, such as Cardiovascular or Radiology."
+          showArrow
+          openDelay={200}
+          contentProps={tooltipProps}
+        >
+          <Box
+            color="ui.textMuted"
+            cursor="help"
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            aria-label="What FDA panels mean"
+          >
+            <Icon as={LuInfo} boxSize="3.5" />
+          </Box>
+        </Tooltip>
+      </HStack>
 
       {/* error state */}
       {error && (
@@ -123,17 +151,18 @@ export const NavBar = ({
       )}
 
       <Flex gap="6px" wrap="wrap">
-        {isFetching ? (
-          <>
-            <HStack>
-              <SkeletonText noOfLines={1} />
-            </HStack>
-          </>
+        {showLoadingSkeletons ? (
+          <HStack>
+            <SkeletonText noOfLines={1} />
+          </HStack>
         ) : (
           <>
             {/* mobile: limited pills */}
             <Box display={{ base: "contents", md: "none" }}>
-              {(showAllPills ? categories : categories.slice(0, mobileLimit)).map((category) => (
+              {(showAllPills
+                ? categories
+                : categories.slice(0, mobileLimit)
+              ).map((category) => (
                 <Button
                   key={category.id}
                   onClick={() =>
@@ -141,16 +170,24 @@ export const NavBar = ({
                       selectedCategory === category.id ? "" : category.id,
                     )
                   }
+                  variant={
+                    selectedCategory === category.id ? "solid" : "outline"
+                  }
                   backgroundColor={
-                    selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
+                    selectedCategory === category.id
+                      ? "brand.accentSelected"
+                      : "transparent"
                   }
                   color="brand.primary"
                   padding="6px 12px"
                   borderRadius="8px"
                   size="sm"
+                  colorPalette="blue"
                   _hover={{
                     backgroundColor:
-                      selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
+                      selectedCategory === category.id
+                        ? "brand.accentSelected"
+                        : "brand.accentBg",
                   }}
                 >
                   <Text fontSize="sm">{category.name}</Text>
@@ -166,7 +203,9 @@ export const NavBar = ({
                   padding="6px 12px"
                   fontSize="sm"
                 >
-                  {showAllPills ? "Show less" : `+${categories.length - mobileLimit} more`}
+                  {showAllPills
+                    ? "Show less"
+                    : `+${categories.length - mobileLimit} more`}
                 </Button>
               )}
             </Box>
@@ -181,15 +220,23 @@ export const NavBar = ({
                       selectedCategory === category.id ? "" : category.id,
                     )
                   }
+                  variant={
+                    selectedCategory === category.id ? "solid" : "outline"
+                  }
                   backgroundColor={
-                    selectedCategory === category.id ? "#4CAF5052" : "#4CAF5029"
+                    selectedCategory === category.id
+                      ? "brand.accentSelected"
+                      : "transparent"
                   }
                   color="brand.primary"
                   padding="8px 16px"
                   borderRadius="8px"
+                  colorPalette="blue"
                   _hover={{
                     backgroundColor:
-                      selectedCategory === category.id ? "#4CAF5052" : "#4caf4f7e",
+                      selectedCategory === category.id
+                        ? "brand.accentSelected"
+                        : "brand.accentBg",
                   }}
                 >
                   <Text>{category.name}</Text>

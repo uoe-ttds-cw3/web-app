@@ -1,35 +1,34 @@
 import { useRouter } from "next/router";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import posthog from "posthog-js";
-import {
-  DeviceSummaryCard,
-  Device,
-} from "@/features/search/components/DeviceSummaryCard";
+import { ActiveFilterChips } from "@/features/search/components/ActiveFilterChips";
+import { DeviceSummaryCard } from "@/features/search/components/DeviceSummaryCard";
+import { DidYouMeanSuggestion } from "@/features/search/components/DidYouMeanSuggestion";
+import { ExpandedTerms } from "@/features/search/components/ExpandedTerms";
+import { PaginationControls } from "@/features/search/components/PaginationControls";
 import { ResultsHeader } from "@/features/search/components/ResultsHeader";
+import { ResultsControls } from "@/features/search/components/ResultsControls";
 import { NavBar } from "@/features/search/components/NavBar";
 import { StartSearching } from "@/features/search/components/StartSearching";
 import {
   Stack,
   Text,
   Box,
-  HStack,
-  Badge,
   Spinner,
-  Button,
-  Collapsible,
   Alert,
-  NativeSelect,
+  Textarea,
 } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
-import type { BackendOptions, QueryDebugInfo } from "@/lib/api/types";
+import type { BackendOptions, Device, ExpansionInfo } from "@/lib/api/types";
 import { toaster } from "@/components/ui/Toaster";
 import { SideDrawer } from "@/features/search/components/SideDrawer";
-import { FaFilter, FaTimes } from "react-icons/fa";
 import useLocalStorage from "use-local-storage";
 import { LANGUAGE_NOT_SUPPORTED } from "@/constants/error-codes";
+import { useQuery } from "@tanstack/react-query";
 
 const subscribe = () => () => {};
+const SEARCH_CONTENT_MAX_W = "1120px";
 
 export default function Home() {
   const router = useRouter();
@@ -232,7 +231,7 @@ export default function Home() {
       query: query,
     });
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
     router.push(
       { pathname: "/", query: { ...router.query, page: String(newPage) } },
       undefined,
@@ -270,11 +269,9 @@ export default function Home() {
       );
     } else {
       const { sort_by: _removedSort, ...finalRest } = rest;
-      router.push(
-        { pathname: "/", query: finalRest },
-        undefined,
-        { shallow: true },
-      );
+      router.push({ pathname: "/", query: finalRest }, undefined, {
+        shallow: true,
+      });
     }
   };
 
@@ -318,17 +315,36 @@ export default function Home() {
 
   return (
     <div>
-      <Box margin="0 auto" maxW="1000px" px="4">
-        <NavBar
-          selectedCategory={panel}
-          onCategorySelect={handleCategorySelect}
-          searchFacets={
-            data?.facets?.find((f) => f.field === "panel_code")?.values
-          }
-        />
-      </Box>
+      {!isLoading && (
+        <Box
+          margin="0 auto"
+          maxW={SEARCH_CONTENT_MAX_W}
+          px={{ base: "4", md: "5", lg: "6" }}
+        >
+          <NavBar
+            selectedCategory={panel}
+            onCategorySelect={handleCategorySelect}
+            searchFacets={
+              data?.facets?.find((f) => f.field === "panel_code")?.values
+            }
+            isResultsLoading={
+              isLoading &&
+              Boolean(
+                query ||
+                  panel ||
+                  productCode ||
+                  dateBefore ||
+                  dateAfter ||
+                  decision ||
+                  deviceClass,
+              )
+            }
+          />
+        </Box>
+      )}
+
       {!query && results.length === 0 && (
-      <StartSearching onSuggest={handleSearch} selectedCategory={panel} />
+        <StartSearching onSuggest={handleSearch} selectedCategory={panel} />
       )}
 
       {isLoading && (
@@ -347,474 +363,70 @@ export default function Home() {
       )}
 
       {data && (
-        <Box margin="0 auto" maxW="1000px" px="4">
-          <Box minH="100vh" p={{ base: "2", md: "4" }}>
+        <Box
+          margin="0 auto"
+          maxW={SEARCH_CONTENT_MAX_W}
+          px={{ base: "4", md: "5", lg: "6" }}
+        >
+          <Box minH="100vh" pt="0" pb={{ base: "2", md: "4" }}>
             {/* Header + Controls */}
             <Box marginBottom="4">
               <Box
                 display="flex"
-                alignItems="center"
+                alignItems={{ base: "stretch", md: "center" }}
                 justifyContent="space-between"
                 marginBottom="3"
+                gap="3"
+                flexWrap="wrap"
               >
-                <ResultsHeader numResults={data.total_results} />
-
-                {data.facets &&
-                  data.facets.length > 0 &&
-                  data.facets.some(({ total }) => total) && (
-                    <Box position="relative">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        colorScheme="green"
-                        onClick={() => setFilterOpen(!filterOpen)}
-                      >
-                        <FaFilter style={{ marginRight: "8px" }} />
-                        Filter
-                      </Button>
-
-                    {filterOpen && (
-                      <>
-                        <Box
-                          position="fixed"
-                          inset="0"
-                          zIndex={9}
-                          onClick={() => setFilterOpen(false)}
-                        />
-                        <Box
-                          position={{ base: "fixed", md: "absolute" }}
-                          top={{ base: "auto", md: "100%" }}
-                          bottom={{ base: "0", md: "auto" }}
-                          left={{ base: "0", md: "auto" }}
-                          right={{ base: "0", md: "0" }}
-                          marginTop={{ base: "0", md: "2" }}
-                          width={{ base: "100%", md: "300px" }}
-                          maxHeight={{ base: "70vh", md: "400px" }}
-                          overflowY="auto"
-                          backgroundColor="ui.surface"
-                          border="1px solid"
-                          borderColor="ui.borderLight"
-                          borderRadius={{ base: "12px 12px 0 0", md: "8px" }}
-                          boxShadow="lg"
-                          zIndex={10}
-                          padding="4"
-                        >
-                          {data.facets.map((facet) => (
-                            <Box key={facet.field} marginBottom="4">
-                              <Collapsible.Root defaultOpen>
-                                <Collapsible.Trigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    width="100%"
-                                    justifyContent="space-between"
-                                    fontSize="sm"
-                                    fontWeight="semibold"
-                                    color="brand.primary"
-                                    paddingY="2"
-                                  >
-                                    {facet.field === "device_class"
-                                      ? "Device Class"
-                                      : facet.field === "panel_code"
-                                        ? "Panel"
-                                        : facet.field === "decision_code"
-                                          ? "Decision"
-                                          : facet.field}
-                                  </Button>
-                                </Collapsible.Trigger>
-                                <Collapsible.Content>
-                                  <Stack gap="1" marginTop="2">
-                                    {facet.values.slice(0, 10).map((fv) => (
-                                      <Box
-                                        key={fv.value}
-                                        as="button"
-                                        onClick={() =>
-                                          handleFacetFilter(
-                                            facet.field,
-                                            fv.value,
-                                          )
-                                        }
-                                        display="flex"
-                                        justifyContent="space-between"
-                                        alignItems="center"
-                                        padding="2"
-                                        borderRadius="4px"
-                                        fontSize="sm"
-                                        _hover={{
-                                          backgroundColor: "ui.background",
-                                        }}
-                                        cursor="pointer"
-                                        width="100%"
-                                        textAlign="left"
-                                      >
-                                        <Text color="ui.text">
-                                          {fv.label || fv.value}
-                                        </Text>
-                                        <Text
-                                          color="ui.textMuted"
-                                          fontSize="xs"
-                                        >
-                                          ({fv.count})
-                                        </Text>
-                                      </Box>
-                                    ))}
-                                  </Stack>
-                                </Collapsible.Content>
-                              </Collapsible.Root>
-                            </Box>
-                          ))}
-                        </Box>
-                      </>
-                    )}
-                  </Box>
-                )}
-              </Box>
-
-              {/* sort and page size controls */}
-              <Box display="flex" gap="3" alignItems="center" marginBottom="2" flexWrap="wrap">
-                <Box display="flex" alignItems="center" gap="2" flex={{ base: "1 1 auto", md: "0 0 auto" }}>
-                  <Text fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">Sort:</Text>
-                  <NativeSelect.Root
-                    size="sm"
-                    width={{ base: "100%", md: "180px" }}
-                  >
-                    <NativeSelect.Field
-                      value={sortBy || ""}
-                      onChange={(e) => handleSortChange(e.currentTarget.value)}
-                    >
-                      <option value="">Relevance</option>
-                      <option value="decision_date_desc">Newest Approved</option>
-                      <option value="decision_date_asc">Oldest Approved</option>
-                      <option value="date_received_desc">Newest Submitted</option>
-                      <option value="date_received_asc">Oldest Submitted</option>
-                      <option value="manufacturer_asc">Manufacturer A-Z</option>
-                    </NativeSelect.Field>
-                    <NativeSelect.Indicator />
-                  </NativeSelect.Root>
-                </Box>
-
-                <Box display="flex" alignItems="center" gap="2">
-                  <Text fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">Show:</Text>
-                  <NativeSelect.Root
-                    size="sm"
-                    width="80px"
-                  >
-                    <NativeSelect.Field
-                      value={String(pageSize)}
-                      onChange={(e) => handlePageSizeChange(Number(e.currentTarget.value))}
-                    >
-                      <option value="10">10</option>
-                      <option value="20">20</option>
-                      <option value="50">50</option>
-                    </NativeSelect.Field>
-                    <NativeSelect.Indicator />
-                  </NativeSelect.Root>
-                </Box>
+                <ResultsHeader
+                  numResults={data.total_results}
+                  debugInfo={data.debug_info}
+                />
               </Box>
 
               {/* did you mean suggestion from spelling corrector */}
               {data?.did_you_mean && (
-                <Box marginBottom="3">
-                  <Text fontSize="sm" color="ui.textMuted" display="inline">
-                    Did you mean{" "}
-                  </Text>
-                  <Box
-                    as="button"
-                    display="inline"
-                    color="brand.primary"
-                    fontWeight="semibold"
-                    fontSize="sm"
-                    textDecoration="underline"
-                    cursor="pointer"
-                    _hover={{ opacity: 0.8 }}
-                    onClick={() => {
-                      posthog.capture("did_you_mean_clicked", {
-                        original_query: query,
-                        suggested_query: data.did_you_mean,
-                      });
-                      router.push(
-                        { pathname: "/", query: { ...router.query, q: data.did_you_mean } },
-                        undefined,
-                        { shallow: true },
-                      );
-                    }}
-                  >
-                    {data.did_you_mean}
-                  </Box>
-                  <Text fontSize="sm" color="ui.textMuted" display="inline">
-                    ?
-                  </Text>
-                </Box>
+                <DidYouMeanSuggestion
+                  suggestion={data.did_you_mean}
+                  onSelect={() => {
+                    posthog.capture("did_you_mean_clicked", {
+                      original_query: query,
+                      suggested_query: data.did_you_mean,
+                    });
+                  }}
+                />
               )}
 
-              {/* Expanded Terms Display */}
               {data?.expansion_info?.expansion_applied && (
-                <Box marginTop="2" marginBottom="2">
-                  <Text fontSize="sm" color="ui.textMuted" display="inline" marginRight="2">
-                    also searching for:
-                  </Text>
-                  {[
-                    ...(data.expansion_info.prf_terms || []),
-                    ...(data.expansion_info.embedding_terms || []),
-                  ].map((termInfo, idx) => (
-                    <Box
-                      key={idx}
-                      as="button"
-                      display="inline-flex"
-                      alignItems="center"
-                      padding="4px 8px"
-                      marginRight="2"
-                      marginBottom="2"
-                      backgroundColor="brand.greenBg"
-                      color="brand.primary"
-                      borderRadius="12px"
-                      fontSize="sm"
-                      cursor="pointer"
-                      _hover={{ backgroundColor: "brand.accent", color: "white" }}
-                      onClick={() => router.push(`/?q=${encodeURIComponent(termInfo.term)}`)}
-                    >
-                      {termInfo.term}
-                    </Box>
-                  ))}
-                </Box>
+                <ExpandedTerms
+                  expansionInfo={data.expansion_info as ExpansionInfo}
+                  onTermClick={(term) =>
+                    router.push(`/?q=${encodeURIComponent(term)}`)
+                  }
+                />
               )}
 
-              {/* collapsible search transparency / debug info */}
-              {data?.debug_info && (
-                <Collapsible.Root>
-                  <Collapsible.Trigger asChild>
-                    <Box
-                      as="button"
-                      fontSize="xs"
-                      color="ui.textMuted"
-                      cursor="pointer"
-                      _hover={{ color: "brand.primary" }}
-                      marginTop="1"
-                      marginBottom="1"
-                    >
-                      Search details
-                    </Box>
-                  </Collapsible.Trigger>
-                  <Collapsible.Content>
-                    <Box
-                      marginTop="2"
-                      padding="3"
-                      borderRadius="8px"
-                      border="1px solid"
-                      borderColor="ui.borderLight"
-                      backgroundColor="ui.surface"
-                      fontSize="xs"
-                    >
-                      {/* query processing */}
-                      <Box marginBottom="3">
-                        <Text fontWeight="semibold" color="ui.text" marginBottom="1" fontSize="xs">
-                          Query processing
-                        </Text>
-                        <HStack gap="1" flexWrap="wrap" marginBottom="1">
-                          {data.debug_info.processed_terms.map((term, i) => (
-                            <Badge
-                              key={i}
-                              size="sm"
-                              variant="subtle"
-                              colorPalette="green"
-                            >
-                              {term}
-                            </Badge>
-                          ))}
-                          {data.debug_info.removed_stopwords?.length > 0 &&
-                            data.debug_info.removed_stopwords.map((sw, i) => (
-                              <Badge
-                                key={`sw-${i}`}
-                                size="sm"
-                                variant="subtle"
-                                colorPalette="gray"
-                                textDecoration="line-through"
-                              >
-                                {sw}
-                              </Badge>
-                            ))}
-                        </HStack>
-                        {data.debug_info.query_transformations?.length > 0 && (
-                          <Box color="ui.textMuted" fontSize="xs">
-                            {data.debug_info.query_transformations.map((t, i) => (
-                              <Text key={i} display="inline" marginRight="3">
-                                {t.original} → {t.stemmed}
-                              </Text>
-                            ))}
-                          </Box>
-                        )}
-                      </Box>
-
-                      {/* retrieval stats */}
-                      <Box marginBottom="3">
-                        <Text fontWeight="semibold" color="ui.text" marginBottom="1" fontSize="xs">
-                          Retrieval
-                        </Text>
-                        <Text color="ui.textMuted" fontSize="xs">
-                          Found {data.debug_info.bm25_candidates} keyword matches
-                          and {data.debug_info.dense_candidates} semantic matches
-                          in {Math.round(data.debug_info.retrieval_time_ms)}ms.
-                        </Text>
-                      </Box>
-
-                      {/* filter funnel - only if filters caused reductions */}
-                      {(() => {
-                        const d = data.debug_info as QueryDebugInfo;
-                        const stages: Array<{ label: string; count: number }> = [];
-                        const total = d.total_before_metadata_filters;
-
-                        // only build funnel if we have a starting count
-                        if (total > 0) {
-                          stages.push({ label: "candidates", count: total });
-
-                          const filters: Array<{ label: string; count: number }> = [
-                            { label: "After panel filter", count: d.candidates_after_panel_filter },
-                            { label: "After class filter", count: d.candidates_after_class_filter },
-                            { label: "After decision filter", count: d.candidates_after_decision_filter },
-                            { label: "After product code filter", count: d.candidates_after_product_code_filter },
-                            { label: "After date filter", count: d.candidates_after_date_filter },
-                          ];
-
-                          let prev = total;
-                          for (const f of filters) {
-                            // only show stages where the count actually changed
-                            if (f.count !== undefined && f.count !== prev) {
-                              stages.push(f);
-                              prev = f.count;
-                            }
-                          }
-                        }
-
-                        // only render if filtering actually removed something
-                        if (stages.length > 1) {
-                          return (
-                            <Box>
-                              <Text fontWeight="semibold" color="ui.text" marginBottom="1" fontSize="xs">
-                                filter funnel
-                              </Text>
-                              {stages.map((s, i) => (
-                                <HStack key={i} gap="2" marginBottom="0.5">
-                                  <Text
-                                    color="ui.textMuted"
-                                    fontSize="xs"
-                                    fontFamily="mono"
-                                    minW="5ch"
-                                    textAlign="right"
-                                  >
-                                    {s.count}
-                                  </Text>
-                                  <Text color="ui.textMuted" fontSize="xs">
-                                    {s.label}
-                                  </Text>
-                                </HStack>
-                              ))}
-                            </Box>
-                          );
-                        }
-                        return null;
-                      })()}
-                    </Box>
-                  </Collapsible.Content>
-                </Collapsible.Root>
-              )}
+              <ResultsControls
+                sortBy={sortBy}
+                pageSize={pageSize}
+                filterOpen={filterOpen}
+                facets={data.facets}
+                onSortChange={handleSortChange}
+                onPageSizeChange={handlePageSizeChange}
+                onFilterToggle={() => setFilterOpen(!filterOpen)}
+                onFilterClose={() => setFilterOpen(false)}
+                onFacetFilter={handleFacetFilter}
+              />
             </Box>
 
-            {/* Active filter chips */}
-            {(decision || deviceClass || panel || productCode) && (
-              <Box display="flex" gap="2" marginBottom="4" flexWrap="wrap">
-                {decision && (
-                  <Box
-                    display="inline-flex"
-                    alignItems="center"
-                    gap="2"
-                    padding="6px 12px"
-                    backgroundColor="brand.greenBg"
-                    color="brand.primary"
-                    borderRadius="16px"
-                    fontSize="sm"
-                  >
-                    <Text>Decision: {decision}</Text>
-                    <Box
-                      as="button"
-                      onClick={() => handleRemoveFacetFilter("decision")}
-                      cursor="pointer"
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <FaTimes size={12} />
-                    </Box>
-                  </Box>
-                )}
-                {deviceClass && (
-                  <Box
-                    display="inline-flex"
-                    alignItems="center"
-                    gap="2"
-                    padding="6px 12px"
-                    backgroundColor="brand.greenBg"
-                    color="brand.primary"
-                    borderRadius="16px"
-                    fontSize="sm"
-                  >
-                    <Text>Class: {deviceClass}</Text>
-                    <Box
-                      as="button"
-                      onClick={() => handleRemoveFacetFilter("device_class")}
-                      cursor="pointer"
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <FaTimes size={12} />
-                    </Box>
-                  </Box>
-                )}
-                {panel && (
-                  <Box
-                    display="inline-flex"
-                    alignItems="center"
-                    gap="2"
-                    padding="6px 12px"
-                    backgroundColor="brand.greenBg"
-                    color="brand.primary"
-                    borderRadius="16px"
-                    fontSize="sm"
-                  >
-                    <Text>Panel: {panel}</Text>
-                    <Box
-                      as="button"
-                      onClick={() => handleRemoveFacetFilter("panel")}
-                      cursor="pointer"
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <FaTimes size={12} />
-                    </Box>
-                  </Box>
-                )}
-                {productCode && (
-                  <Box
-                    display="inline-flex"
-                    alignItems="center"
-                    gap="2"
-                    padding="6px 12px"
-                    backgroundColor="brand.greenBg"
-                    color="brand.primary"
-                    borderRadius="16px"
-                    fontSize="sm"
-                  >
-                    <Text>Product: {productCode}</Text>
-                    <Box
-                      as="button"
-                      onClick={() => handleRemoveFacetFilter("product_code")}
-                      cursor="pointer"
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <FaTimes size={12} />
-                    </Box>
-                  </Box>
-                )}
-              </Box>
-            )}
+            <ActiveFilterChips
+              decision={decision}
+              deviceClass={deviceClass}
+              panel={panel}
+              productCode={productCode}
+              onRemove={handleRemoveFacetFilter}
+            />
 
             {data?.error_code === LANGUAGE_NOT_SUPPORTED &&
             data?.error_message ? (
@@ -836,89 +448,16 @@ export default function Home() {
                   ))}
                 </Stack>
 
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    gap="2"
-                    paddingY="6"
-                    marginTop="6"
-                  >
-                    <Button
-                      onClick={() => handlePageChange(page - 1)}
-                      disabled={page <= 1}
-                      size="sm"
-                      variant="outline"
-                      colorScheme="green"
-                    >
-                      Previous
-                    </Button>
-                    <Box display="flex" gap="1" alignItems="center">
-                      {Array.from(
-                        { length: Math.min(totalPages, 10) },
-                        (_, i) => {
-                          const pageNum = i + 1;
-                          const showPage =
-                            pageNum <= 3 ||
-                            pageNum >= totalPages - 2 ||
-                            Math.abs(pageNum - page) <= 2;
-                          if (!showPage) {
-                            if (
-                              (pageNum === 4 && page > 6) ||
-                              (pageNum === totalPages - 3 &&
-                                page < totalPages - 5)
-                            ) {
-                              return (
-                                <Text key={pageNum} color="ui.textMuted" px="1">
-                                  ...
-                                </Text>
-                              );
-                            }
-                            return null;
-                          }
-                          return (
-                            <Button
-                              key={pageNum}
-                              onClick={() => handlePageChange(pageNum)}
-                              size="sm"
-                              variant={pageNum === page ? "solid" : "ghost"}
-                              colorScheme="green"
-                              bg={
-                                pageNum === page ? "brand.primary" : undefined
-                              }
-                              color={
-                                pageNum === page ? "white" : "brand.primary"
-                              }
-                              minW="8"
-                            >
-                              {pageNum}
-                            </Button>
-                          );
-                        },
-                      )}
-                    </Box>
-                    <Button
-                      onClick={() => handlePageChange(page + 1)}
-                      disabled={page >= totalPages}
-                      size="sm"
-                      variant="outline"
-                      colorScheme="green"
-                    >
-                      Next
-                    </Button>
-                    <Text color="ui.textMuted" fontSize="sm" ml="4">
-                      Page {page} of {totalPages}
-                    </Text>
-                  </Box>
-                )}
+                <PaginationControls
+                  page={page}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
               </>
             )}
           </Box>
         </Box>
       )}
-
       <SideDrawer />
     </div>
   );

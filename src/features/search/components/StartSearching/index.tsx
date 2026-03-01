@@ -229,11 +229,11 @@ export const StartSearching = ({ onSuggest, selectedCategory }: StartSearchingPr
               marginTop="10px"
               padding="6px 16px"
               borderRadius="20px"
-              backgroundColor="brand.greenBg"
+              backgroundColor="brand.accentBg"
               color="brand.primary"
               fontSize="sm"
               cursor="pointer"
-              _hover={{ backgroundColor: "brand.greenHover" }}
+              _hover={{ backgroundColor: "brand.accentHover" }}
             >
               {suggestion}
             </Box>
