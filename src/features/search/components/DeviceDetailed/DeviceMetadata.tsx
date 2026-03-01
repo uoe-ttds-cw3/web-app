@@ -1,5 +1,5 @@
-import { Box, Grid, Link as ChakraLink, Heading, Text } from "@chakra-ui/react";
-import Link from "next/link";
+import { Box, Grid, Heading, Text } from "@chakra-ui/react";
+import { ManufacturerSearchLink } from "@/features/search/components/DeviceSummaryCard/MetadataRow/ManufacturerSearchLink";
 import { ProductCodeValue } from "@/features/search/components/DeviceShared/ProductCodeValue";
 import type { DeviceLookupResponse } from "@/lib/api/types";
 
@@ -20,14 +20,7 @@ export const DeviceMetadata = ({ device, formatDate }: DeviceMetadataProps) => {
             Manufacturer:
           </Text>
           {device.sponsor ? (
-            <ChakraLink
-              asChild
-              color="brand.primary"
-              fontWeight="semibold"
-              textDecoration="underline"
-            >
-              <Link href={`/?q=${device.sponsor}`}>{device.sponsor}</Link>
-            </ChakraLink>
+            <ManufacturerSearchLink label={device.sponsor} />
           ) : (
             <Text color="black">N/A</Text>
           )}
