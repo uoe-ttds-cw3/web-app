@@ -99,7 +99,7 @@ export const NavBar = ({
         color="brand.primary"
       >
         <Icon as={PiMedalDuotone} marginRight="8px" />
-        Filter by Category
+        Filter by Panel (Category)
       </Text>
 
       {/* error state */}
