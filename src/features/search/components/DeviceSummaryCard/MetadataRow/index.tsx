@@ -24,6 +24,14 @@ export const MetadataRow = ({ device }: MetadataRowProps) => {
         </Box>
       </Text>
     ) : null,
+    device.decision ? (
+      <Text key="decision">
+        Decision:{" "}
+        <Box as="span" color="ui.text">
+          {device.decision}
+        </Box>
+      </Text>
+    ) : null,
     device.panel ? (
       <Text key="panel">
         Panel:{" "}
