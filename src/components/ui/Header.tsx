@@ -10,7 +10,7 @@ import {
 import type { BackendOptions } from "@/lib/api/types";
 
 const HEADER_CONTROL_HEIGHT = "48px";
-const HEADER_CONTENT_MAX_W = "956px";
+const HEADER_CONTENT_MAX_W = "1000px";
 
 export function Header() {
   const router = useRouter();
