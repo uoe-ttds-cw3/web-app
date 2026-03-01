@@ -7,7 +7,7 @@ import type { BackendOptions } from "@/lib/api/types";
 
 export function Header() {
   const router = useRouter();
-  const query = (router.query.q as string) || '';
+  const query = (router.query.q as string) || "";
   const panel = (router.query.panel as string) || undefined;
   const productCode = (router.query.product_code as string) || undefined;
   const dateBefore = (router.query.date_to as string) || undefined;
@@ -19,7 +19,11 @@ export function Header() {
     return `${year}-${month}-${day}`;
   };
 
-  const handleSearch = (newQuery: string, tags?: Array<{ id: string; type: string; value: string }>, backendOptions?: BackendOptions) => {
+  const handleSearch = (
+    newQuery: string,
+    tags?: Array<{ id: string; type: string; value: string }>,
+    backendOptions?: BackendOptions,
+  ) => {
     // check for submission number filter - navigate directly to device page
     const submissionTag = tags?.find(
       (tag) => tag.type === "Submission No." && tag.value,
@@ -32,7 +36,7 @@ export function Header() {
     const queryParams: Record<string, string> = { q: newQuery };
 
     if (tags) {
-      tags.forEach(tag => {
+      tags.forEach((tag) => {
         if (tag.value) {
           if (tag.type === "Product Code") {
             queryParams.product_code = tag.value;
@@ -47,10 +51,11 @@ export function Header() {
 
     // serialize backend options - only send non-default values
     if (backendOptions) {
-      if (backendOptions.use_expansion) queryParams.use_expansion = 'true';
-      if (backendOptions.use_pagerank_boost) queryParams.use_pagerank_boost = 'true';
-      if (!backendOptions.use_stemming) queryParams.use_stemming = 'false';
-      if (!backendOptions.use_hybrid) queryParams.use_hybrid = 'false';
+      if (backendOptions.use_expansion) queryParams.use_expansion = "true";
+      if (backendOptions.use_pagerank_boost)
+        queryParams.use_pagerank_boost = "true";
+      if (!backendOptions.use_stemming) queryParams.use_stemming = "false";
+      if (!backendOptions.use_hybrid) queryParams.use_hybrid = "false";
     }
 
     // preserve panel filter if exists
@@ -58,10 +63,14 @@ export function Header() {
       queryParams.panel = panel;
     }
 
-    router.push({
-      pathname: '/',
-      query: queryParams
-    }, undefined, { shallow: true });
+    router.push(
+      {
+        pathname: "/",
+        query: queryParams,
+      },
+      undefined,
+      { shallow: true },
+    );
   };
 
   return (
@@ -87,11 +96,19 @@ export function Header() {
         {/* logo - hidden on mobile to save space */}
         <HStack flexShrink={0} display={{ base: "none", md: "flex" }}>
           <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
-            <Text fontWeight="semibold">searchFDA</Text>
+            <Text fontWeight="semibold">FDA Device Search</Text>
           </Link>
         </HStack>
 
-        <Flex flex="1" maxW="780px" w="100%" mx="auto" align="center" gap="12px">
+        <Flex
+          flex="1"
+          maxW="780px"
+          w="100%"
+          mx="auto"
+          align="flex-start"
+          gap="12px"
+          pt={{ base: 0, md: 2 }}
+        >
           <Box flex="1">
             <SearchForm onSearch={handleSearch} initialQuery={query} />
           </Box>

@@ -4,7 +4,7 @@ export default function Document() {
   return (
     <Html lang="en" suppressHydrationWarning>
       <Head>
-        <title>searchFDA</title>
+        <title>FDA Device Search</title>
       </Head>
       <body>
         <Main />
