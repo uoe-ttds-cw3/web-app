@@ -19,10 +19,10 @@ export const ResultsControls = ({
     <Box
       display="flex"
       alignItems={{ base: "stretch", md: "center" }}
-      justifyContent="space-between"
       gap="3"
       flexWrap="wrap"
-      width="100%"
+      width="auto"
+      marginLeft={{ base: "0", md: "auto" }}
     >
       <Box display="flex" alignItems="center" gap="3" flexWrap="wrap">
         <SortControl sortBy={sortBy} onSortChange={onSortChange} />
