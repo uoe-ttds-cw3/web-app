@@ -5,13 +5,11 @@ import {
   Grid,
   Badge,
   Separator,
-  Link as ChakraLink,
   Card,
   HStack,
   Skeleton,
 } from "@chakra-ui/react";
 import { useState, useMemo, useCallback } from "react";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import {
   BarChart,
@@ -21,13 +19,10 @@ import {
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
   Cell,
-} from "recharts";
-import {
-  ReactFlow,
   Node,
   Edge,
-  Background,
-  Controls,
+} from "recharts";
+import {
   Handle,
   Position,
   useNodesState,
@@ -38,9 +33,14 @@ import {
 import dagre from "dagre";
 import "@xyflow/react/dist/style.css";
 import posthog from "posthog-js";
+import { DeviceDescriptionSection } from "./DeviceDescriptionSection";
 import { DeviceHeader } from "./DeviceHeader";
 import { DeviceFeatureSignals } from "./DeviceFeatureSignals";
+import { DeviceLineageSection } from "./DeviceLineageSection";
 import { DeviceMetadata } from "./DeviceMetadata";
+import { DeviceSafetyOverview } from "./DeviceSafetyOverview";
+import { DeviceSummarySection } from "./DeviceSummarySection";
+import { IndicationsForUseSection } from "./IndicationsForUseSection";
 import { useSearch } from "@/lib/queries/useSearch";
 import type {
   DeviceLookupResponse,
@@ -296,8 +296,8 @@ export const DeviceDetailed = ({
     return getLayoutedElements(nodes, edges);
   }, [lineage, device.submission_number]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
   // compute pan bounds so users can't scroll into the void
   const translateExtent = useMemo((): [[number, number], [number, number]] => {
@@ -419,35 +419,11 @@ export const DeviceDetailed = ({
       {device.indications_for_use && (
         <>
           <Separator marginY="16px" />
-          <Box marginBottom="24px">
-            <Heading size="md" color="brand.primary" marginBottom="12px">
-              Indications for Use
-            </Heading>
-            <Box
-              padding="12px"
-              borderRadius="4px"
-              backgroundColor="ui.surface"
-              borderWidth="1px"
-              borderColor="ui.border"
-            >
-              <Text color="black" whiteSpace="pre-wrap">
-                {showFullIfu || device.indications_for_use.length <= 300
-                  ? device.indications_for_use
-                  : device.indications_for_use.substring(0, 300) + "..."}
-              </Text>
-              {device.indications_for_use.length > 300 && (
-                <Text
-                  color="brand.primary"
-                  marginTop="8px"
-                  cursor="pointer"
-                  textDecoration="underline"
-                  onClick={() => setShowFullIfu(!showFullIfu)}
-                >
-                  {showFullIfu ? "Show less" : "Show more"}
-                </Text>
-              )}
-            </Box>
-          </Box>
+          <IndicationsForUseSection
+            indicationsForUse={device.indications_for_use}
+            showFull={showFullIfu}
+            onToggle={() => setShowFullIfu(!showFullIfu)}
+          />
         </>
       )}
 
@@ -455,35 +431,11 @@ export const DeviceDetailed = ({
       {device.device_description && (
         <>
           <Separator marginY="16px" />
-          <Box marginBottom="24px">
-            <Heading size="md" color="brand.primary" marginBottom="12px">
-              Device Description
-            </Heading>
-            <Box
-              padding="12px"
-              borderRadius="4px"
-              backgroundColor="ui.surface"
-              borderWidth="1px"
-              borderColor="ui.border"
-            >
-              <Text color="black" whiteSpace="pre-wrap">
-                {showFullDescription || device.device_description.length <= 300
-                  ? device.device_description
-                  : device.device_description.substring(0, 300) + "..."}
-              </Text>
-              {device.device_description.length > 300 && (
-                <Text
-                  color="brand.primary"
-                  marginTop="8px"
-                  cursor="pointer"
-                  textDecoration="underline"
-                  onClick={() => setShowFullDescription(!showFullDescription)}
-                >
-                  {showFullDescription ? "Show less" : "Show more"}
-                </Text>
-              )}
-            </Box>
-          </Box>
+          <DeviceDescriptionSection
+            deviceDescription={device.device_description}
+            showFull={showFullDescription}
+            onToggle={() => setShowFullDescription(!showFullDescription)}
+          />
         </>
       )}
 
@@ -565,33 +517,12 @@ export const DeviceDetailed = ({
       {usefulSummary && usefulSummary.length > 0 && (
         <>
           <Separator marginY="16px" />
-          <Box marginBottom="24px">
-            <Heading size="md" color="brand.primary" marginBottom="12px">
-              510(k) Summary
-            </Heading>
-            <Box
-              padding="12px"
-              borderRadius="4px"
-              backgroundColor="ui.surface"
-              borderWidth="1px"
-              borderColor="ui.border"
-            >
-              <Text color="black" whiteSpace="pre-wrap">
-                {displaySummary}
-              </Text>
-              {usefulSummary && usefulSummary.length > 300 && (
-                <Text
-                  color="brand.primary"
-                  marginTop="8px"
-                  cursor="pointer"
-                  textDecoration="underline"
-                  onClick={() => setShowFullSummary(!showFullSummary)}
-                >
-                  {showFullSummary ? "Show less" : "Show more"}
-                </Text>
-              )}
-            </Box>
-          </Box>
+          <DeviceSummarySection
+            usefulSummary={usefulSummary}
+            displaySummary={displaySummary || usefulSummary}
+            showFullSummary={showFullSummary}
+            onToggle={() => setShowFullSummary(!showFullSummary)}
+          />
         </>
       )}
 
@@ -599,139 +530,17 @@ export const DeviceDetailed = ({
       {lineage && (
         <>
           <Separator marginY="16px" />
-          <Box marginBottom="24px">
-            <Heading size="md" color="brand.primary" marginBottom="12px">
-              Predicate Lineage
-            </Heading>
-            <Grid
-              templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
-              gap="12px"
-              marginBottom="12px"
-            >
-              <Box>
-                <Text color="brand.primary" fontWeight="bold">
-                  Ancestors:
-                </Text>
-                <Text color="black">{lineage.ancestor_count}</Text>
-              </Box>
-              <Box>
-                <Text color="brand.primary" fontWeight="bold">
-                  Descendants:
-                </Text>
-                <Text color="black">{lineage.descendant_count}</Text>
-              </Box>
-            </Grid>
-            {lineage.direct_predicates.length > 0 && (
-              <Box marginBottom="8px">
-                <Text color="brand.primary" fontWeight="bold">
-                  Direct Predicates:
-                </Text>
-                <Text fontSize="xs" color="ui.textMuted" marginBottom="4px">
-                  Predicate Device - This device claims substantial equivalence
-                  to the following:
-                </Text>
-                <Box>
-                  {lineage.direct_predicates.map((predicate, index) => (
-                    <Box key={predicate} display="inline">
-                      <Link href={`/devices/${predicate}`}>
-                        <ChakraLink
-                          color="brand.primary"
-                          textDecoration="underline"
-                          cursor="pointer"
-                          onClick={() => {
-                            // track predicate device click
-                            posthog.capture("predicate_device_clicked", {
-                              from_device_id: device.submission_number,
-                              from_device_name: device.device_name,
-                              predicate_device_id: predicate,
-                            });
-                          }}
-                        >
-                          {predicate}
-                        </ChakraLink>
-                      </Link>
-                      {index < lineage.direct_predicates.length - 1 && (
-                        <Text display="inline" color="black" marginX="4px">
-                          ,
-                        </Text>
-                      )}
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-            )}
-
-            {/* interactive lineage graph */}
-            {lineage.direct_predicates.length > 0 ||
-            lineage.direct_citations.length > 0 ? (
-              <Box marginTop="16px">
-                <Text
-                  color="brand.primary"
-                  fontWeight="bold"
-                  marginBottom="8px"
-                >
-                  Lineage Graph:
-                </Text>
-                <Text fontSize="xs" color="ui.textMuted" marginBottom="8px">
-                  Click on any device to view its details.
-                </Text>
-                <Box
-                  height="400px"
-                  borderWidth="1px"
-                  borderColor="ui.border"
-                  borderRadius="8px"
-                  overflow="hidden"
-                >
-                  <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    onNodeClick={onNodeClick}
-                    nodeTypes={nodeTypes}
-                    fitView
-                    minZoom={0.5}
-                    maxZoom={1.5}
-                    translateExtent={translateExtent}
-                    nodesDraggable={false}
-                    proOptions={{ hideAttribution: true }}
-                  >
-                    <Background />
-                    <Controls />
-                  </ReactFlow>
-                </Box>
-              </Box>
-            ) : (
-              <Box marginTop="12px">
-                <Text fontSize="sm" color="ui.textMuted">
-                  no known predicate relationships
-                </Text>
-              </Box>
-            )}
-
-            {lineage.pagerank !== null && (
-              <Box marginTop="12px">
-                <Text color="brand.primary" fontWeight="bold">
-                  Citation Influence:
-                </Text>
-                <Text color="black">
-                  {lineage.pagerank > 0.001
-                    ? "Very High"
-                    : lineage.pagerank > 0.0001
-                      ? "High"
-                      : lineage.pagerank > 0.00001
-                        ? "Moderate"
-                        : lineage.pagerank > 0.000001
-                          ? "Low"
-                          : "Minimal"}
-                </Text>
-                <Text fontSize="xs" color="ui.textMuted">
-                  Based on how often this device is cited as a predicate (
-                  {lineage.pagerank.toExponential(2)})
-                </Text>
-              </Box>
-            )}
-          </Box>
+          <DeviceLineageSection
+            lineage={lineage}
+            device={device}
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onNodeClick={onNodeClick}
+            nodeTypes={nodeTypes}
+            translateExtent={translateExtent}
+          />
         </>
       )}
 
@@ -740,339 +549,12 @@ export const DeviceDetailed = ({
         (deviceSafety.event_count > 0 || deviceSafety.recall_count > 0) && (
           <>
             <Separator marginY="16px" />
-            <Box>
-              <Heading size="md" color="brand.primary" marginBottom="4px">
-                Safety Data for {device.submission_number}
-              </Heading>
-              <Text fontSize="xs" color="ui.textMuted" marginBottom="12px">
-                Adverse events and recalls specific to this 510(k) clearance
-              </Text>
-              <Grid
-                templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
-                gap="12px"
-                marginBottom="12px"
-              >
-                <Box>
-                  <Text color="brand.primary" fontWeight="bold">
-                    Adverse Events:
-                  </Text>
-                  <Text color="black" fontSize="lg" fontWeight="bold">
-                    {formatNumber(deviceSafety.event_count)}
-                  </Text>
-                </Box>
-                <Box>
-                  <Text color="brand.primary" fontWeight="bold">
-                    Recalls:
-                  </Text>
-                  <Text
-                    color={
-                      deviceSafety.recall_count === 0
-                        ? "status.safe"
-                        : deviceSafety.recall_count <= 3
-                          ? "status.warning"
-                          : "status.danger"
-                    }
-                    fontWeight="bold"
-                    fontSize="lg"
-                  >
-                    {deviceSafety.recall_count}
-                  </Text>
-                </Box>
-              </Grid>
-
-              {/* device-specific event breakdown chart */}
-              {Object.keys(deviceSafety.breakdown).length > 0 &&
-                (() => {
-                  const severityOrder = [
-                    "Death",
-                    "Injury",
-                    "Malfunction",
-                    "Other",
-                    "Unknown",
-                    "Unclassified",
-                  ];
-                  const severityColors: Record<string, string> = {
-                    Death: "var(--chakra-colors-status-danger)",
-                    Injury: "var(--chakra-colors-status-warning)",
-                    Malfunction: "var(--chakra-colors-brand-primary)",
-                    Other: "#6B7280",
-                    Unknown: "#9CA3AF",
-                    Unclassified: "#000000",
-                  };
-
-                  const sortedEvents = Object.entries(deviceSafety.breakdown)
-                    .map(([type, count]) => ({
-                      type: type.trim() === "" ? "Unclassified" : type,
-                      count,
-                    }))
-                    .sort((a, b) => {
-                      const aIdx = severityOrder.indexOf(a.type);
-                      const bIdx = severityOrder.indexOf(b.type);
-                      return (
-                        (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx)
-                      );
-                    });
-
-                  const total = sortedEvents.reduce(
-                    (sum, e) => sum + e.count,
-                    0,
-                  );
-
-                  return (
-                    <Box marginBottom="12px">
-                      <Text
-                        color="brand.primary"
-                        fontWeight="bold"
-                        marginBottom="4px"
-                      >
-                        Event Breakdown:
-                      </Text>
-                      {sortedEvents.map(({ type, count }) => {
-                        const percentage =
-                          total > 0 ? ((count / total) * 100).toFixed(1) : "0";
-                        const color = severityColors[type] || "#6B7280";
-                        return (
-                          <Text key={type} fontSize="sm" style={{ color }}>
-                            {type}: {formatNumber(count)} ({percentage}%)
-                          </Text>
-                        );
-                      })}
-                      {sortedEvents.length >= 2 && (
-                        <Box marginTop="16px">
-                          <ResponsiveContainer width="100%" height={200}>
-                            <BarChart
-                              data={sortedEvents.map(({ type, count }) => ({
-                                type,
-                                count,
-                                percentage:
-                                  total > 0
-                                    ? ((count / total) * 100).toFixed(1)
-                                    : "0",
-                              }))}
-                              layout="vertical"
-                              margin={{
-                                top: 5,
-                                right: 30,
-                                left: 20,
-                                bottom: 5,
-                              }}
-                            >
-                              <XAxis type="number" />
-                              <YAxis
-                                dataKey="type"
-                                type="category"
-                                width={120}
-                              />
-                              <RechartsTooltip />
-                              <Bar dataKey="count">
-                                {sortedEvents.map(({ type }) => (
-                                  <Cell
-                                    key={type}
-                                    fill={severityColors[type] || "#6B7280"}
-                                  />
-                                ))}
-                              </Bar>
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </Box>
-                      )}
-                    </Box>
-                  );
-                })()}
-
-              {/* reported device problems */}
-              {deviceSafety.problem_codes &&
-                Object.keys(deviceSafety.problem_codes).length > 0 && (
-                  <Box marginTop="12px">
-                    <Text
-                      color="brand.primary"
-                      fontWeight="bold"
-                      marginBottom="8px"
-                    >
-                      Reported Device Problems:
-                    </Text>
-                    {Object.entries(deviceSafety.problem_codes)
-                      .sort(([, a], [, b]) => b - a)
-                      .slice(0, 10)
-                      .map(([problem, count]) => {
-                        const total = deviceSafety.event_count || 1;
-                        const pct = ((count / total) * 100).toFixed(1);
-                        return (
-                          <HStack
-                            key={problem}
-                            justifyContent="space-between"
-                            paddingY="4px"
-                            borderBottomWidth="1px"
-                            borderColor="ui.borderLight"
-                          >
-                            <Text fontSize="sm" color="ui.text">
-                              {problem}
-                            </Text>
-                            <Text
-                              fontSize="sm"
-                              color="ui.textMuted"
-                              flexShrink={0}
-                            >
-                              {count.toLocaleString()} ({pct}%)
-                            </Text>
-                          </HStack>
-                        );
-                      })}
-                  </Box>
-                )}
-
-              {/* patient outcomes */}
-              {deviceSafety.patient_outcomes &&
-                Object.keys(deviceSafety.patient_outcomes).length > 0 && (
-                  <Box marginTop="12px">
-                    <Text
-                      color="brand.primary"
-                      fontWeight="bold"
-                      marginBottom="8px"
-                    >
-                      Patient Outcomes:
-                    </Text>
-                    {Object.entries(deviceSafety.patient_outcomes)
-                      .sort(([, a], [, b]) => b - a)
-                      .map(([outcome, count]) => (
-                        <HStack
-                          key={outcome}
-                          justifyContent="space-between"
-                          paddingY="4px"
-                          borderBottomWidth="1px"
-                          borderColor="ui.borderLight"
-                        >
-                          <Text
-                            fontSize="sm"
-                            color={
-                              outcome === "Death"
-                                ? "status.danger"
-                                : outcome === "Life Threatening"
-                                  ? "status.warning"
-                                  : "ui.text"
-                            }
-                          >
-                            {outcome}
-                          </Text>
-                          <Text
-                            fontSize="sm"
-                            color="ui.textMuted"
-                            flexShrink={0}
-                          >
-                            {count.toLocaleString()}
-                          </Text>
-                        </HStack>
-                      ))}
-                  </Box>
-                )}
-
-              {/* recent adverse events */}
-              {deviceSafety.recent_events.length > 0 && (
-                <Box marginTop="12px">
-                  <Text
-                    color="brand.primary"
-                    fontWeight="bold"
-                    marginBottom="8px"
-                  >
-                    Recent Adverse Events:
-                  </Text>
-                  {deviceSafety.recent_events.slice(0, 5).map((evt, idx) => (
-                    <Box
-                      key={`${evt.date}-${idx}`}
-                      padding="8px 12px"
-                      marginBottom="8px"
-                      borderRadius="6px"
-                      borderWidth="1px"
-                      borderColor="ui.border"
-                      backgroundColor="ui.surface"
-                    >
-                      <HStack justifyContent="space-between" marginBottom="4px">
-                        <Badge
-                          colorPalette={
-                            evt.type === "Death"
-                              ? "red"
-                              : evt.type === "Injury"
-                                ? "yellow"
-                                : "gray"
-                          }
-                          variant="subtle"
-                          fontSize="xs"
-                        >
-                          {evt.type}
-                        </Badge>
-                        <Text fontSize="xs" color="ui.textMuted">
-                          {formatDate(evt.date)}
-                        </Text>
-                      </HStack>
-                      {evt.description && (
-                        <Text fontSize="sm" color="ui.textMuted" lineClamp={2}>
-                          {evt.description}
-                        </Text>
-                      )}
-                    </Box>
-                  ))}
-                </Box>
-              )}
-
-              {/* device-specific recalls */}
-              {deviceSafety.recent_recalls.length > 0 && (
-                <Box marginTop="12px">
-                  <Text
-                    color="brand.primary"
-                    fontWeight="bold"
-                    marginBottom="8px"
-                  >
-                    Device Recalls:
-                  </Text>
-                  {deviceSafety.recent_recalls.slice(0, 5).map((recall) => (
-                    <Box
-                      key={recall.event_number}
-                      padding="8px 12px"
-                      marginBottom="8px"
-                      borderRadius="6px"
-                      borderWidth="1px"
-                      borderColor="ui.border"
-                      backgroundColor="ui.surface"
-                    >
-                      <HStack justifyContent="space-between" marginBottom="4px">
-                        <Text fontSize="sm" fontWeight="bold" color="black">
-                          {recall.event_number}
-                        </Text>
-                        <Badge
-                          colorPalette={
-                            recall.classification.includes("I") &&
-                            !recall.classification.includes("II")
-                              ? "red"
-                              : recall.classification.includes("II")
-                                ? "yellow"
-                                : "gray"
-                          }
-                          variant="subtle"
-                          fontSize="xs"
-                        >
-                          {recall.classification}
-                        </Badge>
-                      </HStack>
-                      {recall.reason && (
-                        <Text fontSize="sm" color="ui.textMuted" lineClamp={2}>
-                          {recall.reason}
-                        </Text>
-                      )}
-                      {recall.firm && (
-                        <Text
-                          fontSize="xs"
-                          color="ui.textMuted"
-                          marginTop="4px"
-                        >
-                          {recall.firm}
-                          {recall.date ? ` · ${formatDate(recall.date)}` : ""}
-                        </Text>
-                      )}
-                    </Box>
-                  ))}
-                </Box>
-              )}
-            </Box>
+            <DeviceSafetyOverview
+              device={device}
+              deviceSafety={deviceSafety}
+              formatDate={formatDate}
+              formatNumber={formatNumber}
+            />
           </>
         )}
 
