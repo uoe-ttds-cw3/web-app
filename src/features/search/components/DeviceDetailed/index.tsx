@@ -415,7 +415,6 @@ export const DeviceDetailed = ({
       <Separator marginY="16px" />
       <DeviceFeatureSignals device={device} />
 
-      {/* indications for use */}
       {device.indications_for_use && (
         <>
           <Separator marginY="16px" />
@@ -427,7 +426,6 @@ export const DeviceDetailed = ({
         </>
       )}
 
-      {/* device description */}
       {device.device_description && (
         <>
           <Separator marginY="16px" />
@@ -513,7 +511,6 @@ export const DeviceDetailed = ({
           </>
         )}
 
-      {/* 510(k) summary - collapsible */}
       {usefulSummary && usefulSummary.length > 0 && (
         <>
           <Separator marginY="16px" />
