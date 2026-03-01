@@ -134,12 +134,16 @@ export function Header() {
         px={{ base: 3, md: 6, lg: 8 }}
         py={{ base: 3, md: 0 }}
         minH={{ base: "auto", md: "96px" }}
-        align="center"
+        align={{ base: "center", md: "flex-start" }}
         gap={{ base: 2, md: 4 }}
         direction={{ base: "column", md: "row" }}
       >
         {/* logo - hidden on mobile to save space */}
-        <HStack flexShrink={0} display={{ base: "none", md: "flex" }}>
+        <HStack
+          flexShrink={0}
+          display={{ base: "none", md: "flex" }}
+          mt={{ base: 0, md: "18px" }}
+        >
           <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
             <Text fontWeight="semibold">FDA Device Search</Text>
           </Link>
