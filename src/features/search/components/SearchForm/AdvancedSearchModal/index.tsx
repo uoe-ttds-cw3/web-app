@@ -141,65 +141,67 @@ export const AdvancedSearchPanel = ({
   if (!isOpen) return null;
 
   return (
-    <Box position="fixed" inset="0" zIndex={100} onKeyDown={handleKeyDown}>
-      <Box position="absolute" inset="0" bg="blackAlpha.400" onClick={onClose} />
+    <Box
+      position="fixed"
+      inset="0"
+      zIndex={100}
+      onKeyDown={handleKeyDown}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      minH="100vh"
+      padding={{ base: "16px", md: "24px" }}
+      bg="blackAlpha.400"
+      onClick={onClose}
+    >
       <Box
-        position="relative"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        minH="100vh"
-        padding={{ base: "16px", md: "24px" }}
+        width="100%"
+        maxW="760px"
+        maxH="min(80vh, 900px)"
+        overflowY="auto"
+        background="ui.background"
+        borderRadius="12px"
+        boxShadow="xl"
+        border="1px solid"
+        borderColor="ui.borderLight"
+        padding="16px"
+        onClick={(e) => e.stopPropagation()}
       >
         <Box
-          width="100%"
-          maxW="760px"
-          maxH="min(80vh, 900px)"
-          overflowY="auto"
-          background="ui.background"
-          borderRadius="12px"
-          boxShadow="xl"
-          border="1px solid"
-          borderColor="ui.borderLight"
-          padding="16px"
-          onClick={(e) => e.stopPropagation()}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb="12px"
         >
+          <Text fontWeight="600" fontSize="sm" color="brand.primary">
+            Advanced query builder
+          </Text>
           <Box
+            as="button"
+            onClick={onClose}
+            cursor="pointer"
+            _hover={{ opacity: 0.7 }}
             display="flex"
-            justifyContent="space-between"
             alignItems="center"
-            mb="12px"
           >
-            <Text fontWeight="600" fontSize="sm" color="brand.primary">
-              Advanced query builder
-            </Text>
-            <Box
-              as="button"
-              onClick={onClose}
-              cursor="pointer"
-              _hover={{ opacity: 0.7 }}
-              display="flex"
-              alignItems="center"
-            >
-              <FaTimes size={14} color="#666" />
-            </Box>
+            <FaTimes size={14} color="#666" />
           </Box>
-
-          <QueryBuilderSection
-            rows={rows}
-            joiners={joiners}
-            queryPreview={queryPreview}
-            onUpdateRow={updateRow}
-            onToggleJoiner={toggleJoiner}
-            onRemoveRow={removeRow}
-            onAddRow={addRow}
-            onRunSearch={handleSearch}
-          />
-
-          <SearchOptionsSection options={options} onToggleOption={toggleOption} />
-
-          <SnapshotDateSection />
         </Box>
+
+        <QueryBuilderSection
+          rows={rows}
+          joiners={joiners}
+          queryPreview={queryPreview}
+          onUpdateRow={updateRow}
+          onToggleJoiner={toggleJoiner}
+          onRemoveRow={removeRow}
+          onAddRow={addRow}
+          onRunSearch={handleSearch}
+        />
+
+        <SearchOptionsSection options={options} onToggleOption={toggleOption} />
+
+        <SnapshotDateSection />
       </Box>
     </Box>
   );
