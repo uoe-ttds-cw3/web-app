@@ -1,13 +1,13 @@
-import {
-  Box,
-  Button,
-  Collapsible,
-  Icon,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Button, Collapsible, Icon, Stack, Text } from "@chakra-ui/react";
 import { FaFilter } from "react-icons/fa";
 import type { FacetField } from "@/lib/api/types";
+
+const FACET_LABELS: Record<string, string> = {
+  device_class: "Device Class",
+  panel_code: "Panel",
+  decision_code: "Decision",
+  product_code: "Product Code",
+};
 
 export type FilterControlProps = {
   filterOpen: boolean;
@@ -78,13 +78,7 @@ export const FilterControl = ({
                       color="brand.primary"
                       paddingY="2"
                     >
-                      {facet.field === "device_class"
-                        ? "Device Class"
-                        : facet.field === "panel_code"
-                          ? "Panel"
-                          : facet.field === "decision_code"
-                            ? "Decision"
-                            : facet.field}
+                      {FACET_LABELS[facet.field] ?? facet.field}
                     </Button>
                   </Collapsible.Trigger>
                   <Collapsible.Content>
