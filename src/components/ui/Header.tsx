@@ -1,19 +1,16 @@
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import {
-  Box,
-  Flex,
-  HStack,
-  Icon,
-  Link,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Icon, Link, Text } from "@chakra-ui/react";
 import { FaSlidersH } from "react-icons/fa";
-import { SearchForm } from "@/features/search/components/SearchForm";
+import {
+  HEADER_SEARCH_FORM_ID,
+  SearchForm,
+} from "@/features/search/components/SearchForm";
 import type { BackendOptions } from "@/lib/api/types";
 
 const HEADER_CONTROL_HEIGHT = "48px";
+const HEADER_CONTENT_MAX_W = "956px";
 
 export function Header() {
   const router = useRouter();
@@ -140,7 +137,7 @@ export function Header() {
       borderColor="ui.border"
     >
       <Flex
-        maxW={{ base: "100%", md: "1200px" }}
+        maxW={HEADER_CONTENT_MAX_W}
         mx="auto"
         px={{ base: 3, md: 6, lg: 8 }}
         py={{ base: 3, md: 0 }}
@@ -149,57 +146,72 @@ export function Header() {
         gap={{ base: 2, md: 4 }}
         direction={{ base: "column", md: "row" }}
       >
-        {/* logo - hidden on mobile to save space */}
-        <HStack flexShrink={0} display={{ base: "none", md: "flex" }}>
+        <Box flex="1" maxW="100%" w="100%" mx="auto">
           <Link as={NextLink} href="/" _hover={{ textDecoration: "none" }}>
-            <Text fontWeight="semibold">FDA Device Search</Text>
+            <Text fontWeight="semibold" marginBottom="8px">
+              FDA Device Search
+            </Text>
           </Link>
-        </HStack>
 
-        <Flex
-          flex="1"
-          maxW="780px"
-          w="100%"
-          mx="auto"
-          align={{ base: "stretch", md: "center" }}
-          gap="12px"
-          direction={{ base: "column", md: "row" }}
-        >
-          <Box flex="1">
-            <SearchForm
-              onSearch={handleSearch}
-              onBackendOptionsChange={handleBackendOptionsChange}
-              backendOptions={backendOptions}
-              initialQuery={query}
-              advancedPanelOpen={advancedPanelOpen}
-              onAdvancedPanelOpenChange={setAdvancedPanelOpen}
-            />
-          </Box>
-          <Box alignSelf={{ base: "flex-end", md: "auto" }}>
-            <button
-              type="button"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                minHeight: HEADER_CONTROL_HEIGHT,
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                textDecoration: "underline",
-                textUnderlineOffset: "3px",
-                cursor: "pointer",
-                color: "var(--chakra-colors-brand-primary)",
-                background: "none",
-                border: "none",
-                padding: 0,
-              }}
-              onClick={() => setAdvancedPanelOpen((prev) => !prev)}
+          <Flex
+            align={{ base: "stretch", md: "center" }}
+            gap="12px"
+            direction={{ base: "column", md: "row" }}
+          >
+            <Box flex="1">
+              <SearchForm
+                onSearch={handleSearch}
+                onBackendOptionsChange={handleBackendOptionsChange}
+                backendOptions={backendOptions}
+                initialQuery={query}
+                advancedPanelOpen={advancedPanelOpen}
+                onAdvancedPanelOpenChange={setAdvancedPanelOpen}
+              />
+            </Box>
+            <Flex
+              alignSelf={{ base: "flex-end", md: "auto" }}
+              gap="8px"
+              flexShrink={0}
             >
-              Advanced search options
-              <Icon as={FaSlidersH} boxSize="4" />
-            </button>
-          </Box>
-        </Flex>
+              <Button
+                type="button"
+                display="inline-flex"
+                alignItems="center"
+                gap="8px"
+                minH={HEADER_CONTROL_HEIGHT}
+                px="14px"
+                borderRadius="8px"
+                border="1px solid"
+                borderColor="ui.borderLight"
+                bg="ui.background"
+                color="brand.primary"
+                fontSize="sm"
+                fontWeight="500"
+                _hover={{ bg: "ui.surface" }}
+                _active={{ bg: "ui.surface" }}
+                onClick={() => setAdvancedPanelOpen((prev) => !prev)}
+              >
+                <Icon as={FaSlidersH} boxSize="4" />
+                Advanced
+              </Button>
+              <Button
+                type="submit"
+                form={HEADER_SEARCH_FORM_ID}
+                minH={HEADER_CONTROL_HEIGHT}
+                px="18px"
+                borderRadius="8px"
+                bg="brand.primary"
+                color="white"
+                fontSize="sm"
+                fontWeight="600"
+                _hover={{ bg: "brand.primary" }}
+                _active={{ bg: "brand.primary" }}
+              >
+                Search
+              </Button>
+            </Flex>
+          </Flex>
+        </Box>
       </Flex>
     </Box>
   );
