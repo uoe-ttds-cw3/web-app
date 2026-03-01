@@ -17,6 +17,12 @@ const TOOLTIP_PROPS = {
   borderRadius: "md",
 };
 
+const HIGHLIGHT_STYLE = {
+  fontWeight: 600,
+  backgroundColor: "rgba(30, 90, 168, 0.12)",
+  borderRadius: "2px",
+};
+
 const getRetrievalSourceConfig = (source: string) => {
   return (
     {
@@ -65,10 +71,7 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
               searchWords={searchQuery.split(/\s+/)}
               autoEscape
               textToHighlight={device.name}
-              highlightStyle={{
-                fontWeight: "bold",
-                backgroundColor: "#FFEB3B80",
-              }}
+              highlightStyle={HIGHLIGHT_STYLE}
             />
           ) : (
             device.name

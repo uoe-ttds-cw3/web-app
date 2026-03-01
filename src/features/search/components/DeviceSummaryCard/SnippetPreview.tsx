@@ -20,6 +20,12 @@ const TOOLTIP_PROPS = {
   maxW: "320px",
 };
 
+const HIGHLIGHT_STYLE = {
+  fontWeight: 600,
+  backgroundColor: "rgba(30, 90, 168, 0.12)",
+  borderRadius: "2px",
+};
+
 export const SnippetPreview = ({
   device,
   searchQuery = "",
@@ -88,10 +94,7 @@ export const SnippetPreview = ({
             searchWords={searchQuery.split(/\s+/)}
             autoEscape
             textToHighlight={displaySnippet}
-            highlightStyle={{
-              fontWeight: "bold",
-              backgroundColor: "#FFEB3B80",
-            }}
+            highlightStyle={HIGHLIGHT_STYLE}
           />
         ) : (
           <Text>{displaySnippet}</Text>
