@@ -394,14 +394,6 @@ export default function Home() {
                       original_query: query,
                       suggested_query: data.did_you_mean,
                     });
-                    router.push(
-                      {
-                        pathname: "/",
-                        query: { ...router.query, q: data.did_you_mean },
-                      },
-                      undefined,
-                      { shallow: true },
-                    );
                   }}
                 />
               )}
