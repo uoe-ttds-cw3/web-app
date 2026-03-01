@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import type { QueryDebugInfo } from "@/lib/api/types";
 import { FoundResults } from "./FoundResults";
 import { SearchDetailsModal } from "./SearchDetailsModal";
@@ -17,11 +17,15 @@ export const ResultsHeader = ({
       display="flex"
       alignItems="center"
       justifyContent="flex-start"
-      gap="8"
-      width="100%"
+      gap="2"
       flexWrap="wrap"
     >
       <FoundResults numResults={numResults} />
+      {debugInfo && (
+        <Text fontSize="xs" color="ui.textMuted" lineHeight="1">
+          ·
+        </Text>
+      )}
       <SearchDetailsModal debugInfo={debugInfo} />
     </Box>
   );

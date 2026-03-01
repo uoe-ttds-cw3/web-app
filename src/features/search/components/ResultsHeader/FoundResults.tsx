@@ -5,12 +5,13 @@ export type FoundResultsProps = {
 };
 
 export const FoundResults = ({ numResults }: FoundResultsProps) => {
+  const displayCount = numResults == 0 ? "No" : String(numResults);
+
   return (
-    <Box color="brand.primary">
+    <Box color="ui.textMuted">
       <Text display="inline-flex" alignItems="center">
-        Found {numResults == 0 ? "no" : numResults >= 500 ? "500+" : numResults}{" "}
-        matching device
-        {numResults == 1 ? "" : "s"}...
+        {displayCount} matching device
+        {numResults == 1 ? "" : "s"}
       </Text>
     </Box>
   );

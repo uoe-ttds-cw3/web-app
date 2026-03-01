@@ -64,15 +64,16 @@ export const SearchDetailsModal = ({ debugInfo }: SearchDetailsModalProps) => {
         as="button"
         display="inline-flex"
         alignItems="center"
-        gap="1.5"
         fontSize="xs"
         color="ui.textMuted"
         cursor="pointer"
         lineHeight="1"
+        textDecoration="underline"
+        textUnderlineOffset="2px"
         _hover={{ color: "brand.primary" }}
         onClick={() => setOpen(true)}
       >
-        View search details
+        Why these results?
       </Box>
 
       {open && (

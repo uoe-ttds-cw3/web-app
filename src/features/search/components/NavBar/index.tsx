@@ -91,7 +91,7 @@ export const NavBar = ({
   const showLoadingSkeletons = isFetching || isResultsLoading;
 
   return (
-    <Box pt={{ base: "6px", md: "8px" }} pb="16px">
+    <Box pt={{ base: "6px", md: "8px" }} pb="12px">
       <Text
         fontSize={{ base: "md", md: "xl" }}
         fontWeight="semibold"

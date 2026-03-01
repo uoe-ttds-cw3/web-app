@@ -367,7 +367,7 @@ export default function Home() {
           maxW={SEARCH_CONTENT_MAX_W}
           px={{ base: "4", md: "5", lg: "6" }}
         >
-          <Box minH="100vh" py={{ base: "2", md: "4" }}>
+          <Box minH="100vh" pt="0" pb={{ base: "2", md: "4" }}>
             {/* Header + Controls */}
             <Box marginBottom="4">
               <Box
