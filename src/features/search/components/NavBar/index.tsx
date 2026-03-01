@@ -2,14 +2,16 @@ import {
   Box,
   Button,
   Flex,
-  Text,
-  Icon,
   HStack,
+  Icon,
   SkeletonText,
+  Text,
 } from "@chakra-ui/react";
 import { PiMedalDuotone } from "react-icons/pi";
+import { LuInfo } from "react-icons/lu";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 type Category = {
   id: string;
@@ -89,18 +91,44 @@ export const NavBar = ({
   const mobileLimit = 4;
   const hasMore = categories.length > mobileLimit;
   const showLoadingSkeletons = isFetching || isResultsLoading;
+  const tooltipProps = {
+    bg: "ui.background",
+    color: "ui.text",
+    px: 2,
+    py: 1,
+    borderRadius: "md",
+    maxW: "320px",
+  };
 
   return (
     <Box pt="0" pb="12px">
-      <Text
+      <HStack
         fontSize={{ base: "md", md: "xl" }}
         fontWeight="semibold"
         marginBottom="0.5rem"
         color="brand.primary"
+        gap="2"
       >
         <Icon as={PiMedalDuotone} marginRight="8px" />
-        Filter by Panel (Category)
-      </Text>
+        <Text>Filter by Panel (Category)</Text>
+        <Tooltip
+          content="A panel is an FDA advisory committee for a specific medical specialty or device category. Think of panels as device-grouping departments, such as Cardiovascular or Radiology."
+          showArrow
+          openDelay={200}
+          contentProps={tooltipProps}
+        >
+          <Box
+            color="ui.textMuted"
+            cursor="help"
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            aria-label="What FDA panels mean"
+          >
+            <Icon as={LuInfo} boxSize="3.5" />
+          </Box>
+        </Tooltip>
+      </HStack>
 
       {/* error state */}
       {error && (
