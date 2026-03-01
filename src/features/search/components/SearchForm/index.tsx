@@ -125,12 +125,12 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
         />
       )}
 
-        <Box
-          display="flex"
-          flexDirection="column"
-          width="100%"
-          position="relative"
-        >
+      <Box
+        display="flex"
+        flexDirection="column"
+        width="100%"
+        position="relative"
+      >
         <Box
           display="flex"
           alignItems="center"
@@ -142,7 +142,12 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
           border="1px solid"
           borderColor="ui.borderLight"
         >
-          <Icon as={FaSearch} color="brand.primary" boxSize="4" flexShrink={0} />
+          <Icon
+            as={FaSearch}
+            color="brand.primary"
+            boxSize="4"
+            flexShrink={0}
+          />
 
           <Box
             display="flex"
@@ -356,7 +361,7 @@ export const SearchForm = ({ onSearch, initialQuery }: SearchFormProps) => {
             setSearchFocused(false);
           }}
         >
-          Advanced Search
+          Advanced search options
         </Box>
       </Box>
 
