@@ -86,10 +86,25 @@ export const DeviceHeader = ({
           {device.submission_number}
         </Badge>
       </Box>
+      {deviceSafety?.brand_names && deviceSafety.brand_names.length > 0 && (
+        <Box marginBottom="8px">
+          <Text fontSize="sm" color="ui.textSubtle" display="inline">
+            Also known as:{" "}
+          </Text>
+          <Text
+            fontSize="sm"
+            color="ui.textMuted"
+            display="inline"
+            fontWeight="medium"
+          >
+            {deviceSafety.brand_names.join(", ")}
+          </Text>
+        </Box>
+      )}
       <Box
         display="flex"
         alignItems="center"
-        gap="8px"
+        gap={{ base: "8px", md: "16px" }}
         marginBottom="8px"
         flexWrap="wrap"
       >
@@ -120,24 +135,9 @@ export const DeviceHeader = ({
           fontSize="sm"
           textDecoration="underline"
         >
-          View on FDA ↗
+          View on FDA.gov ↗
         </ChakraLink>
       </Box>
-      {deviceSafety?.brand_names && deviceSafety.brand_names.length > 0 && (
-        <Box marginTop="8px">
-          <Text fontSize="sm" color="ui.textMuted" display="inline">
-            Also known as:{" "}
-          </Text>
-          <Text
-            fontSize="sm"
-            color="black"
-            display="inline"
-            fontWeight="medium"
-          >
-            {deviceSafety.brand_names.join(", ")}
-          </Text>
-        </Box>
-      )}
     </Box>
   );
 };
