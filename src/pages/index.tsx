@@ -281,7 +281,7 @@ export default function Home() {
   return (
     <div>
       {!query && results.length === 0 && (
-        <StartSearching onSuggest={handleSearch} selectedCategory={panel} />
+        <StartSearching onSuggest={handleSearch} />
       )}
 
       {isLoading && (
