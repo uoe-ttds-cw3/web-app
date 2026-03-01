@@ -5,7 +5,8 @@ export type FoundResultsProps = {
 };
 
 export const FoundResults = ({ numResults }: FoundResultsProps) => {
-  const displayCount = numResults == 0 ? "No" : String(numResults);
+  const displayCount =
+    numResults == 0 ? "No" : numResults >= 500 ? "500+" : String(numResults);
 
   return (
     <Box color="ui.textMuted">
