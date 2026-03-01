@@ -145,15 +145,6 @@ export const SearchForm = ({
         />
       )}
 
-      {advancedPanelOpen && (
-        <Box
-          position="fixed"
-          inset="0"
-          zIndex={99}
-          onClick={() => onAdvancedPanelOpenChange?.(false)}
-        />
-      )}
-
       <Box
         display="flex"
         flexDirection="column"

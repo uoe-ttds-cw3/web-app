@@ -206,21 +206,34 @@ export const AdvancedSearchPanel = ({
   if (!isOpen) return null;
 
   return (
-    <Box
-      position="absolute"
-      top="100%"
-      left="0"
-      right="0"
-      marginTop="8px"
-      background="ui.background"
-      borderRadius="8px"
-      zIndex={100}
-      boxShadow="lg"
-      border="1px solid"
-      borderColor="ui.borderLight"
-      padding="16px"
-      onKeyDown={handleKeyDown}
-    >
+    <Box position="fixed" inset="0" zIndex={100} onKeyDown={handleKeyDown}>
+      <Box
+        position="absolute"
+        inset="0"
+        bg="blackAlpha.400"
+        onClick={onClose}
+      />
+      <Box
+        position="relative"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        minH="100vh"
+        padding={{ base: "16px", md: "24px" }}
+      >
+        <Box
+          width="100%"
+          maxW="760px"
+          maxH="min(80vh, 900px)"
+          overflowY="auto"
+          background="ui.background"
+          borderRadius="12px"
+          boxShadow="xl"
+          border="1px solid"
+          borderColor="ui.borderLight"
+          padding="16px"
+          onClick={(e) => e.stopPropagation()}
+        >
       {/* header */}
       <Box
         display="flex"
@@ -537,6 +550,8 @@ export const AdvancedSearchPanel = ({
           </Tooltip>
         </Box>
         <DateBox />
+      </Box>
+        </Box>
       </Box>
     </Box>
   );
