@@ -176,28 +176,28 @@ export function Header() {
             />
           </Box>
           <Box alignSelf={{ base: "flex-end", md: "auto" }}>
-            <Box
-              as="button"
+            <button
               type="button"
-              display="inline-flex"
-              alignItems="center"
-              gap="8px"
-              minH={HEADER_CONTROL_HEIGHT}
-              color="brand.primary"
-              fontSize="sm"
-              fontWeight="medium"
-              textDecoration="underline"
-              textUnderlineOffset="3px"
-              cursor="pointer"
-              _hover={{
-                color: "brand.primary",
-                opacity: 0.8,
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                minHeight: HEADER_CONTROL_HEIGHT,
+                fontSize: "0.875rem",
+                fontWeight: 500,
+                textDecoration: "underline",
+                textUnderlineOffset: "3px",
+                cursor: "pointer",
+                color: "var(--chakra-colors-brand-primary)",
+                background: "none",
+                border: "none",
+                padding: 0,
               }}
               onClick={() => setAdvancedPanelOpen((prev) => !prev)}
             >
               Advanced search options
               <Icon as={FaSlidersH} boxSize="4" />
-            </Box>
+            </button>
           </Box>
         </Flex>
       </Flex>
