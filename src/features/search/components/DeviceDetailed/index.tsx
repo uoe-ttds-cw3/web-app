@@ -38,10 +38,9 @@ import {
 import dagre from "dagre";
 import "@xyflow/react/dist/style.css";
 import posthog from "posthog-js";
-import { Tooltip as UiTooltip } from "@/components/ui/Tooltip";
 import { DeviceHeader } from "./DeviceHeader";
+import { DeviceFeatureSignals } from "./DeviceFeatureSignals";
 import { DeviceMetadata } from "./DeviceMetadata";
-import { FEATURE_SIGNAL_CONFIG } from "@/features/search/components/DeviceShared/featureSignalConfig";
 import { useSearch } from "@/lib/queries/useSearch";
 import type {
   DeviceLookupResponse,
@@ -55,14 +54,6 @@ type DeviceDetailedProps = {
   lineage: LineageResponse | null;
   safety: SafetyProfileResponse | null;
   deviceSafety: DeviceSafetyData | null;
-};
-
-const FEATURE_TOOLTIP_PROPS = {
-  bg: "ui.background",
-  color: "ui.text",
-  px: 2,
-  py: 1,
-  borderRadius: "md",
 };
 
 // custom node component for the lineage graph
@@ -422,38 +413,7 @@ export const DeviceDetailed = ({
 
       {/* feature flags */}
       <Separator marginY="16px" />
-      <Box marginBottom="24px">
-        <Heading size="md" color="brand.primary" marginBottom="12px">
-          Feature Signals
-        </Heading>
-        <HStack gap="2" flexWrap="wrap" alignItems="center">
-          {FEATURE_SIGNAL_CONFIG.map((feature) => {
-            if (!device[feature.detailedKey]) {
-              return null;
-            }
-
-            return (
-              <UiTooltip
-                key={feature.detailedKey}
-                content={feature.tooltip}
-                showArrow
-                openDelay={200}
-                contentProps={FEATURE_TOOLTIP_PROPS}
-              >
-                <Badge
-                  variant="outline"
-                  colorPalette="gray"
-                  fontSize="xs"
-                  cursor="help"
-                  padding="0 0.25rem"
-                >
-                  {feature.label}
-                </Badge>
-              </UiTooltip>
-            );
-          })}
-        </HStack>
-      </Box>
+      <DeviceFeatureSignals device={device} />
 
       {/* indications for use */}
       {device.indications_for_use && (
