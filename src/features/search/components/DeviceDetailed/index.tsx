@@ -1,4 +1,4 @@
-import { Box, Heading, Badge, Separator, Card, HStack } from "@chakra-ui/react";
+import { Separator, Card } from "@chakra-ui/react";
 import { DeviceDescriptionSection } from "./DeviceDescriptionSection";
 import { DeviceHeader } from "./DeviceHeader";
 import { DeviceLineageSection } from "./DeviceLineageSection";
@@ -62,39 +62,20 @@ export const DeviceDetailed = ({
 
       <DeviceSummarySection device={device} />
 
-      {/* lineage section */}
-      {lineage && (
-        <>
-          <Separator marginY="16px" />
-          <DeviceLineageSection lineage={lineage} device={device} />
-        </>
-      )}
+      <DeviceLineageSection lineage={lineage} device={device} />
 
-      {/* device-specific safety section */}
-      {deviceSafety &&
-        (deviceSafety.event_count > 0 || deviceSafety.recall_count > 0) && (
-          <>
-            <Separator marginY="16px" />
-            <DeviceSafetyOverview
-              device={device}
-              deviceSafety={deviceSafety}
-              formatDate={formatDate}
-              formatNumber={formatNumber}
-            />
-          </>
-        )}
+      <DeviceSafetyOverview
+        device={device}
+        deviceSafety={deviceSafety}
+        formatDate={formatDate}
+        formatNumber={formatNumber}
+      />
 
-      {/* product-code safety section (aggregate for all devices with this product code) */}
-      {safety && (
-        <>
-          <Separator marginY="16px" />
-          <ProductCodeSafetySection
-            safety={safety}
-            deviceSafety={deviceSafety}
-            productCode={device.product_code}
-          />
-        </>
-      )}
+      <ProductCodeSafetySection
+        safety={safety}
+        deviceSafety={deviceSafety}
+        productCode={device.product_code}
+      />
 
       <ManufacturerDevicesSection device={device} />
 

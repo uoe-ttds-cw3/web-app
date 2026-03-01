@@ -1,4 +1,11 @@
-import { Box, Grid, Heading, Link as ChakraLink, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Grid,
+  Heading,
+  Link as ChakraLink,
+  Separator,
+  Text,
+} from "@chakra-ui/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo, type MouseEvent } from "react";
@@ -19,7 +26,7 @@ import "@xyflow/react/dist/style.css";
 import type { LineageResponse, DeviceLookupResponse } from "@/lib/api/types";
 
 export type DeviceLineageSectionProps = {
-  lineage: LineageResponse;
+  lineage: LineageResponse | null;
   device: DeviceLookupResponse;
 };
 
@@ -101,6 +108,10 @@ export const DeviceLineageSection = ({
   const router = useRouter();
 
   const { nodes, edges } = useMemo(() => {
+    if (!lineage) {
+      return { nodes: [], edges: [] };
+    }
+
     if (
       lineage.direct_predicates.length === 0 &&
       lineage.direct_citations.length === 0
@@ -253,130 +264,138 @@ export const DeviceLineageSection = ({
     router.push(`/devices/${node.id}`);
   };
 
+  if (!lineage) {
+    return null;
+  }
+
   return (
-    <Box marginBottom="24px">
-      <Heading size="md" color="brand.primary" marginBottom="12px">
-        Predicate Lineage
-      </Heading>
-      <Grid
-        templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
-        gap="12px"
-        marginBottom="12px"
-      >
-        <Box>
-          <Text color="brand.primary" fontWeight="bold">
-            Ancestors:
-          </Text>
-          <Text color="black">{lineage.ancestor_count}</Text>
-        </Box>
-        <Box>
-          <Text color="brand.primary" fontWeight="bold">
-            Descendants:
-          </Text>
-          <Text color="black">{lineage.descendant_count}</Text>
-        </Box>
-      </Grid>
-      {lineage.direct_predicates.length > 0 && (
-        <Box marginBottom="8px">
-          <Text color="brand.primary" fontWeight="bold">
-            Direct Predicates:
-          </Text>
-          <Text fontSize="xs" color="ui.textMuted" marginBottom="4px">
-            Predicate Device - This device claims substantial equivalence to the
-            following:
-          </Text>
+    <>
+      <Separator marginY="16px" />
+      <Box marginBottom="24px">
+        <Heading size="md" color="brand.primary" marginBottom="12px">
+          Predicate Lineage
+        </Heading>
+        <Grid
+          templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
+          gap="12px"
+          marginBottom="12px"
+        >
           <Box>
-            {lineage.direct_predicates.map((predicate, index) => (
-              <Box key={predicate} display="inline">
-                <Link href={`/devices/${predicate}`}>
-                  <ChakraLink
-                    color="brand.primary"
-                    textDecoration="underline"
-                    cursor="pointer"
-                    onClick={() => {
-                      posthog.capture("predicate_device_clicked", {
-                        from_device_id: device.submission_number,
-                        from_device_name: device.device_name,
-                        predicate_device_id: predicate,
-                      });
-                    }}
-                  >
-                    {predicate}
-                  </ChakraLink>
-                </Link>
-                {index < lineage.direct_predicates.length - 1 && (
-                  <Text display="inline" color="black" marginX="4px">
-                    ,
-                  </Text>
-                )}
-              </Box>
-            ))}
+            <Text color="brand.primary" fontWeight="bold">
+              Ancestors:
+            </Text>
+            <Text color="black">{lineage.ancestor_count}</Text>
           </Box>
-        </Box>
-      )}
+          <Box>
+            <Text color="brand.primary" fontWeight="bold">
+              Descendants:
+            </Text>
+            <Text color="black">{lineage.descendant_count}</Text>
+          </Box>
+        </Grid>
+        {lineage.direct_predicates.length > 0 && (
+          <Box marginBottom="8px">
+            <Text color="brand.primary" fontWeight="bold">
+              Direct Predicates:
+            </Text>
+            <Text fontSize="xs" color="ui.textMuted" marginBottom="4px">
+              Predicate Device - This device claims substantial equivalence to the
+              following:
+            </Text>
+            <Box>
+              {lineage.direct_predicates.map((predicate, index) => (
+                <Box key={predicate} display="inline">
+                  <Link href={`/devices/${predicate}`}>
+                    <ChakraLink
+                      color="brand.primary"
+                      textDecoration="underline"
+                      cursor="pointer"
+                      onClick={() => {
+                        posthog.capture("predicate_device_clicked", {
+                          from_device_id: device.submission_number,
+                          from_device_name: device.device_name,
+                          predicate_device_id: predicate,
+                        });
+                      }}
+                    >
+                      {predicate}
+                    </ChakraLink>
+                  </Link>
+                  {index < lineage.direct_predicates.length - 1 && (
+                    <Text display="inline" color="black" marginX="4px">
+                      ,
+                    </Text>
+                  )}
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        )}
 
-      {lineage.direct_predicates.length > 0 || lineage.direct_citations.length > 0 ? (
-        <Box marginTop="16px">
-          <Text color="brand.primary" fontWeight="bold" marginBottom="8px">
-            Lineage Graph:
-          </Text>
-          <Text fontSize="xs" color="ui.textMuted" marginBottom="8px">
-            Click on any device to view its details.
-          </Text>
-          <Box
-            height="400px"
-            borderWidth="1px"
-            borderColor="ui.border"
-            borderRadius="8px"
-            overflow="hidden"
-          >
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodeClick={onNodeClick}
-              nodeTypes={nodeTypes}
-              fitView
-              minZoom={0.5}
-              maxZoom={1.5}
-              translateExtent={translateExtent}
-              nodesDraggable={false}
-              proOptions={{ hideAttribution: true }}
+        {lineage.direct_predicates.length > 0 ||
+        lineage.direct_citations.length > 0 ? (
+          <Box marginTop="16px">
+            <Text color="brand.primary" fontWeight="bold" marginBottom="8px">
+              Lineage Graph:
+            </Text>
+            <Text fontSize="xs" color="ui.textMuted" marginBottom="8px">
+              Click on any device to view its details.
+            </Text>
+            <Box
+              height="400px"
+              borderWidth="1px"
+              borderColor="ui.border"
+              borderRadius="8px"
+              overflow="hidden"
             >
-              <Background />
-              <Controls />
-            </ReactFlow>
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodeClick={onNodeClick}
+                nodeTypes={nodeTypes}
+                fitView
+                minZoom={0.5}
+                maxZoom={1.5}
+                translateExtent={translateExtent}
+                nodesDraggable={false}
+                proOptions={{ hideAttribution: true }}
+              >
+                <Background />
+                <Controls />
+              </ReactFlow>
+            </Box>
           </Box>
-        </Box>
-      ) : (
-        <Box marginTop="12px">
-          <Text fontSize="sm" color="ui.textMuted">
-            no known predicate relationships
-          </Text>
-        </Box>
-      )}
+        ) : (
+          <Box marginTop="12px">
+            <Text fontSize="sm" color="ui.textMuted">
+              no known predicate relationships
+            </Text>
+          </Box>
+        )}
 
-      {lineage.pagerank !== null && (
-        <Box marginTop="12px">
-          <Text color="brand.primary" fontWeight="bold">
-            Citation Influence:
-          </Text>
-          <Text color="black">
-            {lineage.pagerank > 0.001
-              ? "Very High"
-              : lineage.pagerank > 0.0001
-                ? "High"
-                : lineage.pagerank > 0.00001
-                  ? "Moderate"
-                  : lineage.pagerank > 0.000001
-                    ? "Low"
-                    : "Minimal"}
-          </Text>
-          <Text fontSize="xs" color="ui.textMuted">
-            Based on how often this device is cited as a predicate (
-            {lineage.pagerank.toExponential(2)})
-          </Text>
-        </Box>
-      )}
-    </Box>
+        {lineage.pagerank !== null && (
+          <Box marginTop="12px">
+            <Text color="brand.primary" fontWeight="bold">
+              Citation Influence:
+            </Text>
+            <Text color="black">
+              {lineage.pagerank > 0.001
+                ? "Very High"
+                : lineage.pagerank > 0.0001
+                  ? "High"
+                  : lineage.pagerank > 0.00001
+                    ? "Moderate"
+                    : lineage.pagerank > 0.000001
+                      ? "Low"
+                      : "Minimal"}
+            </Text>
+            <Text fontSize="xs" color="ui.textMuted">
+              Based on how often this device is cited as a predicate (
+              {lineage.pagerank.toExponential(2)})
+            </Text>
+          </Box>
+        )}
+      </Box>
+    </>
   );
 };
