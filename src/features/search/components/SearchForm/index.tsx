@@ -46,10 +46,7 @@ export const SearchForm = ({
 }: SearchFormProps) => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState(initialQuery ?? "");
-  const [localBackendOptions, setLocalBackendOptions] = useState<BackendOptions>(
-    backendOptions ?? defaultBackendOptions,
-  );
-  const effectiveBackendOptions = localBackendOptions;
+  const effectiveBackendOptions = backendOptions ?? defaultBackendOptions;
 
   useEffect(() => {
     if (initialQuery !== undefined) setSearchTerm(initialQuery);
@@ -145,7 +142,6 @@ export const SearchForm = ({
   }
 
   function handleBackendOptionsChange(nextOptions: BackendOptions) {
-    setLocalBackendOptions(nextOptions);
     onBackendOptionsChange?.(nextOptions);
   }
 
