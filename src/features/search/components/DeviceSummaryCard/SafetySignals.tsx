@@ -17,12 +17,12 @@ const TOOLTIP_PROPS = {
 };
 
 const RED_BADGE_STYLES = {
-  color: "red.600",
+  color: "status.badgeRed",
   borderColor: "red.600",
 };
 
 const ORANGE_BADGE_STYLES = {
-  color: "orange.600",
+  color: "status.badgeOrange",
   borderColor: "orange.600",
 };
 
@@ -80,7 +80,9 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
             cursor="help"
             padding="0 0.25rem"
             fontWeight="600"
-            {...(device.adverseEvents! >= 100 ? RED_BADGE_STYLES : ORANGE_BADGE_STYLES)}
+            {...(device.adverseEvents! >= 100
+              ? RED_BADGE_STYLES
+              : ORANGE_BADGE_STYLES)}
           >
             {device.adverseEvents?.toLocaleString()} adverse events
           </Badge>
