@@ -91,7 +91,13 @@ export const SnippetPreview = ({
       >
         {searchQuery ? (
           <Highlighter
-            searchWords={searchQuery.split(/\s+/)}
+            searchWords={
+              searchQuery.split(/\s+/).filter(word => {
+                const lower = word.toLowerCase();
+                const excluded = ["and", "or", "not"];
+                return lower.length > 1 && !excluded.includes(lower)}
+              )
+            }
             autoEscape
             textToHighlight={displaySnippet}
             highlightStyle={HIGHLIGHT_STYLE}

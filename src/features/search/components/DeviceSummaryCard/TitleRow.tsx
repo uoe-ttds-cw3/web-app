@@ -68,7 +68,13 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
         <Link href={`/devices/${device.id}`}>
           {searchQuery ? (
             <Highlighter
-              searchWords={searchQuery.split(/\s+/)}
+              searchWords={
+              searchQuery.split(/\s+/).filter(word => {
+                const lower = word.toLowerCase();
+                const excluded = ["and", "or", "not"];
+                return lower.length > 1 && !excluded.includes(lower)}
+              )
+            }
               autoEscape
               textToHighlight={device.name}
               highlightStyle={HIGHLIGHT_STYLE}
