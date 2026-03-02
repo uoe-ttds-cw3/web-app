@@ -1,4 +1,4 @@
-import { Badge, Box, HStack, Icon, Text } from "@chakra-ui/react";
+import { Badge, Button, HStack, Icon, Text } from "@chakra-ui/react";
 import { LuInfo } from "react-icons/lu";
 import { Tooltip } from "@/components/ui/Tooltip";
 import type { Device } from "@/lib/api/types";
@@ -46,16 +46,24 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
         openDelay={200}
         contentProps={TOOLTIP_PROPS}
       >
-        <Box
+        <Button
+          type="button"
           color="ui.textMuted"
           cursor="help"
           display="inline-flex"
           alignItems="center"
           justifyContent="center"
+          bg="transparent"
+          minW="unset"
+          minH="unset"
+          height="auto"
+          p="0"
+          _hover={{ bg: "transparent", color: "ui.text" }}
+          _active={{ bg: "transparent" }}
           aria-label="How safety signals are calculated"
         >
           <Icon as={LuInfo} boxSize="3.5" />
-        </Box>
+        </Button>
       </Tooltip>
       {hasAdverseEvents && (
         <Tooltip
@@ -71,6 +79,7 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
             flexShrink={0}
             cursor="help"
             padding="0 0.25rem"
+            fontWeight="600"
             {...(device.adverseEvents! >= 100 ? RED_BADGE_STYLES : ORANGE_BADGE_STYLES)}
           >
             {device.adverseEvents?.toLocaleString()} adverse events
@@ -91,6 +100,7 @@ export const SafetySignals = ({ device }: SafetySignalsProps) => {
             flexShrink={0}
             cursor="help"
             padding="0 0.25rem"
+            fontWeight="600"
             {...RED_BADGE_STYLES}
           >
             {device.recalls} recall{device.recalls === 1 ? "" : "s"}

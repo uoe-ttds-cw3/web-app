@@ -15,6 +15,12 @@ const TOOLTIP_PROPS = {
   borderRadius: "md",
 };
 
+const FEATURE_BADGE_STYLES = {
+  color: "gray.700",
+  borderColor: "gray.500",
+  fontWeight: "600",
+};
+
 export const FeatureBadges = ({ device }: FeatureBadgesProps) => {
   const hasFeatureBadges =
     device.hasClinicalData ||
@@ -48,6 +54,7 @@ export const FeatureBadges = ({ device }: FeatureBadgesProps) => {
               fontSize="xs"
               cursor="help"
               padding="0 0.25rem"
+              {...FEATURE_BADGE_STYLES}
             >
               {feature.label}
             </Badge>

@@ -17,6 +17,7 @@ const OptionPill = ({
     <Button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       px="8px"
       py="3px"
       minH="unset"

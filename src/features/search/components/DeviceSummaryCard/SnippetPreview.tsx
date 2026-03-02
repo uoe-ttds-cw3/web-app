@@ -1,4 +1,4 @@
-import { Box, HStack, Icon, Text } from "@chakra-ui/react";
+import { Box, Button, HStack, Icon, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Highlighter from "react-highlight-words";
@@ -64,16 +64,24 @@ export const SnippetPreview = ({
           openDelay={200}
           contentProps={TOOLTIP_PROPS}
         >
-          <Box
+          <Button
+            type="button"
             color="ui.textMuted"
             cursor="help"
             display="inline-flex"
             alignItems="center"
             justifyContent="center"
+            bg="transparent"
+            minW="unset"
+            minH="unset"
+            height="auto"
+            p="0"
+            _hover={{ bg: "transparent", color: "ui.text" }}
+            _active={{ bg: "transparent" }}
             aria-label="How the excerpt is chosen"
           >
             <Icon as={LuInfo} boxSize="3.5" />
-          </Box>
+          </Button>
         </Tooltip>
       </HStack>
       <Box
