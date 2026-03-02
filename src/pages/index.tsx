@@ -38,9 +38,10 @@ export default function Home() {
   const useStemming = router.query.use_stemming !== "false"; // default true
   const useHybrid = router.query.use_hybrid !== "false"; // default true
 
-  let page = Number(router.query.page) || 1;
+  //let page = Number(router.query.page) || 0;
+  const page = Number(router.query.page)
   const pageSize = Number(router.query.page_size) || 10;
-  const offset = (page - 1) * pageSize;
+  const offset = Math.max((page - 1) * pageSize, 0);
   const sortBy = (router.query.sort_by as string) || undefined;
   const snapshotCutoff = (router.query.snapshot_cutoff as string) || undefined;
 
@@ -110,6 +111,17 @@ export default function Home() {
       window.location.replace(`${window.location.pathname}?${params.toString()}`);
     }
   }, [page, totalPages]);
+
+  useEffect(() => {
+    if (totalPages > 0 && page < 1) {
+      const params = new URLSearchParams(window.location.search);
+      const one = Number(1);
+      params.set('page', one.toString());
+      window.location.replace(`${window.location.pathname}?${params.toString()}`);
+    }
+  }, [page, totalPages]);
+
+  
 
   useEffect(() => {
     if (error) {
