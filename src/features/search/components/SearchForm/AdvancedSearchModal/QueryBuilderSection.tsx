@@ -1,4 +1,4 @@
-import { Box, Input, NativeSelect, Text } from "@chakra-ui/react";
+import { Box, Button, Input, NativeSelect, Text } from "@chakra-ui/react";
 import { FaPlus, FaSearch, FaTimes } from "react-icons/fa";
 import type { Joiner, Operator, QueryRow } from "./types";
 
@@ -38,38 +38,42 @@ export const QueryBuilderSection = ({
               border="1px solid"
               borderColor="ui.borderLight"
             >
-              <Box
-                as="button"
+              <Button
                 type="button"
                 px="10px"
                 py="2px"
+                minH="unset"
+                height="auto"
+                minW="unset"
                 fontSize="xs"
                 fontWeight="600"
-                cursor="pointer"
                 bg={joiners[index - 1] === "AND" ? "brand.accentBg" : "transparent"}
                 color={
                   joiners[index - 1] === "AND" ? "brand.primary" : "ui.textMuted"
                 }
+                borderRadius="0"
                 onClick={() => onToggleJoiner(index - 1)}
               >
                 AND
-              </Box>
-              <Box
-                as="button"
+              </Button>
+              <Button
                 type="button"
                 px="10px"
                 py="2px"
+                minH="unset"
+                height="auto"
+                minW="unset"
                 fontSize="xs"
                 fontWeight="600"
-                cursor="pointer"
                 bg={joiners[index - 1] === "OR" ? "brand.accentBg" : "transparent"}
                 color={
                   joiners[index - 1] === "OR" ? "brand.primary" : "ui.textMuted"
                 }
+                borderRadius="0"
                 onClick={() => onToggleJoiner(index - 1)}
               >
                 OR
-              </Box>
+              </Button>
             </Box>
           </Box>
         )}
@@ -153,25 +157,28 @@ export const QueryBuilderSection = ({
             </>
           )}
 
-          <Box
-            as="button"
+          <Button
             type="button"
             onClick={() => onRemoveRow(row.id)}
-            cursor={rows.length > 1 ? "pointer" : "not-allowed"}
+            minH="unset"
+            height="auto"
+            minW="unset"
             opacity={rows.length > 1 ? 1 : 0.3}
             _hover={rows.length > 1 ? { opacity: 0.7 } : {}}
             display="flex"
             alignItems="center"
             flexShrink={0}
+            p="0"
+            bg="transparent"
+            disabled={rows.length <= 1}
           >
             <FaTimes size={12} color="#999" />
-          </Box>
+          </Button>
         </Box>
       </Box>
     ))}
 
-    <Box
-      as="button"
+    <Button
       type="button"
       onClick={onAddRow}
       display="flex"
@@ -179,14 +186,19 @@ export const QueryBuilderSection = ({
       gap="4px"
       mt="8px"
       mb="12px"
-      cursor="pointer"
       color="brand.primary"
       fontSize="xs"
+      fontWeight="normal"
+      minH="unset"
+      height="auto"
+      minW="unset"
+      p="0"
+      bg="transparent"
       _hover={{ opacity: 0.8 }}
     >
       <FaPlus size={10} />
       <Text fontSize="xs">Add condition</Text>
-    </Box>
+    </Button>
 
     {queryPreview && (
       <Box
@@ -211,8 +223,7 @@ export const QueryBuilderSection = ({
       </Box>
     )}
 
-    <Box
-      as="button"
+    <Button
       type="button"
       onClick={onRunSearch}
       display="flex"
@@ -224,14 +235,14 @@ export const QueryBuilderSection = ({
       borderRadius="6px"
       bg={queryPreview ? "brand.primary" : "ui.borderLight"}
       color={queryPreview ? "white" : "ui.textMuted"}
-      cursor={queryPreview ? "pointer" : "not-allowed"}
       fontSize="sm"
       fontWeight="600"
       _hover={queryPreview ? { opacity: 0.9 } : {}}
       transition="all 0.15s"
+      disabled={!queryPreview}
     >
       <FaSearch size={12} />
       Run advanced search
-    </Box>
+    </Button>
   </Box>
 );
