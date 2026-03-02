@@ -1,4 +1,4 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Button, Text } from "@chakra-ui/react";
 import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import posthog from "posthog-js";
@@ -176,16 +176,20 @@ export const AdvancedSearchPanel = ({
           <Text fontWeight="600" fontSize="sm" color="brand.primary">
             Advanced query builder
           </Text>
-          <Box
-            as="button"
+          <Button
+            type="button"
             onClick={onClose}
-            cursor="pointer"
             _hover={{ opacity: 0.7 }}
             display="flex"
             alignItems="center"
+            minH="unset"
+            height="auto"
+            minW="unset"
+            p="0"
+            bg="transparent"
           >
             <FaTimes size={14} color="#666" />
-          </Box>
+          </Button>
         </Box>
 
         <QueryBuilderSection

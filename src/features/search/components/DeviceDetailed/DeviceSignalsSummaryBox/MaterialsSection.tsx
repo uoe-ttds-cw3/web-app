@@ -1,4 +1,4 @@
-import { Badge, Box, HStack, Icon, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, HStack, Icon, Text } from "@chakra-ui/react";
 import { LuInfo } from "react-icons/lu";
 import { Tooltip } from "@/components/ui/Tooltip";
 import type { DeviceLookupResponse } from "@/lib/api/types";
@@ -36,16 +36,24 @@ export const MaterialsSection = ({ device }: MaterialsSectionProps) => {
           openDelay={200}
           contentProps={TOOLTIP_PROPS}
         >
-          <Box
+          <Button
+            type="button"
             color="ui.textMuted"
             cursor="help"
             display="inline-flex"
             alignItems="center"
             justifyContent="center"
+            bg="transparent"
+            minW="unset"
+            minH="unset"
+            height="auto"
+            p="0"
+            _hover={{ bg: "transparent", color: "ui.text" }}
+            _active={{ bg: "transparent" }}
             aria-label="How materials are extracted"
           >
             <Icon as={LuInfo} boxSize="3.5" />
-          </Box>
+          </Button>
         </Tooltip>
       </HStack>
       <HStack gap="2" flexWrap="wrap" alignItems="center">

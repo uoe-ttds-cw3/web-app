@@ -1,4 +1,5 @@
 import { Box, NativeSelect, Text } from "@chakra-ui/react";
+import { useId } from "react";
 
 export type ShowControlProps = {
   pageSize: number;
@@ -9,13 +10,22 @@ export const ShowControl = ({
   pageSize,
   onPageSizeChange,
 }: ShowControlProps) => {
+  const selectId = useId();
+
   return (
     <Box display="flex" alignItems="center" gap="2">
-      <Text fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">
+      <Text
+        as="label"
+        htmlFor={selectId}
+        fontSize="sm"
+        color="ui.textMuted"
+        whiteSpace="nowrap"
+      >
         Show:
       </Text>
       <NativeSelect.Root size="sm" width="72px">
         <NativeSelect.Field
+          id={selectId}
           value={String(pageSize)}
           onChange={(e) => onPageSizeChange(Number(e.currentTarget.value))}
           bg="ui.surface"

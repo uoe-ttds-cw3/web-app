@@ -1,3 +1,4 @@
+import type { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useSyncExternalStore } from "react";
 import posthog from "posthog-js";
@@ -10,6 +11,7 @@ import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { FiltersSidebar } from "@/features/search/components/ResultsControls/FiltersSidebar";
 import { ResultsControls } from "@/features/search/components/ResultsControls";
 import { StartSearching } from "@/features/search/components/StartSearching";
+import { pickRandomSuggestions } from "@/features/search/components/StartSearching/suggestions";
 import { Stack, Text, Box, Spinner, Alert } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { transformSearchResult } from "@/lib/api/types";
@@ -22,7 +24,11 @@ import { LANGUAGE_NOT_SUPPORTED } from "@/constants/error-codes";
 const subscribe = () => () => {};
 const SEARCH_CONTENT_MAX_W = "1000px";
 
-export default function Home() {
+type HomeProps = {
+  startSuggestions: string[];
+};
+
+export default function Home({ startSuggestions }: HomeProps) {
   const router = useRouter();
   const query = (router.query.q as string) || "";
   const panel = (router.query.panel as string) || undefined;
@@ -281,7 +287,7 @@ export default function Home() {
   return (
     <div>
       {!query && results.length === 0 && (
-        <StartSearching onSuggest={handleSearch} />
+        <StartSearching onSuggest={handleSearch} suggestions={startSuggestions} />
       )}
 
       {isLoading && (
@@ -403,3 +409,9 @@ export default function Home() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<HomeProps> = async () => ({
+  props: {
+    startSuggestions: pickRandomSuggestions(),
+  },
+});

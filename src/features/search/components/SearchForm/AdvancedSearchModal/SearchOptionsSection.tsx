@@ -1,4 +1,4 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Button, Text } from "@chakra-ui/react";
 import type { BackendOptions } from "@/lib/api/types";
 import { Tooltip } from "@/components/ui/Tooltip";
 
@@ -14,24 +14,28 @@ const OptionPill = ({
   tooltip?: string;
 }) => {
   const pill = (
-    <Box
-      as="button"
+    <Button
+      type="button"
       onClick={onClick}
+      aria-pressed={active}
       px="8px"
       py="3px"
+      minH="unset"
+      height="auto"
+      minW="unset"
       borderRadius="12px"
       fontSize="xs"
-      cursor="pointer"
       bg={active ? "brand.accentBg" : "transparent"}
       color={active ? "brand.primary" : "ui.textMuted"}
       border="1px solid"
       borderColor={active ? "brand.primary" : "ui.borderLight"}
       transition="all 0.15s"
+      fontWeight="normal"
       _hover={{ opacity: 0.8 }}
       whiteSpace="nowrap"
     >
       {label}
-    </Box>
+    </Button>
   );
 
   return tooltip ? (

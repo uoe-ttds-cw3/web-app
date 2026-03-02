@@ -1,4 +1,5 @@
 import { Box, NativeSelect, Text } from "@chakra-ui/react";
+import { useId } from "react";
 
 export type SortControlProps = {
   sortBy?: string;
@@ -6,13 +7,22 @@ export type SortControlProps = {
 };
 
 export const SortControl = ({ sortBy, onSortChange }: SortControlProps) => {
+  const selectId = useId();
+
   return (
     <Box display="flex" alignItems="center" gap="2">
-      <Text fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">
+      <Text
+        as="label"
+        htmlFor={selectId}
+        fontSize="sm"
+        color="ui.textMuted"
+        whiteSpace="nowrap"
+      >
         Sort:
       </Text>
       <NativeSelect.Root size="sm" width={{ base: "148px", md: "172px" }}>
         <NativeSelect.Field
+          id={selectId}
           value={sortBy || ""}
           onChange={(e) => onSortChange(e.currentTarget.value)}
           bg="ui.surface"

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import {
   Badge,
   Box,
@@ -15,6 +15,7 @@ export type SearchDetailsModalProps = {
 
 export const SearchDetailsModal = ({ debugInfo }: SearchDetailsModalProps) => {
   const [open, setOpen] = useState(false);
+  const titleId = useId();
 
   if (!debugInfo) {
     return null;
@@ -60,21 +61,29 @@ export const SearchDetailsModal = ({ debugInfo }: SearchDetailsModalProps) => {
 
   return (
     <>
-      <Box
-        as="button"
+      <Button
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
         display="inline-flex"
         alignItems="center"
+        minW="unset"
+        minH="unset"
+        height="auto"
+        p="0"
         fontSize="xs"
         color="ui.textMuted"
-        cursor="pointer"
+        bg="transparent"
+        fontWeight="normal"
         lineHeight="1"
         textDecoration="underline"
         textUnderlineOffset="2px"
-        _hover={{ color: "brand.primary" }}
+        _hover={{ bg: "transparent", color: "brand.primary" }}
+        _active={{ bg: "transparent" }}
         onClick={() => setOpen(true)}
       >
         Why these results?
-      </Box>
+      </Button>
 
       {open && (
         <Portal>
@@ -89,6 +98,9 @@ export const SearchDetailsModal = ({ debugInfo }: SearchDetailsModalProps) => {
               position="absolute"
               top="50%"
               left="50%"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={titleId}
               transform="translate(-50%, -50%)"
               width={{ base: "calc(100% - 2rem)", md: "720px" }}
               maxWidth="720px"
@@ -108,7 +120,12 @@ export const SearchDetailsModal = ({ debugInfo }: SearchDetailsModalProps) => {
                 marginBottom="4"
                 gap="3"
               >
-                <Text fontSize="md" fontWeight="semibold" color="ui.text">
+                <Text
+                  id={titleId}
+                  fontSize="md"
+                  fontWeight="semibold"
+                  color="ui.text"
+                >
                   Search details
                 </Text>
                 <Button

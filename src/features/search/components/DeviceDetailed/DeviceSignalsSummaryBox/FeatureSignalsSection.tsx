@@ -1,4 +1,4 @@
-import { Badge, Box, HStack, Icon, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, HStack, Icon, Text } from "@chakra-ui/react";
 import { LuInfo } from "react-icons/lu";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { FEATURE_SIGNAL_CONFIG } from "@/features/search/components/DeviceShared/featureSignalConfig";
@@ -40,16 +40,24 @@ export const FeatureSignalsSection = ({
           openDelay={200}
           contentProps={TOOLTIP_PROPS}
         >
-          <Box
+          <Button
+            type="button"
             color="ui.textMuted"
             cursor="help"
             display="inline-flex"
             alignItems="center"
             justifyContent="center"
+            bg="transparent"
+            minW="unset"
+            minH="unset"
+            height="auto"
+            p="0"
+            _hover={{ bg: "transparent", color: "ui.text" }}
+            _active={{ bg: "transparent" }}
             aria-label="How feature signals are detected"
           >
             <Icon as={LuInfo} boxSize="3.5" />
-          </Box>
+          </Button>
         </Tooltip>
       </HStack>
       <HStack gap="2" flexWrap="wrap" alignItems="center">
@@ -72,6 +80,9 @@ export const FeatureSignalsSection = ({
                 fontSize="xs"
                 cursor="help"
                 padding="0 0.25rem"
+                color="gray.700"
+                borderColor="gray.500"
+                fontWeight="600"
               >
                 {feature.label}
               </Badge>
