@@ -34,7 +34,7 @@ export const PaginationControls = ({
         Previous
       </Button>
       <Box display="flex" gap="1" alignItems="center">
-        {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
+        {Array.from({ length: totalPages }, (_, i) => {
           const pageNum = i + 1;
           const showPage =
             pageNum <= 3 ||
