@@ -178,6 +178,7 @@ export const AdvancedSearchPanel = ({
           </Text>
           <Box
             as="button"
+            type="button"
             onClick={onClose}
             cursor="pointer"
             _hover={{ opacity: 0.7 }}

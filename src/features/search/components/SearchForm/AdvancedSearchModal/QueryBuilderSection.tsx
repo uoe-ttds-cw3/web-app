@@ -40,6 +40,7 @@ export const QueryBuilderSection = ({
             >
               <Box
                 as="button"
+                type="button"
                 px="10px"
                 py="2px"
                 fontSize="xs"
@@ -55,6 +56,7 @@ export const QueryBuilderSection = ({
               </Box>
               <Box
                 as="button"
+                type="button"
                 px="10px"
                 py="2px"
                 fontSize="xs"
@@ -153,6 +155,7 @@ export const QueryBuilderSection = ({
 
           <Box
             as="button"
+            type="button"
             onClick={() => onRemoveRow(row.id)}
             cursor={rows.length > 1 ? "pointer" : "not-allowed"}
             opacity={rows.length > 1 ? 1 : 0.3}
@@ -169,6 +172,7 @@ export const QueryBuilderSection = ({
 
     <Box
       as="button"
+      type="button"
       onClick={onAddRow}
       display="flex"
       alignItems="center"
@@ -209,6 +213,7 @@ export const QueryBuilderSection = ({
 
     <Box
       as="button"
+      type="button"
       onClick={onRunSearch}
       display="flex"
       alignItems="center"

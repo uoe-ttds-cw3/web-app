@@ -16,6 +16,7 @@ const OptionPill = ({
   const pill = (
     <Box
       as="button"
+      type="button"
       onClick={onClick}
       px="8px"
       py="3px"
