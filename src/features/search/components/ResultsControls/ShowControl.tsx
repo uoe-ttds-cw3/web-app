@@ -14,13 +14,7 @@ export const ShowControl = ({
 
   return (
     <Box display="flex" alignItems="center" gap="2">
-      <Text
-        as="label"
-        htmlFor={selectId}
-        fontSize="sm"
-        color="ui.textMuted"
-        whiteSpace="nowrap"
-      >
+      <Text as="label" fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">
         Show:
       </Text>
       <NativeSelect.Root size="sm" width="72px">
