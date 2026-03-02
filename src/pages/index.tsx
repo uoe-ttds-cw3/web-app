@@ -101,7 +101,15 @@ export default function Home() {
 
   const results = data?.results.map(transformSearchResult) ?? [];
   const totalPages = data ? Math.ceil(data.total_results / pageSize) : 0;
-  page = Math.max(Math.min(page, totalPages), 1);
+  //page = Math.max(Math.min(page, totalPages), 1);
+
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) {
+      const params = new URLSearchParams(window.location.search);
+      params.set('page', totalPages.toString());
+      window.location.replace(`${window.location.pathname}?${params.toString()}`);
+    }
+  }, [page, totalPages]);
 
   useEffect(() => {
     if (error) {
