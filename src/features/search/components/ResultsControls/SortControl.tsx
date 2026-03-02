@@ -11,13 +11,7 @@ export const SortControl = ({ sortBy, onSortChange }: SortControlProps) => {
 
   return (
     <Box display="flex" alignItems="center" gap="2">
-      <Text
-        as="label"
-        htmlFor={selectId}
-        fontSize="sm"
-        color="ui.textMuted"
-        whiteSpace="nowrap"
-      >
+      <Text as="label" fontSize="sm" color="ui.textMuted" whiteSpace="nowrap">
         Sort:
       </Text>
       <NativeSelect.Root size="sm" width={{ base: "148px", md: "172px" }}>
