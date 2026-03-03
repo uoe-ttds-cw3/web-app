@@ -39,7 +39,7 @@ export default function Home() {
   const useHybrid = router.query.use_hybrid !== "false"; // default true
 
   //let page = Number(router.query.page) || 0;
-  const page = Number(router.query.page)
+  const page = Number(router.query.page) || 1;
   const pageSize = Number(router.query.page_size) || 10;
   const offset = Math.max((page - 1) * pageSize, 0);
   const sortBy = (router.query.sort_by as string) || undefined;
@@ -101,7 +101,8 @@ export default function Home() {
   });
 
   const results = data?.results.map(transformSearchResult) ?? [];
-  const totalPages = data ? Math.ceil(data.total_results / pageSize) : 0;
+  //limit pages to 500 results
+  const totalPages = data ? Math.min(Math.ceil(data.total_results / pageSize), Math.ceil(500/pageSize)) : 0;
   //page = Math.max(Math.min(page, totalPages), 1);
 
   useEffect(() => {
