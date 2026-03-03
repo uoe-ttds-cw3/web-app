@@ -1,7 +1,7 @@
 import { Input, Box, Text, Link, Icon, IconButton } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { FaSearch, FaFilter } from "react-icons/fa";
+import { FaSearch, FaFilter, FaTimes } from "react-icons/fa";
 import posthog from "posthog-js";
 import { FilterMenu, type QuickFilters } from "./FilterMenu";
 import { AdvancedSearchPanel } from "./AdvancedSearchModal";
@@ -196,7 +196,7 @@ export const SearchForm = ({
             backgroundColor="ui.background"
             borderRadius="8px"
             paddingLeft="16px"
-            paddingRight="16px"
+            paddingRight="8px"
             border="1px solid"
             borderColor="ui.borderLight"
           >
@@ -224,6 +224,21 @@ export const SearchForm = ({
                 setSearchFocused(false);
               }}
             />
+            {(searchFocused && searchTerm.length > 0) && (
+              <IconButton
+                aria-label="Clear search"
+                variant="ghost"
+                size="sm"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setSearchTerm("");
+                }}
+                color="brand.primary"
+                flexShrink={0}
+                >
+                <FaTimes />
+              </IconButton>
+            )}
           </Box>
 
           <Box position="relative" flexShrink={0}>
