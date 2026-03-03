@@ -71,7 +71,7 @@ export interface QueryDebugInfo {
 
   // query transformation transparency
   removed_stopwords: string[];
-  query_transformations: Array<{ original: string; stemmed: string }>;
+  query_transformations: Array<{ original: string; processed: string }>;
 }
 
 export interface FacetValue {

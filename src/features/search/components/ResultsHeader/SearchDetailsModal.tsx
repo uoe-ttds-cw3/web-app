@@ -176,7 +176,7 @@ export const SearchDetailsModal = ({ debugInfo }: SearchDetailsModalProps) => {
                     <Box color="ui.textMuted" fontSize="xs">
                       {debugInfo.query_transformations.map((t, i) => (
                         <Text key={i} display="inline" marginRight="3">
-                          {t.original} → {t.stemmed}
+                          {t.original} → {t.processed}
                         </Text>
                       ))}
                     </Box>
