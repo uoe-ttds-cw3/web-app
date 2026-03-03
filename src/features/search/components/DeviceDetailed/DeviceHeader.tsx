@@ -16,10 +16,7 @@ export type DeviceHeaderProps = {
   deviceSafety: DeviceSafetyData | null;
 };
 
-export const DeviceHeader = ({
-  device,
-  deviceSafety,
-}: DeviceHeaderProps) => {
+export const DeviceHeader = ({ device, deviceSafety }: DeviceHeaderProps) => {
   let yearpart = "";
 
   if (device.date_received) {
@@ -88,7 +85,7 @@ export const DeviceHeader = ({
       </Box>
       {deviceSafety?.brand_names && deviceSafety.brand_names.length > 0 && (
         <Box marginBottom="8px">
-          <Text fontSize="sm" color="ui.textSubtle" display="inline">
+          <Text fontSize="sm" color="ui.textMuted" display="inline">
             Also known as:{" "}
           </Text>
           <Text

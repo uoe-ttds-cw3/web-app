@@ -18,6 +18,8 @@ export const semanticTokens = {
       safe: { value: "#266429" },
       warning: { value: "#856404" }, // wcag aa compliant
       danger: { value: "#C53030" }, // wcag aa compliant
+      badgeRed: { value: "#E00106"},
+      badgeOrange: { value:"#CC3D13"},
     },
   },
 };

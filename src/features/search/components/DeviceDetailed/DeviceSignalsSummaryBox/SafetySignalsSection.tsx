@@ -13,12 +13,12 @@ const TOOLTIP_PROPS = {
 };
 
 const RED_BADGE_STYLES = {
-  color: "red.600",
+  color: "status.badgeRed",
   borderColor: "red.600",
 };
 
 const ORANGE_BADGE_STYLES = {
-  color: "orange.600",
+  color: "status.badgeOrange",
   borderColor: "orange.600",
 };
 

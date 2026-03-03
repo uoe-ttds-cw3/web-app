@@ -7,3 +7,4 @@ This web app uses Next.js, Chakra UI.
 To run locally use:
 
 - `npm run dev`
+
