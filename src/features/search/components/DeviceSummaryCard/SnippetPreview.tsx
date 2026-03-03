@@ -94,7 +94,7 @@ export const SnippetPreview = ({
             searchWords={
               searchQuery.split(/\s+/).filter(word => {
                 const lower = word.toLowerCase();
-                const excluded = ["and", "or", "not"];
+                const excluded = ["and", "or", "not", "near"];
                 return lower.length > 1 && !excluded.includes(lower)}
               )
             }
