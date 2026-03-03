@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import {
   Badge,
   Box,
@@ -16,6 +16,23 @@ export type SearchDetailsModalProps = {
 export const SearchDetailsModal = ({ debugInfo }: SearchDetailsModalProps) => {
   const [open, setOpen] = useState(false);
   const titleId = useId();
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
 
   if (!debugInfo) {
     return null;
