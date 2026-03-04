@@ -10,6 +10,7 @@ import { PaginationControls } from "@/features/search/components/PaginationContr
 import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { FiltersSidebar } from "@/features/search/components/ResultsControls/FiltersSidebar";
 import { ResultsControls } from "@/features/search/components/ResultsControls";
+import { SearchErrorBanner } from "@/features/search/components/SearchErrorBanner";
 import { StartSearching } from "@/features/search/components/StartSearching";
 import { pickRandomSuggestions } from "@/features/search/components/StartSearching/suggestions";
 import { Stack, Text, Box, Spinner, Alert } from "@chakra-ui/react";
@@ -108,15 +109,23 @@ export default function Home({ startSuggestions }: HomeProps) {
   });
 
   const results = data?.results.map(transformSearchResult) ?? [];
+  const showSearchErrorBanner = Boolean(query) && Boolean(error);
   //limit pages to 500 results
-  const totalPages = data ? Math.min(Math.ceil(data.total_results / pageSize), Math.ceil(500/pageSize)) : 0;
+  const totalPages = data
+    ? Math.min(
+        Math.ceil(data.total_results / pageSize),
+        Math.ceil(500 / pageSize),
+      )
+    : 0;
   //page = Math.max(Math.min(page, totalPages), 1);
 
   useEffect(() => {
     if (totalPages > 0 && page > totalPages) {
       const params = new URLSearchParams(window.location.search);
-      params.set('page', totalPages.toString());
-      window.location.replace(`${window.location.pathname}?${params.toString()}`);
+      params.set("page", totalPages.toString());
+      window.location.replace(
+        `${window.location.pathname}?${params.toString()}`,
+      );
     }
   }, [page, totalPages]);
 
@@ -124,12 +133,12 @@ export default function Home({ startSuggestions }: HomeProps) {
     if (totalPages > 0 && page < 1) {
       const params = new URLSearchParams(window.location.search);
       const one = Number(1);
-      params.set('page', one.toString());
-      window.location.replace(`${window.location.pathname}?${params.toString()}`);
+      params.set("page", one.toString());
+      window.location.replace(
+        `${window.location.pathname}?${params.toString()}`,
+      );
     }
   }, [page, totalPages]);
-
-  
 
   useEffect(() => {
     if (error) {
@@ -171,6 +180,7 @@ export default function Home({ startSuggestions }: HomeProps) {
     const submissionTag = tags?.find(
       (tag) => tag.type === "Submission No." && tag.value,
     );
+
     if (submissionTag) {
       router.push(
         buildDeviceDetailsHref(
@@ -313,8 +323,11 @@ export default function Home({ startSuggestions }: HomeProps) {
 
   return (
     <div>
-      {!query && results.length === 0 && (
-        <StartSearching onSuggest={handleSearch} suggestions={startSuggestions} />
+      {!query && results.length === 0 && !showSearchErrorBanner && (
+        <StartSearching
+          onSuggest={handleSearch}
+          suggestions={startSuggestions}
+        />
       )}
 
       {isLoading && (
@@ -329,6 +342,30 @@ export default function Home({ startSuggestions }: HomeProps) {
           <Text color="brand.primary" marginTop="16px" fontSize="lg">
             Searching...
           </Text>
+        </Box>
+      )}
+
+      {showSearchErrorBanner && (
+        <Box
+          margin="0 auto"
+          maxW={SEARCH_CONTENT_MAX_W}
+          px={{ base: "4", md: "5", lg: "6" }}
+        >
+          <Box minH="100vh" pt="0" pb={{ base: "2", md: "4" }}>
+            <Stack gap="5">
+              <SearchErrorBanner
+                onRetry={() =>
+                  router.replace(router.asPath, undefined, { shallow: true })
+                }
+              />
+
+              <StartSearching
+                onSuggest={handleSearch}
+                suggestions={startSuggestions}
+                compact
+              />
+            </Stack>
+          </Box>
         </Box>
       )}
 
