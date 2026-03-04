@@ -14,6 +14,7 @@ import { StartSearching } from "@/features/search/components/StartSearching";
 import { pickRandomSuggestions } from "@/features/search/components/StartSearching/suggestions";
 import { Stack, Text, Box, Spinner, Alert } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
+import { buildDeviceDetailsHref, getSearchResultsHref } from "@/lib/navigation";
 import { transformSearchResult } from "@/lib/api/types";
 import type { BackendOptions, Device, ExpansionInfo } from "@/lib/api/types";
 import { toaster } from "@/components/ui/Toaster";
@@ -150,7 +151,12 @@ export default function Home({ startSuggestions }: HomeProps) {
       (tag) => tag.type === "Submission No." && tag.value,
     );
     if (submissionTag) {
-      router.push(`/devices/${submissionTag.value.toUpperCase()}`);
+      router.push(
+        buildDeviceDetailsHref(
+          submissionTag.value.toUpperCase(),
+          getSearchResultsHref(router.asPath),
+        ),
+      );
       return;
     }
 

@@ -1,7 +1,9 @@
 import { Box, HStack, Text } from "@chakra-ui/react";
 import Highlighter from "react-highlight-words";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { buildDeviceDetailsHref, getSearchResultsHref } from "@/lib/navigation";
 import type { Device } from "@/lib/api/types";
 
 export type TitleRowProps = {
@@ -42,6 +44,11 @@ const MATCH_CONTEXT_TOOLTIPS: Record<string, string> = {
 };
 
 export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
+  const router = useRouter();
+  const deviceHref = buildDeviceDetailsHref(
+    device.id,
+    getSearchResultsHref(router.asPath),
+  );
   const showSourceInfo = device.matchReason || device.retrievalSource;
 
   const retrievalConfig = device.retrievalSource
@@ -65,7 +72,7 @@ export const TitleRow = ({ device, searchQuery = "" }: TitleRowProps) => {
         lineClamp={2}
         cursor="pointer"
       >
-        <Link href={`/devices/${device.id}`}>
+        <Link href={deviceHref}>
           {searchQuery ? (
             <Highlighter
               searchWords={searchQuery.split(/\s+/)}

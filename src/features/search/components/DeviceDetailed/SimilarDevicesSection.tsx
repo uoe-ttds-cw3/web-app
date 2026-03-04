@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { useRouter } from "next/router";
 import posthog from "posthog-js";
 import { RelatedDevicesSection } from "./RelatedDevicesSection";
+import { buildDeviceDetailsHref, getSearchResultsHref } from "@/lib/navigation";
 import { useSearch } from "@/lib/queries/useSearch";
 import type { DeviceLookupResponse } from "@/lib/api/types";
 
@@ -12,6 +13,7 @@ export type SimilarDevicesSectionProps = {
 
 export const SimilarDevicesSection = ({ device }: SimilarDevicesSectionProps) => {
   const router = useRouter();
+  const searchResultsHref = getSearchResultsHref(router.query.returnTo);
   const { data: similarDevices, isLoading } = useSearch(device.device_name || "", {
     limit: 6,
     product_code: device.product_code || undefined,
@@ -48,7 +50,12 @@ export const SimilarDevicesSection = ({ device }: SimilarDevicesSectionProps) =>
             to_device_name: relatedDevice.device_name,
             product_code: device.product_code,
           });
-          router.push(`/devices/${relatedDevice.submission_number}`);
+          router.push(
+            buildDeviceDetailsHref(
+              relatedDevice.submission_number,
+              searchResultsHref,
+            ),
+          );
         }}
       />
     </>
