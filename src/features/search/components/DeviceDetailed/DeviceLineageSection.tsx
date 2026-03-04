@@ -23,6 +23,7 @@ import {
   type NodeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { buildDeviceDetailsHref, getSearchResultsHref } from "@/lib/navigation";
 import type { LineageResponse, DeviceLookupResponse } from "@/lib/api/types";
 
 export type DeviceLineageSectionProps = {
@@ -106,6 +107,7 @@ export const DeviceLineageSection = ({
   device,
 }: DeviceLineageSectionProps) => {
   const router = useRouter();
+  const searchResultsHref = getSearchResultsHref(router.query.returnTo);
 
   const { nodes, edges } = useMemo(() => {
     if (!lineage) {
@@ -261,7 +263,7 @@ export const DeviceLineageSection = ({
       clicked_device_id: node.id,
     });
 
-    router.push(`/devices/${node.id}`);
+    router.push(buildDeviceDetailsHref(node.id, searchResultsHref));
   };
 
   if (!lineage) {
@@ -305,7 +307,7 @@ export const DeviceLineageSection = ({
             <Box>
               {lineage.direct_predicates.map((predicate, index) => (
                 <Box key={predicate} display="inline">
-                  <Link href={`/devices/${predicate}`}>
+                  <Link href={buildDeviceDetailsHref(predicate, searchResultsHref)}>
                     <ChakraLink
                       color="brand.primary"
                       textDecoration="underline"

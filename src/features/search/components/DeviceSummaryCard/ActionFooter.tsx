@@ -7,6 +7,8 @@ import {
   Link as ChakraLink,
 } from "@chakra-ui/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { buildDeviceDetailsHref, getSearchResultsHref } from "@/lib/navigation";
 import type { Device } from "@/lib/api/types";
 
 export type ActionFooterProps = {
@@ -20,6 +22,12 @@ export const ActionFooter = ({
   isSelected,
   onToggle,
 }: ActionFooterProps) => {
+  const router = useRouter();
+  const deviceHref = buildDeviceDetailsHref(
+    device.id,
+    getSearchResultsHref(router.asPath),
+  );
+
   return (
     <Box>
       <Grid
@@ -77,7 +85,7 @@ export const ActionFooter = ({
                 backgroundColor: "rgba(30, 90, 168, 0.08)",
               }}
             >
-              <Link href={`/devices/${device.id}`}>
+              <Link href={deviceHref}>
                 View Full Device Record &rarr;
               </Link>
             </ChakraLink>

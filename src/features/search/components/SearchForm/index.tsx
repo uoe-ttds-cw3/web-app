@@ -145,8 +145,22 @@ export const SearchForm = ({
     onBackendOptionsChange?.(nextOptions);
   }
 
+  function clearSubmissionNumberFilter() {
+    setQuickFilters((prev) => {
+      if (!prev.submissionNumber) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        submissionNumber: "",
+      };
+    });
+  }
+
   function submitSearch() {
     onSearch?.(searchTerm, buildSearchTags(), effectiveBackendOptions);
+    clearSubmissionNumberFilter();
     setSearchFocused(false);
   }
 
@@ -156,6 +170,7 @@ export const SearchForm = ({
       buildSearchTags(),
       effectiveBackendOptions,
     );
+    clearSubmissionNumberFilter();
     setFilterFocused(false);
     setSearchFocused(false);
   }
