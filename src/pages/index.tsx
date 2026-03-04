@@ -6,6 +6,7 @@ import { ActiveFilterChips } from "@/features/search/components/ActiveFilterChip
 import { DeviceSummaryCard } from "@/features/search/components/DeviceSummaryCard";
 import { DidYouMeanSuggestion } from "@/features/search/components/DidYouMeanSuggestion";
 import { ExpandedTerms } from "@/features/search/components/ExpandedTerms";
+import { LanguageNotSupportedBanner } from "@/features/search/components/LanguageNotSupportedBanner";
 import { PaginationControls } from "@/features/search/components/PaginationControls";
 import { ResultsHeader } from "@/features/search/components/ResultsHeader";
 import { FiltersSidebar } from "@/features/search/components/ResultsControls/FiltersSidebar";
@@ -13,7 +14,7 @@ import { ResultsControls } from "@/features/search/components/ResultsControls";
 import { SearchErrorBanner } from "@/features/search/components/SearchErrorBanner";
 import { StartSearching } from "@/features/search/components/StartSearching";
 import { pickRandomSuggestions } from "@/features/search/components/StartSearching/suggestions";
-import { Stack, Text, Box, Spinner, Alert } from "@chakra-ui/react";
+import { Stack, Text, Box, Spinner } from "@chakra-ui/react";
 import { useSearch } from "@/lib/queries/useSearch";
 import { buildDeviceDetailsHref, getSearchResultsHref } from "@/lib/navigation";
 import { transformSearchResult } from "@/lib/api/types";
@@ -434,10 +435,14 @@ export default function Home({ startSuggestions }: HomeProps) {
 
                 {data?.error_code === LANGUAGE_NOT_SUPPORTED &&
                 data?.error_message ? (
-                  <Alert.Root status="warning" title={data.error_message}>
-                    <Alert.Indicator />
-                    <Alert.Title>{data.error_message}</Alert.Title>
-                  </Alert.Root>
+                  <Stack gap="5">
+                    <LanguageNotSupportedBanner />
+                    <StartSearching
+                      onSuggest={handleSearch}
+                      suggestions={startSuggestions}
+                      compact
+                    />
+                  </Stack>
                 ) : (
                   <>
                     <Stack>
