@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-
-const API_BASE = process.env.API_BASE || "https://fda.kotegawa.org";
+import { apiFetch } from "@/lib/api/fetchWithFallback";
 
 export type PanelItem = {
   code: string;
@@ -18,7 +17,7 @@ export default async function handler(
   res: NextApiResponse<PanelsResponse | { error: string }>,
 ) {
   try {
-    const response = await fetch(`${API_BASE}/api/classification/panels`);
+    const response = await apiFetch(`/api/classification/panels`);
 
     if (!response.ok) {
       const text = await response.text();

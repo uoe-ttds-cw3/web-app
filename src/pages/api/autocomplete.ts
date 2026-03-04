@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { AutocompleteResponse } from "@/lib/api/types";
-
-const API_BASE = process.env.API_BASE || "https://fda.kotegawa.org";
+import { apiFetch } from "@/lib/api/fetchWithFallback";
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,8 +18,8 @@ export default async function handler(
   if (source && typeof source === "string") params.append("source", source);
 
   try {
-    const response = await fetch(
-      `${API_BASE}/api/autocomplete?${params.toString()}`,
+    const response = await apiFetch(
+      `/api/autocomplete?${params.toString()}`,
     );
 
     if (!response.ok) {
