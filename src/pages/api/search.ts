@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { SearchResponse } from "@/lib/api/types";
-
-const API_BASE = process.env.API_BASE || "https://fda.kotegawa.org";
+import { apiFetch } from "@/lib/api/fetchWithFallback";
 
 export default async function handler(
   req: NextApiRequest,
@@ -62,7 +61,7 @@ export default async function handler(
     params.append("snapshot_cutoff", snapshot_cutoff);
 
   try {
-    const response = await fetch(`${API_BASE}/api/search?${params.toString()}`);
+    const response = await apiFetch(`/api/search?${params.toString()}`);
 
     if (!response.ok) {
       const text = await response.text();

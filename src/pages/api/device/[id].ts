@@ -5,8 +5,7 @@ import type {
   SafetyProfileResponse,
   DeviceSafetyData,
 } from "@/lib/api/types";
-
-const API_BASE = process.env.API_BASE || "https://fda.kotegawa.org";
+import { apiFetch } from "@/lib/api/fetchWithFallback";
 
 type DevicePageData = {
   device: DeviceLookupResponse | null;
@@ -29,8 +28,8 @@ export default async function handler(
 
   try {
     // step 1: fetch device details (needed for product_code)
-    const deviceRes = await fetch(
-      `${API_BASE}/api/device/${submissionNumber}?include_text=true`,
+    const deviceRes = await apiFetch(
+      `/api/device/${submissionNumber}?include_text=true`,
     );
     if (!deviceRes.ok) {
       if (deviceRes.status === 404) {
@@ -47,7 +46,7 @@ export default async function handler(
     // step 2: fetch lineage, safety, and device-specific safety in parallel
     const [lineage, safety, deviceSafety] = await Promise.all([
       // lineage fetch (may 404 if not in citation graph)
-      fetch(`${API_BASE}/api/device/${submissionNumber}/lineage`)
+      apiFetch(`/api/device/${submissionNumber}/lineage`)
         .then((res) =>
           res.ok ? (res.json() as Promise<LineageResponse>) : null,
         )
@@ -55,7 +54,7 @@ export default async function handler(
 
       // product-code safety fetch (may 503 if openfda down, needs product_code from device)
       device.product_code
-        ? fetch(`${API_BASE}/api/device/${device.product_code}/safety`)
+        ? apiFetch(`/api/device/${device.product_code}/safety`)
             .then((res) =>
               res.ok ? (res.json() as Promise<SafetyProfileResponse>) : null,
             )
@@ -63,7 +62,7 @@ export default async function handler(
         : Promise.resolve(null),
 
       // device-specific safety from bulk maude/recall cache
-      fetch(`${API_BASE}/api/device/${submissionNumber}/device-safety`)
+      apiFetch(`/api/device/${submissionNumber}/device-safety`)
         .then((res) =>
           res.ok ? (res.json() as Promise<DeviceSafetyData>) : null,
         )
