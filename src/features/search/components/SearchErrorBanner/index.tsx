@@ -1,10 +1,6 @@
-import { Alert, Box, Button, Text } from "@chakra-ui/react";
+import { Alert, Box, Text } from "@chakra-ui/react";
 
-type SearchErrorBannerProps = {
-  onRetry: () => void;
-};
-
-export const SearchErrorBanner = ({ onRetry }: SearchErrorBannerProps) => {
+export const SearchErrorBanner = () => {
   return (
     <Alert.Root
       status="error"
@@ -22,11 +18,9 @@ export const SearchErrorBanner = ({ onRetry }: SearchErrorBannerProps) => {
           Whoops, something went wrong!
         </Alert.Title>
         <Text fontSize={{ base: "md", md: "lg" }} mt="2">
-          Pick one of the search terms below, or
+          Please try again or try a different query. You can also pick one of
+          the search terms below.
         </Text>
-        <Button p="4" variant="subtle" mt="4" size="md" onClick={onRetry}>
-          Click here to try this search again
-        </Button>
       </Box>
     </Alert.Root>
   );

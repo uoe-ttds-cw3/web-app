@@ -354,11 +354,7 @@ export default function Home({ startSuggestions }: HomeProps) {
         >
           <Box minH="100vh" pt="0" pb={{ base: "2", md: "4" }}>
             <Stack gap="5">
-              <SearchErrorBanner
-                onRetry={() =>
-                  router.replace(router.asPath, undefined, { shallow: true })
-                }
-              />
+              <SearchErrorBanner />
 
               <StartSearching
                 onSuggest={handleSearch}
