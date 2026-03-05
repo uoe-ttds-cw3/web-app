@@ -3,14 +3,14 @@ import { FaPlus, FaSearch, FaTimes } from "react-icons/fa";
 import type { Joiner, Operator, QueryRow } from "./types";
 
 const needsTwoInputs = (op: Operator) =>
-  ["AND", "OR", "NOT", "proximity"].includes(op);
+  ["AND", "OR", "proximity"].includes(op);
 
 interface QueryBuilderSectionProps {
   rows: QueryRow[];
   joiners: Joiner[];
   queryPreview: string;
   onUpdateRow: (id: string, updates: Partial<QueryRow>) => void;
-  onToggleJoiner: (index: number) => void;
+  onToggleJoiner: (index: number, joiner: "AND" | "OR" | "NOT") => void;
   onRemoveRow: (id: string) => void;
   onAddRow: () => void;
   onRunSearch: () => void;
@@ -52,7 +52,7 @@ export const QueryBuilderSection = ({
                   joiners[index - 1] === "AND" ? "brand.primary" : "ui.textMuted"
                 }
                 borderRadius="0"
-                onClick={() => onToggleJoiner(index - 1)}
+                onClick={() => onToggleJoiner(index - 1, "AND")}
               >
                 AND
               </Button>
@@ -70,9 +70,27 @@ export const QueryBuilderSection = ({
                   joiners[index - 1] === "OR" ? "brand.primary" : "ui.textMuted"
                 }
                 borderRadius="0"
-                onClick={() => onToggleJoiner(index - 1)}
+                onClick={() => onToggleJoiner(index - 1, "OR")}
               >
                 OR
+              </Button>
+              <Button
+                type="button"
+                px="10px"
+                py="2px"
+                minH="unset"
+                height="auto"
+                minW="unset"
+                fontSize="xs"
+                fontWeight="600"
+                bg={joiners[index - 1] === "NOT" ? "brand.accentBg" : "transparent"}
+                color={
+                  joiners[index - 1] === "NOT" ? "brand.primary" : "ui.textMuted"
+                }
+                borderRadius="0"
+                onClick={() => onToggleJoiner(index - 1, "NOT")}
+              >
+                NOT
               </Button>
             </Box>
           </Box>
@@ -93,7 +111,6 @@ export const QueryBuilderSection = ({
               paddingLeft="8px"
             >
               <option value="contains">contains</option>
-              <option value="NOT">NOT</option>
               <option value="phrase">phrase</option>
               <option value="proximity">proximity</option>
             </NativeSelect.Field>

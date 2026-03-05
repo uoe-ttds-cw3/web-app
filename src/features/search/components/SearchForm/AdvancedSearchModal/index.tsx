@@ -35,8 +35,6 @@ function buildRowFragment(row: QueryRow): string {
       return v1 && v2 ? `${v1} AND ${v2}` : v1 || v2;
     case "OR":
       return v1 && v2 ? `${v1} OR ${v2}` : v1 || v2;
-    case "NOT":
-      return v1 && v2 ? `${v1} NOT ${v2}` : v1;
     case "phrase":
       return v1 ? `"${v1}"` : "";
     case "proximity":
@@ -102,10 +100,10 @@ export const AdvancedSearchPanel = ({
     });
   }
 
-  function toggleJoiner(index: number) {
+  function toggleJoiner(index: number, joiner: "AND" | "OR" | "NOT") {
     setJoiners((prev) => {
       const next = [...prev];
-      next[index] = next[index] === "AND" ? "OR" : "AND";
+      next[index] = joiner;
       return next;
     });
   }

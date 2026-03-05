@@ -2,11 +2,10 @@ export type Operator =
   | "contains"
   | "AND"
   | "OR"
-  | "NOT"
   | "phrase"
   | "proximity";
 
-export type Joiner = "AND" | "OR";
+export type Joiner = "AND" | "OR" | "NOT";
 
 export interface QueryRow {
   id: string;
