@@ -23,6 +23,7 @@ import { toaster } from "@/components/ui/Toaster";
 import { SideDrawer } from "@/features/search/components/SideDrawer";
 import useLocalStorage from "use-local-storage";
 import { LANGUAGE_NOT_SUPPORTED } from "@/constants/error-codes";
+import { FILTER_QUERY_KEY_BY_FACET_FIELD } from "@/features/search/utils/filterDisplay";
 
 const subscribe = () => () => {};
 const SEARCH_CONTENT_MAX_W = "1000px";
@@ -110,6 +111,13 @@ export default function Home({ startSuggestions }: HomeProps) {
   });
 
   const results = data?.results.map(transformSearchResult) ?? [];
+  const selectedFacetFilters: Record<string, string | undefined> = {
+    panel_code: panel,
+    product_code: productCode,
+    device_class: deviceClass,
+    decision_code: decision,
+  };
+
   const showSearchErrorBanner = Boolean(query) && Boolean(error);
   //limit pages to 500 results
   const totalPages = data
@@ -286,18 +294,23 @@ export default function Home({ startSuggestions }: HomeProps) {
   };
 
   const handleFacetFilter = (field: string, value: string) => {
-    // track filter applied
+    const paramName = FILTER_QUERY_KEY_BY_FACET_FIELD[field] || field;
+    const currentValueRaw = router.query[paramName];
+    const currentValue = Array.isArray(currentValueRaw)
+      ? currentValueRaw[0]
+      : currentValueRaw;
+
+    if (currentValue === value) {
+      handleRemoveFacetFilter(field);
+      return;
+    }
+
     posthog.capture("filter_applied", {
       filter_type: field,
       filter_value: value,
       current_query: query,
     });
 
-    const fieldMap: Record<string, string> = {
-      panel_code: "panel",
-      decision_code: "decision",
-    };
-    const paramName = fieldMap[field] || field;
     const { page: _removedPage, ...rest } = router.query;
     router.push(
       { pathname: "/", query: { ...rest, [paramName]: value } },
@@ -313,11 +326,7 @@ export default function Home({ startSuggestions }: HomeProps) {
       current_query: query,
     });
 
-    const fieldMap: Record<string, string> = {
-      panel_code: "panel",
-      decision_code: "decision",
-    };
-    const paramName = fieldMap[field] || field;
+    const paramName = FILTER_QUERY_KEY_BY_FACET_FIELD[field] || field;
     const { [paramName]: _removed, page: _removedPage, ...rest } = router.query;
     router.push({ pathname: "/", query: rest }, undefined, { shallow: true });
   };
@@ -426,6 +435,7 @@ export default function Home({ startSuggestions }: HomeProps) {
                   deviceClass={deviceClass}
                   panel={panel}
                   productCode={productCode}
+                  facets={data.facets}
                   onRemove={handleRemoveFacetFilter}
                 />
 
@@ -465,6 +475,7 @@ export default function Home({ startSuggestions }: HomeProps) {
               <FiltersSidebar
                 facets={data.facets}
                 onFacetFilter={handleFacetFilter}
+                selectedFilters={selectedFacetFilters}
               />
             </Box>
           </Box>

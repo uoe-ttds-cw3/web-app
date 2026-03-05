@@ -13,11 +13,13 @@ const FACET_LABELS: Record<string, string> = {
 export type FiltersSidebarProps = {
   facets: FacetField[] | null;
   onFacetFilter: (field: string, value: string) => void;
+  selectedFilters?: Record<string, string | undefined>;
 };
 
 export const FiltersSidebar = ({
   facets,
   onFacetFilter,
+  selectedFilters = {},
 }: FiltersSidebarProps) => {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const orderedFields = [
@@ -120,40 +122,47 @@ export const FiltersSidebar = ({
                 overflowY="auto"
                 paddingRight="1"
               >
-                {facet.values.map((fv) => (
-                  <Box
-                    key={fv.value}
-                    as="button"
-                    onClick={() => onFacetFilter(facet.field, fv.value)}
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="flex-start"
-                    paddingX="2"
-                    paddingY="1"
-                    borderRadius="6px"
-                    fontSize="sm"
-                    _hover={{
-                      backgroundColor: "ui.surface",
-                    }}
-                    cursor="pointer"
-                    width="100%"
-                    textAlign="left"
-                  >
-                    <HStack
+                {facet.values.map((fv) => {
+                  const isSelected = selectedFilters[facet.field] === fv.value;
+                  return (
+                    <Box
+                      key={fv.value}
+                      as="button"
+                      onClick={() => onFacetFilter(facet.field, fv.value)}
+                      aria-pressed={isSelected}
+                      display="flex"
                       justifyContent="space-between"
                       alignItems="flex-start"
+                      paddingX="2"
+                      paddingY="1"
+                      borderRadius="6px"
+                      fontSize="sm"
+                      backgroundColor={isSelected ? "ui.surface" : "transparent"}
+                      border="1px solid"
+                      borderColor={isSelected ? "ui.borderLight" : "transparent"}
+                      _hover={{
+                        backgroundColor: "ui.surface",
+                      }}
+                      cursor="pointer"
                       width="100%"
-                      gap="2"
+                      textAlign="left"
                     >
-                      <Text color="ui.text" lineHeight="1.25">
-                        {fv.label || fv.value}
-                      </Text>
-                      <Text color="ui.textMuted" fontSize="xs" flexShrink={0}>
-                        ({fv.count})
-                      </Text>
-                    </HStack>
-                  </Box>
-                ))}
+                      <HStack
+                        justifyContent="space-between"
+                        alignItems="flex-start"
+                        width="100%"
+                        gap="2"
+                      >
+                        <Text color="ui.text" lineHeight="1.25">
+                          {fv.label || fv.value}
+                        </Text>
+                        <Text color="ui.textMuted" fontSize="xs" flexShrink={0}>
+                          ({fv.count})
+                        </Text>
+                      </HStack>
+                    </Box>
+                  );
+                })}
               </Stack>
             )}
           </Box>
