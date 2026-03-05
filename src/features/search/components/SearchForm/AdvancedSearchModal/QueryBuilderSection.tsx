@@ -3,7 +3,7 @@ import { FaPlus, FaSearch, FaTimes } from "react-icons/fa";
 import type { Joiner, Operator, QueryRow } from "./types";
 
 const needsTwoInputs = (op: Operator) =>
-  ["AND", "OR", "NOT", "proximity"].includes(op);
+  ["AND", "OR", "proximity"].includes(op);
 
 interface QueryBuilderSectionProps {
   rows: QueryRow[];

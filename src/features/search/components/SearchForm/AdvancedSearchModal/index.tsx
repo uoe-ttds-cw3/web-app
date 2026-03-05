@@ -36,7 +36,7 @@ function buildRowFragment(row: QueryRow): string {
     case "OR":
       return v1 && v2 ? `${v1} OR ${v2}` : v1 || v2;
     case "NOT":
-      return v1 && v2 ? `${v1} NOT ${v2}` : v1;
+      return v1? `NOT ${v1}` : "";
     case "phrase":
       return v1 ? `"${v1}"` : "";
     case "proximity":
