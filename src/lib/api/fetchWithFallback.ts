@@ -2,7 +2,7 @@
 // to fallback on first failure. resets on server restart / redeploy.
 
 const API_PRIMARY = process.env.API_BASE || "https://fda.kotegawa.org";
-const API_FALLBACK = process.env.API_BASE_FALLBACK || "http://35.222.12.76:41592";
+const API_FALLBACK = process.env.API_BASE_FALLBACK || "https://fda.kotegawa.org";
 const PRIMARY_TIMEOUT = 1000;
 const FALLBACK_TIMEOUT = 3000;
 
